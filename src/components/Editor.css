@@ -19,6 +19,18 @@
   background-color: var(--sn-stylekit-secondary-background-color);
   color: var(--sn-stylekit-secondary-foreground-color);
   border-color: var(--sn-stylekit-secondary-border-color);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px var(--sn-stylekit-shadow-color);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+#sn-component .react-trello-card:hover {
+  box-shadow: 0 3px 8px var(--sn-stylekit-shadow-color);
+  transform: translateY(-1px);
+}
+
+#sn-component .react-trello-lane {
+  border-radius: 8px;
 }
 #sn-component .react-trello-card textarea {
   color: var(--sn-stylekit-secondary-foreground-color);
@@ -122,6 +134,34 @@
   background-color: var(--sn-stylekit-neutral-color);
   color: var(--sn-stylekit-neutral-contrast-color);
   border-color: var(--sn-stylekit-secondary-contrast-border-color);
+}
+
+/* Card chip for the free-text label */
+.card-label-chip {
+  display: inline-block;
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--sn-stylekit-info-contrast-color);
+  background-color: var(--sn-stylekit-info-color);
+}
+
+/* Card description textarea inside the modal */
+.card-description-input {
+  background-color: var(--sn-stylekit-secondary-background-color);
+  color: var(--sn-stylekit-secondary-foreground-color);
+  border: 1px solid var(--sn-stylekit-secondary-border-color);
+  border-radius: 6px;
+  padding: 0.5em;
+  font-family: var(--sn-stylekit-sans-serif-font);
+  font-size: inherit;
+  resize: vertical;
+}
+
+/* Modal action buttons */
+.ReactModalPortal button {
+  border-radius: 6px;
 }
 
 /* Unparsed lines banner */
