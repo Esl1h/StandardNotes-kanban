@@ -27,7 +27,6 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
   const lines = markdown.split('\n');
   let laneIndex = -1; // a value of -1 denotes that we aren't in a lane
   let cardIndex = -1; // or card
-  let propIndex = -1; // or property
   let scope = Scope.Board;
   const editorConfig: EditorConfig = defaultConfig;
   const parsingErrors: ParsingErrors[] = [];
@@ -62,6 +61,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
     } else if (line.startsWith('* ')) {
       if (boardData.lanes.length === 0) {
         parsingErrors.push(errorData('Cannot add cards before adding lanes!'));
+        continue;
       }
       const card: KanbanCard = { title: line.slice(2) };
       cardIndex += 1;
@@ -72,6 +72,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         parsingErrors.push(
           errorData('Cannot add card fields before adding a card!')
         );
+        continue;
       }
       boardData.lanes[laneIndex].cards[cardIndex].description = line.slice(17);
     } else if (line.toLowerCase().startsWith('  * label: ')) {
@@ -79,15 +80,28 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         parsingErrors.push(
           errorData('Cannot add card fields before adding a card!')
         );
+        continue;
       }
       boardData.lanes[laneIndex].cards[cardIndex].label = line.slice(11);
     } else if (line.toLowerCase().startsWith('  * comments:')) {
+      if (cardIndex < 0) {
+        parsingErrors.push(
+          errorData('Cannot add card fields before adding a card!')
+        );
+        continue;
+      }
       scope = Scope.Comments;
       boardData.lanes[laneIndex].cards[cardIndex].comments = [];
     } else if (
       scope === Scope.Comments &&
       line.toLowerCase().startsWith('    * ')
     ) {
+      if (cardIndex < 0) {
+        parsingErrors.push(
+          errorData('Cannot add comments before adding a card!')
+        );
+        continue;
+      }
       boardData.lanes[laneIndex].cards[cardIndex].comments.push(line.slice(6));
     } else {
       parsingErrors.push(errorData('Cannot parse line'));

@@ -43,7 +43,7 @@ export default class Editor extends React.Component<{}, EditorInterface> {
         // under boardData. Wrap it so the board renders and, most
         // importantly, is re-saved instead of being wiped on first edit.
         console.log('Parsed data from JSON.');
-        return { boardData: { lanes: data.lanes } };
+        return { ...initialState, boardData: { lanes: data.lanes } };
       }
     } catch (err) {
       /* Do Nothing */
@@ -147,6 +147,7 @@ export default class Editor extends React.Component<{}, EditorInterface> {
           printUrl={this.state.printUrl}
           boardData={this.state.boardData}
           handleDataChange={this.handleDataChange}
+          parsingErrors={this.state.parsingErrors}
         />
       </ModalProvider>
     );

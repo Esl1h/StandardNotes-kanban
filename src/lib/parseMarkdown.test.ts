@@ -18,6 +18,34 @@ test('converts simple markdown file', () => {
   expect(boardData).toEqual(expectedResult);
 });
 
+test('reports the error and keeps parsing when a card appears before any lane', () => {
+  const input = `* Stray card
+# Lane 1
+* Card 1`;
+  const { boardData, parsingErrors } = parseMarkdown(input);
+
+  expect(parsingErrors.some((e) => /before adding lanes/i.test(e.message))).toBe(
+    true
+  );
+  // The lane after the bad line must still be parsed out.
+  expect(boardData.lanes).toHaveLength(1);
+  expect(boardData.lanes[0].cards[0].title).toBe('Card 1');
+});
+
+test('reports the error and keeps parsing when a field appears before any card', () => {
+  const input = `# Lane 1
+  * Description: orphan field
+* Card 1
+  * Description: desc`;
+  const { boardData, parsingErrors } = parseMarkdown(input);
+
+  expect(
+    parsingErrors.some((e) => /before adding a card/i.test(e.message))
+  ).toBe(true);
+  expect(boardData.lanes).toHaveLength(1);
+  expect(boardData.lanes[0].cards[0].description).toBe('desc');
+});
+
 test('converts markdown with cards with comments', () => {
   const input = `# Lane 1
 * Card 1

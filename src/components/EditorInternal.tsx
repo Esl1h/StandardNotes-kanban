@@ -13,7 +13,12 @@ export enum HtmlClassName {
   snComponent = 'sn-component',
 }
 
-export const EditorInternal = ({ printUrl, boardData, handleDataChange }) => {
+export const EditorInternal = ({
+  printUrl,
+  boardData,
+  handleDataChange,
+  parsingErrors = [],
+}) => {
   const [card, setCard] = useState({
     cardData: {
       title: '',
@@ -28,6 +33,8 @@ export const EditorInternal = ({ printUrl, boardData, handleDataChange }) => {
   const [eventBus, setEventBus] = useState({
     publish: (event) => console.log('not yet wired'),
   });
+  const [errorsOpen, setErrorsOpen] = useState(true);
+  const errorCount = parsingErrors.filter((e) => e.lineText).length;
   ReactModal.setAppElement(document.getElementById(HtmlElementId.snComponent));
   const [showModal, hideModal] = useModal(
     () => (
@@ -58,6 +65,29 @@ export const EditorInternal = ({ printUrl, boardData, handleDataChange }) => {
       id={HtmlElementId.snComponent}
       tabIndex={0}
     >
+      {errorCount > 0 && (
+        <div className="parse-errors" role="alert">
+          <button
+            type="button"
+            className="parse-errors-toggle"
+            onClick={() => setErrorsOpen(!errorsOpen)}
+          >
+            {errorsOpen ? '▾' : '▸'} {errorCount} line
+            {errorCount === 1 ? '' : 's'} could not be read (preserved as-is)
+          </button>
+          {errorsOpen && (
+            <ul>
+              {parsingErrors
+                .filter((e) => e.message)
+                .map((e, i) => (
+                  <li key={`${e.lineIndex}-${i}`}>
+                    Line {e.lineIndex + 1}: {e.message}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+      )}
       <Board
         id={HtmlElementId.board}
         className={HtmlClassName.board}

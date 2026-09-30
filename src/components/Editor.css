@@ -124,6 +124,32 @@
   border-color: var(--sn-stylekit-secondary-contrast-border-color);
 }
 
+/* Unparsed lines banner */
+.parse-errors {
+  margin: 0.5em 1em;
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--sn-stylekit-warning-color);
+  border-radius: 6px;
+  background-color: var(--sn-stylekit-secondary-background-color);
+  color: var(--sn-stylekit-secondary-foreground-color);
+  font-size: 0.85em;
+}
+
+.parse-errors-toggle {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--sn-stylekit-warning-color);
+  font-size: inherit;
+}
+
+.parse-errors ul {
+  margin: 0.5em 0 0;
+  padding-left: 1.25em;
+  color: var(--sn-stylekit-secondary-foreground-color);
+}
+
 /* Modal */
 
 .ReactModalPortal .comment-remove-button svg {
