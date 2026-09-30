@@ -118,7 +118,7 @@ If you run into issues, please refer to the
 ### Deployment
 
 The extension is hosted on GitHub Pages from the `gh-pages` branch, served
-at `https://esl1h.github.io/sn-kanban/`.
+at `https://esli.cafe/sn-kanban/`.
 
 1. Update the version in `package.json`, `public/ext.json` and
    `public/ext.dev.json`.
