@@ -18,8 +18,8 @@ const initialState: EditorInterface = {
   parsingErrors: [],
 };
 
-export default class Editor extends React.Component<{}, EditorInterface> {
-  editorKit: any;
+export default class Editor extends React.Component<Partial<EditorInterface>, EditorInterface> {
+  editorKit: EditorKit;
 
   constructor(props: EditorInterface) {
     super(props);
@@ -36,14 +36,14 @@ export default class Editor extends React.Component<{}, EditorInterface> {
     // This may be removed at some point in the future.
     try {
       const data = JSON.parse(text);
-      if (data.hasOwnProperty('lanes')) {
+      if (Object.hasOwn(data, 'lanes')) {
         // Legacy JSON format stored lanes at the top level instead of
         // under boardData. Wrap it so the board renders and, most
         // importantly, is re-saved instead of being wiped on first edit.
         console.log('Parsed data from JSON.');
         return { ...initialState, boardData: { lanes: data.lanes } };
       }
-    } catch (err) {
+    } catch {
       /* Do Nothing */
     }
     try {
@@ -63,7 +63,7 @@ export default class Editor extends React.Component<{}, EditorInterface> {
   }
 
   configureEditorKit = () => {
-    let delegate = new EditorKitDelegate({
+    const delegate = new EditorKitDelegate({
       /** This loads every time a different note is loaded */
       setEditorRawText: (text: string) => {
         const newState = this.parseText(text);

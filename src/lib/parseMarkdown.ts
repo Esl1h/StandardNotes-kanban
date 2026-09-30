@@ -33,7 +33,6 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
 
   for (let i = 0; i < lines.length; ++i) {
     const line = lines[i];
-    // eslint-disable-next-line no-loop-func
     const errorData = (message: string) => ({
       message,
       lineIndex: i,

@@ -30,7 +30,7 @@ export const EditorInternal = ({
     laneId: null,
   });
   const [eventBus, setEventBus] = useState({
-    publish: (event) => {},
+    publish: (_event) => {},
   });
   const [errorsOpen, setErrorsOpen] = useState(true);
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
