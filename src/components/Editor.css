@@ -1,139 +1,244 @@
-#sn-component .react-trello-board {
-  background-color: var(--sn-stylekit-background-color);
-  color: var(--sn-stylekit-foreground-color);
+/* Board layout */
+.kbn-board {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  min-height: 100vh;
+  overflow-x: auto;
 }
-#sn-component .react-trello-lane {
-  color: var(--sn-stylekit-contrast-foreground-color);
-  border-color: var(--sn-stylekit-contrast-border-color);
+
+.kbn-lane {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 280px;
+  max-height: calc(100vh - 24px);
+  border: 1px solid var(--sn-stylekit-contrast-border-color);
+  border-radius: 8px;
   background-color: var(--sn-stylekit-contrast-background-color);
-}
-#sn-component .react-trello-lane > header textarea {
-  color: var(--sn-stylekit-contrast-foreground-color);
-}
-/* Lane ellipsis */
-#sn-component .react-trello-lane > header > div > a > button {
   color: var(--sn-stylekit-contrast-foreground-color);
 }
 
-#sn-component .react-trello-card {
+.kbn-lane-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 10px 6px;
+}
+
+.kbn-lane-title {
+  flex: 1;
+  padding: 2px 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.kbn-lane-title:hover {
+  background-color: var(--sn-stylekit-secondary-background-color);
+}
+
+.kbn-lane-title-input {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 4px;
+  border: 1px solid var(--sn-stylekit-info-color);
+  border-radius: 4px;
   background-color: var(--sn-stylekit-secondary-background-color);
   color: var(--sn-stylekit-secondary-foreground-color);
-  border-color: var(--sn-stylekit-secondary-border-color);
+  font: inherit;
+  font-weight: 600;
+}
+
+.kbn-lane-count {
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 0.75em;
+  background-color: var(--sn-stylekit-secondary-background-color);
+  color: var(--sn-stylekit-secondary-foreground-color);
+}
+
+.kbn-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 12px;
+  padding: 6px 10px;
+  overflow-y: auto;
+}
+
+.kbn-cards.kbn-dragging-over {
+  background-color: var(--sn-stylekit-secondary-background-color);
+  border-radius: 6px;
+}
+
+.kbn-card {
+  position: relative;
+  padding: 10px 12px;
+  border: 1px solid var(--sn-stylekit-secondary-border-color);
   border-radius: 8px;
+  background-color: var(--sn-stylekit-secondary-background-color);
+  color: var(--sn-stylekit-secondary-foreground-color);
   box-shadow: 0 1px 2px var(--sn-stylekit-shadow-color);
+  cursor: pointer;
   transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-#sn-component .react-trello-card:hover {
+.kbn-card:hover {
   box-shadow: 0 3px 8px var(--sn-stylekit-shadow-color);
   transform: translateY(-1px);
 }
 
-#sn-component .react-trello-lane {
-  border-radius: 8px;
-}
-#sn-component .react-trello-card textarea {
-  color: var(--sn-stylekit-secondary-foreground-color);
-}
-#sn-component .react-trello-card textarea:focus {
-  color: var(--sn-stylekit-paragraph-text-color);
-  background-color: var(--sn-stylekit-secondary-contrast-background-color);
-  border-color: var(--sn-stylekit-input-border-color);
-}
-/* Card x button */
-#sn-component .react-trello-card:hover > header > div > button {
-  color: var(--sn-stylekit-secondary-foreground-color);
-}
-/* Click to add card */
-#sn-component .react-trello-lane > a {
-  color: var(--sn-stylekit-info-color);
-}
-#sn-component .react-trello-lane > a:hover {
-  color: var(--sn-stylekit-neutral-color);
+.kbn-card.kbn-card-dragging {
+  box-shadow: 0 8px 20px var(--sn-stylekit-shadow-color);
+  transform: rotate(2deg);
 }
 
-/* New Card form */
-#sn-component .react-trello-lane > div > div:last-child {
-  background-color: var(--sn-stylekit-secondary-background-color);
-  color: var(--sn-stylekit-secondary-foreground-color);
-  border-color: var(--sn-stylekit-secondary-border-color);
-}
-#sn-component .react-trello-lane > div > div:last-child article,
-#sn-component .react-trello-lane > div > div:last-child article header div,
-#sn-component .react-trello-lane > div > div:last-child article div div {
-  background-color: var(--sn-stylekit-secondary-background-color);
-  color: var(--sn-stylekit-secondary-foreground-color);
-}
-/* text while the input is active */
-#sn-component .react-trello-lane > div > div:last-child article div:focus {
-  color: var(--sn-stylekit-paragraph-text-color);
-}
-/* header when there is no text */
-#sn-component
-  .react-trello-lane
-  > div
-  > div:last-child
-  article
-  > header
-  > span
-  > div {
-  background-color: var(--sn-stylekit-secondary-background-color);
-  color: var(--sn-stylekit-secondary-foreground-color);
-}
-/* Add card button */
-#sn-component .react-trello-lane > div > div:last-child button:first-of-type {
-  background-color: var(--sn-stylekit-success-color);
-  color: var(--sn-stylekit-success-contrast-color);
-  border-color: var(--sn-stylekit-secondary-contrast-border-color);
-}
-/* Cancel button */
-#sn-component .react-trello-lane > div > div:last-child button:last-of-type {
-  background-color: var(--sn-stylekit-neutral-color);
-  color: var(--sn-stylekit-neutral-contrast-color);
-  border-color: var(--sn-stylekit-secondary-contrast-border-color);
+.kbn-card-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
 }
 
-/* Add another lane button and form */
-/* Top level Button */
-#sn-component .react-trello-board > div:last-of-type > section > button {
-  border-color: var(--sn-stylekit-secondary-border-color);
-  background-color: var(--sn-stylekit-info-color);
+.kbn-card-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.kbn-card-chip {
+  flex-shrink: 0;
+  padding: 0.1em 0.55em;
+  border-radius: 999px;
+  font-size: 0.72em;
+  font-weight: 600;
   color: var(--sn-stylekit-info-contrast-color);
+  background-color: var(--sn-stylekit-info-color);
 }
-/* Form */
-#sn-component .react-trello-board > div:last-of-type > section {
-  color: var(--sn-stylekit-contrast-foreground-color);
-  border-color: var(--sn-stylekit-contrast-border-color);
-  background-color: var(--sn-stylekit-contrast-background-color);
-}
-#sn-component .react-trello-board > div:last-of-type > section textarea {
-  color: var(--sn-stylekit-contrast-foreground-color);
-  background-color: var(--sn-stylekit-contrast-background-color);
-}
-#sn-component .react-trello-board > div:last-of-type > section textarea:focus {
+
+.kbn-card-description {
+  margin-top: 6px;
+  font-size: 0.9em;
   color: var(--sn-stylekit-paragraph-text-color);
-  border-color: var(--sn-stylekit-info-color);
+  overflow-wrap: anywhere;
+}
+
+.kbn-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--sn-stylekit-neutral-color);
+  cursor: pointer;
+}
+
+.kbn-icon-btn:hover {
+  color: var(--sn-stylekit-danger-color);
+  background-color: var(--sn-stylekit-secondary-background-color);
+}
+
+.kbn-card-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  visibility: hidden;
+}
+
+.kbn-card:hover .kbn-card-delete {
+  visibility: visible;
+}
+
+/* Add forms */
+.kbn-add-card {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 10px 10px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sn-stylekit-info-color);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.kbn-add-card:hover {
+  background-color: var(--sn-stylekit-secondary-background-color);
+}
+
+.kbn-add-lane {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  width: 220px;
+  padding: 10px;
+  border: 1px dashed var(--sn-stylekit-contrast-border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sn-stylekit-info-color);
+  font: inherit;
+  cursor: pointer;
+}
+
+.kbn-add-lane:hover {
   background-color: var(--sn-stylekit-contrast-background-color);
 }
-/* Add lane button */
-#sn-component
-  .react-trello-board
-  > div:last-of-type
-  > section
-  button:first-of-type {
+
+.kbn-add-form {
+  margin: 0 10px 10px;
+}
+
+.kbn-add-lane-form {
+  width: 220px;
+  padding: 10px;
+}
+
+.kbn-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--sn-stylekit-secondary-border-color);
+  border-radius: 6px;
+  background-color: var(--sn-stylekit-secondary-background-color);
+  color: var(--sn-stylekit-secondary-foreground-color);
+  font: inherit;
+}
+
+.kbn-form-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.kbn-btn {
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.kbn-btn-primary {
   background-color: var(--sn-stylekit-success-color);
   color: var(--sn-stylekit-success-contrast-color);
-  border-color: var(--sn-stylekit-secondary-contrast-border-color);
 }
-/* Cancel button */
-#sn-component
-  .react-trello-board
-  > div:last-of-type
-  > section
-  button:last-of-type {
+
+.kbn-btn-ghost {
   background-color: var(--sn-stylekit-neutral-color);
   color: var(--sn-stylekit-neutral-contrast-color);
-  border-color: var(--sn-stylekit-secondary-contrast-border-color);
 }
 
 /* Card chip for the free-text label */
@@ -191,7 +296,6 @@
 }
 
 /* Modal */
-
 .ReactModalPortal .comment-remove-button svg {
   stroke: var(--sn-stylekit-neutral-contrast-color);
   fill: var(--sn-stylekit-neutral-color);

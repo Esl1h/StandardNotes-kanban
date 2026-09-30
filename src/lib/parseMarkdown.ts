@@ -1,4 +1,4 @@
-import { KanbanBoard, KanbanCard } from '../../types/react-trello';
+import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import {
   EditorConfig,
   EditorInterface,

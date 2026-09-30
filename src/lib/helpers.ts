@@ -1,32 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/react-trello';
-
-/**
- * Immutably removes a key from an object
- * @example
- * // returns { a: 1 }
- * removeFromObject('b')({ a: 1, b: 2 })
- *
- * @param {string} key The key to remove
- * @param {object} obj The object to update
- * @returns {object} A copy of obj, with the named key removed
- */
-export const removeFromObject = (key) => ({ [key]: _, ...otherEntities }) => ({
-  ...otherEntities,
-});
-
-const cleanupBoardObj = <T extends object>(obj: T): T =>
-  removeFromObject('currentPage')(
-    removeFromObject('laneId')(removeFromObject('id')(obj))
-  ) as T;
-
-export const cleanupBoardData = (boardData: KanbanBoard): KanbanBoard => ({
-  ...cleanupBoardObj(boardData),
-  lanes: boardData.lanes.map((lane) => ({
-    ...cleanupBoardObj(lane),
-    cards: lane.cards.map((card) => cleanupBoardObj(card)),
-  })),
-});
+import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
 
 export const infuseBoardData = (boardData: KanbanBoard): KanbanBoard => {
   return {

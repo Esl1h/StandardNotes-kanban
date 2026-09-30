@@ -1,5 +1,5 @@
 import { convertStateToMarkdown } from './convertStateToMarkdown';
-import { KanbanBoard } from '../../types/react-trello';
+import { KanbanBoard } from '../../types/kanban';
 import boardWithComments from '../mocks/boardWithComments';
 import simpleBoard from '../mocks/simpleBoard';
 import fs from 'fs/promises';

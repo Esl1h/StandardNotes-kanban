@@ -4,10 +4,25 @@ import Editor from './Editor';
 import { EditorInterface } from '../../types/editor';
 import { convertStateToMarkdown } from '../lib/convertStateToMarkdown';
 
-test('renders add another lane button', () => {
+test('renders add lane button', () => {
   render(<Editor />);
-  const addLaneButton = screen.getByText(/Add another lane/i);
+  const addLaneButton = screen.getByText(/Add lane/i);
   expect(addLaneButton).toBeInTheDocument();
+});
+
+test('saves the note when the last lane is removed', () => {
+  const editor = new Editor({} as EditorInterface);
+  const saved: string[] = [];
+  editor.editorKit = {
+    onEditorValueChanged: (text: string) => saved.push(text),
+  };
+
+  editor.handleDataChange({
+    lanes: [{ id: 'lane-1', title: 'Only lane', cards: [] }],
+  });
+  editor.handleDataChange({ lanes: [] });
+
+  expect(saved).toEqual(['# Only lane\n\n', '']);
 });
 
 test('wraps legacy JSON notes so their data is not lost on save', () => {
