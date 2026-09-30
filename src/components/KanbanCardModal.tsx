@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ReactModal from 'react-modal';
-import { IconMessage, IconCircleX } from '@tabler/icons';
+import { IconMessage, IconCircleX } from '@tabler/icons-react';
 
 const CardComment = ({ comment, deleteComment }) => (
   <div

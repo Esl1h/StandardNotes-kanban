@@ -38,7 +38,7 @@
     "pretty": "prettier --write 'src/**/*.{html,css,scss,js,jsx,ts,tsx,json}' README.md"
   },
   "dependencies": {
-    "@tabler/icons": "^1.39.1",
+    "@tabler/icons-react": "^3.48.0",
     "filesafe-js": "^1.0.5",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
