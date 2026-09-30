@@ -37,10 +37,17 @@ object-assign
 /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
 
 /**
-    * @license
-    * Lodash (Custom Build) lodash.com/license | Underscore.js 1.8.3 underscorejs.org/LICENSE
-    * Build: `lodash include="includes,merge,filter,map,remove,find,omit,pull,cloneDeep,pick,uniq,sortedIndexBy,mergeWith"`
-    */
+     * @license
+     * Lodash (Custom Build) lodash.com/license | Underscore.js 1.8.3 underscorejs.org/LICENSE
+     * Build: `lodash include="includes,merge,filter,map,remove,find,omit,pull,cloneDeep,pick,uniq,sortedIndexBy,mergeWith"`
+     */
+
+/**
+ * @license @tabler/icons-react v3.48.0 - MIT
+ *
+ * This source code is licensed under the MIT license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
 
 /** @license React v0.19.1
  * scheduler.production.min.js
