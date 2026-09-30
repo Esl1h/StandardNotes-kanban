@@ -38,13 +38,13 @@
     "lint": "eslint src"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@tabler/icons-react": "^3.48.0",
     "filesafe-js": "^1.0.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-modal": "^3.16.3",
     "react-modal-hook": "^3.0.0",
-    "react-trello": "^2.2.11",
     "regenerator-runtime": "^0.14.1",
     "sass": "^1.105.1",
     "sn-editor-kit": "1.0.6",

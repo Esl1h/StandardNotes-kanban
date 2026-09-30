@@ -1,4 +1,4 @@
-import { KanbanBoard } from './react-trello';
+import { KanbanBoard } from './kanban';
 
 declare module 'sn-kanban-editor';
 

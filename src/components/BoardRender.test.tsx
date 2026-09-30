@@ -5,19 +5,20 @@ import { EditorInternal } from './EditorInternal';
 import { infuseBoardData } from '../lib/helpers';
 import boardWithComments from '../mocks/boardWithComments';
 
-test('renders lanes from board data', () => {
+test('renders lanes and cards from board data', () => {
   const { container } = render(
     <ModalProvider>
       <EditorInternal
-        printUrl={false}
         boardData={infuseBoardData(boardWithComments)}
         handleDataChange={() => {}}
+        onCardUpdate={() => {}}
         parsingErrors={[]}
       />
     </ModalProvider>
   );
-  const lanes = container.querySelectorAll('.react-trello-lane');
-  const cards = container.querySelectorAll('.react-trello-card');
-  console.log('LANES:', lanes.length, 'CARDS:', cards.length);
+  const lanes = container.querySelectorAll('.kbn-lane');
+  const cards = container.querySelectorAll('.kbn-card');
+  expect(lanes).toHaveLength(2);
+  expect(cards).toHaveLength(3);
   expect(screen.getByText('Lane 1')).toBeInTheDocument();
 });

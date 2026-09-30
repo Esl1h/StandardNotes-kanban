@@ -1,62 +1,73 @@
 import React, { useState } from 'react';
-import Board from 'react-trello';
-import { KanbanCardModal } from './KanbanCardModal';
 import { useModal } from 'react-modal-hook';
+import { Board } from './Board';
+import { KanbanCardModal } from './KanbanCardModal';
+import { KanbanBoard, KanbanCard } from '../../types/kanban';
+import { ParsingErrors } from '../../types/editor';
 
 export enum HtmlElementId {
-  board = 'board',
   snComponent = 'sn-component',
 }
 export enum HtmlClassName {
-  board = 'board',
   snComponent = 'sn-component',
+}
+
+interface EditorInternalProps {
+  printUrl?: boolean;
+  boardData: KanbanBoard;
+  handleDataChange: (board: KanbanBoard | string) => void;
+  onCardUpdate: (laneId: string, cardId: string, patch: Partial<KanbanCard>) => void;
+  parsingErrors?: ParsingErrors[];
 }
 
 export const EditorInternal = ({
   printUrl,
   boardData,
   handleDataChange,
+  onCardUpdate,
   parsingErrors = [],
-}) => {
-  const [card, setCard] = useState({
-    cardData: {
-      title: '',
-      description: '',
-      label: '',
-      comments: [],
-    },
-    metadata: null,
-    cardId: null,
-    laneId: null,
-  });
-  const [eventBus, setEventBus] = useState({
-    publish: (_event) => {},
-  });
+}: EditorInternalProps) => {
+  const [modalTarget, setModalTarget] = useState<{
+    laneId: string;
+    cardId: string;
+  } | null>(null);
   const [errorsOpen, setErrorsOpen] = useState(true);
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
-  const [showModal, hideModal] = useModal(
-    () => (
-      <KanbanCardModal
-        card={card.cardData}
-        hideModal={hideModal}
-        updateCard={(cardUpdate) => {
-          eventBus.publish({
-            type: 'UPDATE_CARD',
-            laneId: card.laneId,
-            card: {
-              id: card.cardId,
-              ...cardUpdate,
-            },
-          });
-        }}
-      />
-    ),
-    [card]
-  );
-  const openModal = (card) => {
-    setCard(card);
-    showModal();
+
+  const closeModal = () => {
+    hideModal();
+    setModalTarget(null);
   };
+
+  const [showModal, hideModal] = useModal(
+    () => {
+      const lane = boardData.lanes.find((l) => l.id === modalTarget?.laneId);
+      const card = lane?.cards.find((c) => c.id === modalTarget?.cardId);
+      if (!card || !modalTarget) {
+        return null;
+      }
+      return (
+        <KanbanCardModal
+          card={card}
+          hideModal={closeModal}
+          updateCard={(patch) =>
+            onCardUpdate(modalTarget.laneId, modalTarget.cardId, patch)
+          }
+        />
+      );
+    },
+    [modalTarget, boardData]
+  );
+
+  React.useEffect(() => {
+    if (modalTarget) {
+      showModal();
+    }
+    // showModal is stable in react-modal-hook; only the target change
+    // should open the modal.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalTarget]);
+
   return (
     <div
       className={`${HtmlClassName.snComponent}${printUrl ? ' print-url' : ''}`}
@@ -87,22 +98,9 @@ export const EditorInternal = ({
         </div>
       )}
       <Board
-        id={HtmlElementId.board}
-        className={HtmlClassName.board}
         data={boardData}
-        canAddLanes
-        editable
-        editLaneTitle
-        eventBusHandle={setEventBus}
-        onCardClick={(cardId, metadata, laneId) => {
-          const lane = boardData.lanes.find((lane) => lane.id === laneId);
-          const cardData = lane?.cards.find((card) => card.id === cardId);
-          if (!cardData) {
-            return;
-          }
-          openModal({ cardId, cardData, metadata, laneId });
-        }}
         onDataChange={handleDataChange}
+        onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
       />
     </div>
   );

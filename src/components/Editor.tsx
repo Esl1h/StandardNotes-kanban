@@ -1,7 +1,8 @@
 import React from 'react';
 import { EditorKit, EditorKitDelegate } from 'sn-editor-kit';
 import { ModalProvider } from 'react-modal-hook';
-import { KanbanBoard } from '../../types/react-trello';
+import { KanbanBoard, KanbanCard } from '../../types/kanban';
+import { updateCard } from '../lib/boardOps';
 import { infuseBoardData } from '../lib/helpers';
 import { parseMarkdown } from '../lib/parseMarkdown';
 import { convertStateToMarkdown } from '../lib/convertStateToMarkdown';
@@ -86,6 +87,12 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
     });
   };
 
+  handleCardUpdate = (laneId: string, cardId: string, patch: Partial<KanbanCard>) => {
+    const boardData = updateCard(this.state.boardData, laneId, cardId, patch);
+    this.setState({ boardData });
+    this.saveNote(convertStateToMarkdown({ ...this.state, boardData }));
+  };
+
   handleDataChange = (boardData: KanbanBoard | string) => {
     if (typeof boardData === 'string') {
       const newState = this.parseText(boardData);
@@ -95,17 +102,14 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
       });
       return;
     }
-    if (boardData.lanes.length === 0) {
-      this.setState({ boardData });
-      return;
-    }
-    if (!boardData.lanes[0].id) {
+    if (boardData.lanes.length > 0 && !boardData.lanes[0].id) {
       // The only time we should see ID-less lanes here is a board state
-      // pushed by react-trello before our infusion ran; repopulate them.
+      // pushed before our infusion ran; repopulate them.
       this.setState({ boardData: infuseBoardData(boardData) });
       return;
     }
-    // The only time we should save is when a change ACTUALLY happened.
+    // Any user-driven board change is saved, including removing the
+    // last lane.
     this.setState({ boardData });
     const markdown = convertStateToMarkdown({
       ...this.state,
@@ -132,6 +136,7 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
           printUrl={this.state.printUrl}
           boardData={this.state.boardData}
           handleDataChange={this.handleDataChange}
+          onCardUpdate={this.handleCardUpdate}
           parsingErrors={this.state.parsingErrors}
         />
       </ModalProvider>

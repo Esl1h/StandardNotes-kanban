@@ -1,4 +1,4 @@
-import { KanbanBoard } from '../../types/react-trello';
+import { KanbanBoard } from '../../types/kanban';
 import { parseMarkdown } from './parseMarkdown';
 
 test('converts simple markdown file', () => {

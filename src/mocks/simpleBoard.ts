@@ -1,4 +1,4 @@
-import { KanbanBoard } from '../../types/react-trello';
+import { KanbanBoard } from '../../types/kanban';
 
 const boardData: KanbanBoard = {
   lanes: [
