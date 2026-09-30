@@ -34,7 +34,8 @@
     "server": "http-server ./build -p 3000 --cors",
     "pretty": "prettier --write 'src/**/*.{html,css,scss,js,jsx,ts,tsx,json}' README.md",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview --port 3001"
+    "preview": "vite preview --port 3001",
+    "lint": "eslint src"
   },
   "dependencies": {
     "@tabler/icons-react": "^3.48.0",

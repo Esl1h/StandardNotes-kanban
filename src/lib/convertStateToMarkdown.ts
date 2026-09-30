@@ -20,7 +20,7 @@ const convertParsingErrors = (parsingErrors: ParsingErrors[]): string => {
   return addNewlineIfNotEmpty(errorText);
 };
 
-const convertEditorConfig = (config: EditorConfig): string => {
+const convertEditorConfig = (_config: EditorConfig): string => {
   const configText = '';
   return addNewlineIfNotEmpty(configText);
 };

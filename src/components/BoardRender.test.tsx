@@ -18,7 +18,6 @@ test('renders lanes from board data', () => {
   );
   const lanes = container.querySelectorAll('.react-trello-lane');
   const cards = container.querySelectorAll('.react-trello-card');
-  // eslint-disable-next-line no-console
   console.log('LANES:', lanes.length, 'CARDS:', cards.length);
   expect(screen.getByText('Lane 1')).toBeInTheDocument();
 });

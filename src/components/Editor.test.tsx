@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Editor from './Editor';
+import { EditorInterface } from '../../types/editor';
 import { convertStateToMarkdown } from '../lib/convertStateToMarkdown';
 
 test('renders add another lane button', () => {
@@ -10,7 +11,7 @@ test('renders add another lane button', () => {
 });
 
 test('wraps legacy JSON notes so their data is not lost on save', () => {
-  const editor = new Editor({} as any);
+  const editor = new Editor({} as EditorInterface);
   const legacyJson = JSON.stringify({
     lanes: [
       {
