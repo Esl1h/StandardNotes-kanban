@@ -31,7 +31,7 @@ own hosted endpoint.
    **Install Custom Plugin** box:
 
    ```
-   https://esl1h.github.io/sn-kanban/ext.json
+   https://esli.cafe/sn-kanban/ext.json
    ```
 
 5. Confirm the installation.
