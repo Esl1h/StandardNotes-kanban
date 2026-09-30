@@ -7,6 +7,12 @@ export default defineConfig({
   build: {
     outDir: 'build',
   },
+  preview: {
+    port: 3000,
+    // The Standard Notes app downloads dev extensions over HTTP and
+    // needs permissive CORS to fetch them.
+    cors: true,
+  },
   test: {
     environment: 'jsdom',
     globals: true,

@@ -122,18 +122,21 @@ If you run into issues, please refer to the
 ### Deployment
 
 The extension is hosted on GitHub Pages from the `gh-pages` branch, served
-at `https://esli.cafe/sn-kanban/`.
+at `https://esli.cafe/sn-kanban/`. Releases are automated by the
+`Release` workflow:
 
-1. Update the version in `package.json`, `public/ext.json` and
-   `public/ext.dev.json`.
-2. Run:
+1. Bump the version in `package.json`, `public/ext.json` and
+   `public/ext.dev.json` (the `download_url` points at the release
+   asset).
+2. Commit, then push a tag:
 
 ```
-npm run deploy
+git tag v0.7.0 && git push origin v0.7.0
 ```
 
-3. Tag the release on GitHub (matching the version) if you want a
-   `download_url` zip for the extension.
+The workflow builds, runs the checks, attaches `extension.zip` to the
+GitHub release (that zip is what the desktop app installs) and
+publishes the hosted build to Pages.
 
 ## Project status and roadmap
 
