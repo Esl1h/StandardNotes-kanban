@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Board from 'react-trello';
-import ReactModal from 'react-modal';
 import { KanbanCardModal } from './KanbanCardModal';
 import { useModal } from 'react-modal-hook';
 
@@ -31,23 +30,22 @@ export const EditorInternal = ({
     laneId: null,
   });
   const [eventBus, setEventBus] = useState({
-    publish: (event) => console.log('not yet wired'),
+    publish: (event) => {},
   });
   const [errorsOpen, setErrorsOpen] = useState(true);
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
-  ReactModal.setAppElement(document.getElementById(HtmlElementId.snComponent));
   const [showModal, hideModal] = useModal(
     () => (
       <KanbanCardModal
         card={card.cardData}
         hideModal={hideModal}
-        setComments={(comments) => {
+        updateCard={(cardUpdate) => {
           eventBus.publish({
             type: 'UPDATE_CARD',
             laneId: card.laneId,
             card: {
               id: card.cardId,
-              comments,
+              ...cardUpdate,
             },
           });
         }}
@@ -97,10 +95,11 @@ export const EditorInternal = ({
         editLaneTitle
         eventBusHandle={setEventBus}
         onCardClick={(cardId, metadata, laneId) => {
-          const cardData = boardData.lanes
-            .find((lane) => lane.id === laneId)
-            .cards.find((card) => card.id === cardId);
-          console.log(`Opening card in modal: ${JSON.stringify(cardData)}`);
+          const lane = boardData.lanes.find((lane) => lane.id === laneId);
+          const cardData = lane?.cards.find((card) => card.id === cardId);
+          if (!cardData) {
+            return;
+          }
           openModal({ cardId, cardData, metadata, laneId });
         }}
         onDataChange={handleDataChange}

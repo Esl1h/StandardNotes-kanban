@@ -4,6 +4,7 @@ import { IconMessage, IconCircleX } from '@tabler/icons';
 
 const CardComment = ({ comment, deleteComment }) => (
   <div
+    className="card-comment"
     style={{
       backgroundColor: 'var(--sn-stylekit-secondary-contrast-background-color)',
       color: 'var(--sn-stylekit-secondary-contrast-foreground-color)',
@@ -18,6 +19,7 @@ const CardComment = ({ comment, deleteComment }) => (
       style={{ float: 'right', border: '0', background: 'transparent' }}
       onClick={deleteComment}
       className="comment-remove-button"
+      aria-label="Remove comment"
     >
       <IconCircleX size={14} stroke={1} />
     </button>
@@ -38,18 +40,26 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
+    width: 'min(600px, 92vw)',
+    maxHeight: '85vh',
+    overflowY: 'auto',
     backgroundColor: 'var(--sn-stylekit-contrast-background-color)',
     color: 'var(--sn-stylekit-contrast-foreground-color)',
     borderColor: 'var(--sn-stylekit-contrast-border-color)',
     borderWidth: '3px',
+    borderRadius: '8px',
   },
 };
 
-export const KanbanCardModal = ({ card, hideModal, setComments }) => {
+export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
   const { title, description, label, comments } = card;
   const [newComment, setNewComment] = useState('');
   const [updatedComments, setUpdatedComments] = useState(comments || []);
+  const [updatedDescription, setUpdatedDescription] = useState(description || '');
   const addComment = () => {
+    if (!newComment.trim()) {
+      return;
+    }
     setUpdatedComments([...updatedComments, newComment]);
     setNewComment('');
   };
@@ -57,17 +67,24 @@ export const KanbanCardModal = ({ card, hideModal, setComments }) => {
     setUpdatedComments(updatedComments.filter((_, i) => index !== i));
   };
   const closeModal = () => {
-    setComments(updatedComments);
+    updateCard({ description: updatedDescription, comments: updatedComments });
     hideModal();
   };
 
   return (
-    <ReactModal isOpen onRequestClose={closeModal} style={customStyles}>
-      <header>
+    <ReactModal
+      isOpen
+      onRequestClose={closeModal}
+      style={customStyles}
+      appElement={document.getElementById('sn-component') ?? undefined}
+    >
+      <header style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
         <span style={{ fontWeight: 'bold', lineHeight: '18px' }}>{title}</span>
+        {label && <span className="card-label-chip">{label}</span>}
       </header>
       <div
         style={{
+          marginTop: '1em',
           marginBottom: '1em',
           border: '1px dotted var(--sn-stylekit-secondary-border-color)',
           backgroundColor: 'var(--sn-stylekit-secondary-background-color)',
@@ -75,13 +92,20 @@ export const KanbanCardModal = ({ card, hideModal, setComments }) => {
           padding: '1em',
         }}
       >
-        <span>{description}</span>
+        <textarea
+          className="card-description-input"
+          placeholder="Description"
+          value={updatedDescription}
+          onChange={(e) => setUpdatedDescription(e.target.value)}
+          rows={3}
+          style={{ width: '100%', boxSizing: 'border-box' }}
+        />
       </div>
       <div>
         {updatedComments && updatedComments.length > 0 ? (
           updatedComments.map((comment, i) => (
             <CardComment
-              key={i}
+              key={`${i}-${comment}`}
               comment={comment}
               deleteComment={() => deleteCommentByIndex(i)}
             />
@@ -90,18 +114,21 @@ export const KanbanCardModal = ({ card, hideModal, setComments }) => {
           <NoComments />
         )}
       </div>
-      <input
-        placeholder="New Comment"
-        value={newComment}
-        onChange={(e) => setNewComment(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            addComment();
-            e.preventDefault();
-          }
-        }}
-      />
-      <button onClick={addComment}>Add Comment</button>
+      <div style={{ display: 'flex', gap: '0.5em', marginTop: '1em' }}>
+        <input
+          placeholder="New Comment"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              addComment();
+              e.preventDefault();
+            }
+          }}
+          style={{ flex: 1 }}
+        />
+        <button onClick={addComment}>Add Comment</button>
+      </div>
     </ReactModal>
   );
 };
