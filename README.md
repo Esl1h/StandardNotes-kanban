@@ -1,5 +1,9 @@
 # Kanban Editor for Standard Notes
 
+[![CI](https://github.com/Esl1h/sn-kanban/actions/workflows/ci.yml/badge.svg)](https://github.com/Esl1h/sn-kanban/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Esl1h/sn-kanban)](https://github.com/Esl1h/sn-kanban/releases/latest)
+[![License](https://img.shields.io/github/license/Esl1h/sn-kanban)](LICENSE)
+
 A Kanban board editor for [Standard Notes](https://standardnotes.org), a
 free, open-source, end-to-end encrypted notes app. Your board is stored as
 plain Markdown inside the note, so it stays readable, exportable and

@@ -1,0 +1,41 @@
+name: Bug report
+description: Report something that is broken or behaves unexpectedly
+labels: ['bug']
+body:
+  - type: dropdown
+    id: app
+    attributes:
+      label: Where does it happen?
+      options:
+        - Desktop app
+        - Web app
+        - Both
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Editor version
+      description: Preferences > Plugins, or the release you installed
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a note with the Kanban Editor
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Notes
+      description: Screenshots, console errors, the markdown contents of the note
