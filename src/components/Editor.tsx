@@ -18,8 +18,6 @@ const initialState: EditorInterface = {
   parsingErrors: [],
 };
 
-let keyMap = new Map();
-
 export default class Editor extends React.Component<{}, EditorInterface> {
   editorKit: any;
 
@@ -72,6 +70,9 @@ export default class Editor extends React.Component<{}, EditorInterface> {
         this.setState({
           ...initialState,
           ...newState,
+          // Regenerate IDs deterministically at load time so lanes and
+          // cards are draggable before the first edit happens.
+          boardData: infuseBoardData(newState.boardData),
         });
       },
       clearUndoHistory: () => {},
@@ -85,32 +86,32 @@ export default class Editor extends React.Component<{}, EditorInterface> {
     });
   };
 
-  handleDataChange = (boardData: KanbanBoard) => {
+  handleDataChange = (boardData: KanbanBoard | string) => {
     if (typeof boardData === 'string') {
-      this.parseText(boardData);
       const newState = this.parseText(boardData);
       this.setState({
         ...this.state,
         ...newState,
       });
-      console.log('Convert board data from markdown and infuse');
-    } else if (boardData.lanes.length === 0) {
-      this.setState({ boardData });
-    } else if (boardData.lanes[0].id) {
-      // The only time we should save is when a change ACTUALLY happened.
-      this.setState({ boardData });
-      const markdown = convertStateToMarkdown({
-        ...this.state,
-        boardData,
-      });
-      this.saveNote(markdown);
-    } else {
-      // If the board was saved without IDs, we need to repopulate those IDs.
-      // This should only happen when first loading a note.
-      const infusedBoardData = infuseBoardData(boardData);
-      this.setState({ boardData: infusedBoardData });
-      console.log('Infused board data');
+      return;
     }
+    if (boardData.lanes.length === 0) {
+      this.setState({ boardData });
+      return;
+    }
+    if (!boardData.lanes[0].id) {
+      // The only time we should see ID-less lanes here is a board state
+      // pushed by react-trello before our infusion ran; repopulate them.
+      this.setState({ boardData: infuseBoardData(boardData) });
+      return;
+    }
+    // The only time we should save is when a change ACTUALLY happened.
+    this.setState({ boardData });
+    const markdown = convertStateToMarkdown({
+      ...this.state,
+      boardData,
+    });
+    this.saveNote(markdown);
   };
 
   saveNote = (text: string) => {
@@ -122,22 +123,6 @@ export default class Editor extends React.Component<{}, EditorInterface> {
     } catch (error) {
       console.log('Error saving note:', error);
     }
-  };
-
-  onBlur = (e: React.FocusEvent) => {};
-
-  onFocus = (e: React.FocusEvent) => {};
-
-  onKeyDown = (e: React.KeyboardEvent | KeyboardEvent) => {
-    keyMap.set(e.key, true);
-    // Do nothing if 'Control' and 's' are pressed
-    if (keyMap.get('Control') && keyMap.get('s')) {
-      e.preventDefault();
-    }
-  };
-
-  onKeyUp = (e: React.KeyboardEvent | KeyboardEvent) => {
-    keyMap.delete(e.key);
   };
 
   render() {
