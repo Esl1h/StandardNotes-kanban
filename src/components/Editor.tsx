@@ -39,8 +39,11 @@ export default class Editor extends React.Component<{}, EditorInterface> {
     try {
       const data = JSON.parse(text);
       if (data.hasOwnProperty('lanes')) {
+        // Legacy JSON format stored lanes at the top level instead of
+        // under boardData. Wrap it so the board renders and, most
+        // importantly, is re-saved instead of being wiped on first edit.
         console.log('Parsed data from JSON.');
-        return data;
+        return { boardData: { lanes: data.lanes } };
       }
     } catch (err) {
       /* Do Nothing */
