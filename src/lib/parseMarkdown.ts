@@ -74,6 +74,29 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         continue;
       }
       boardData.lanes[laneIndex].cards[cardIndex].description = line.slice(17);
+    } else if (line.startsWith('    > ') || line.trim() === '    >') {
+      // Multiline description continuation: "    > more text" appends to
+      // the current card's description, keeping the note readable as
+      // blockquoted Markdown.
+      if (cardIndex < 0) {
+        parsingErrors.push(
+          errorData('Cannot add card fields before adding a card!')
+        );
+        continue;
+      }
+      const continuation = line.slice(line.indexOf('>') + 1).trimStart();
+      const card = boardData.lanes[laneIndex].cards[cardIndex];
+      card.description = card.description
+        ? `${card.description}\n${continuation}`
+        : continuation;
+    } else if (line.toLowerCase().startsWith('  * due: ')) {
+      if (cardIndex < 0) {
+        parsingErrors.push(
+          errorData('Cannot add card fields before adding a card!')
+        );
+        continue;
+      }
+      boardData.lanes[laneIndex].cards[cardIndex].due = line.slice(9);
     } else if (line.toLowerCase().startsWith('  * label: ')) {
       if (cardIndex < 0) {
         parsingErrors.push(

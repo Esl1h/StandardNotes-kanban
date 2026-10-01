@@ -16,6 +16,7 @@ import {
   removeLane,
   renameLane,
 } from '../lib/boardOps';
+import { chipStyle, dueBadge, labelChips } from '../lib/labels';
 
 interface BoardProps {
   data: KanbanBoard;
@@ -257,7 +258,9 @@ export const Board = ({ data, onDataChange, onCardClick }: BoardProps) => {
                               index={cardIndex}
                               key={card.id}
                             >
-                              {(cardProvided, cardSnapshot) => (
+                              {(cardProvided, cardSnapshot) => {
+                                const badge = dueBadge(card.due);
+                                return (
                                 <div
                                   className={`kbn-card${
                                     cardSnapshot.isDragging ? ' kbn-card-dragging' : ''
@@ -269,13 +272,24 @@ export const Board = ({ data, onDataChange, onCardClick }: BoardProps) => {
                                 >
                                   <div className="kbn-card-row">
                                     <span className="kbn-card-title">{card.title}</span>
-                                    {card.label && (
-                                      <span className="kbn-card-chip">{card.label}</span>
-                                    )}
+                                    {labelChips(card.label).map((chip) => (
+                                      <span
+                                        key={chip.name}
+                                        className="kbn-card-chip"
+                                        style={chipStyle(chip.color)}
+                                      >
+                                        {chip.name}
+                                      </span>
+                                    ))}
                                   </div>
                                   {card.description && (
                                     <div className="kbn-card-description">
                                       {card.description}
+                                    </div>
+                                  )}
+                                  {badge && (
+                                    <div className={`kbn-due ${badge.className}`}>
+                                      {badge.text}
                                     </div>
                                   )}
                                   <button
@@ -290,7 +304,8 @@ export const Board = ({ data, onDataChange, onCardClick }: BoardProps) => {
                                     <IconX size={14} stroke={1.5} />
                                   </button>
                                 </div>
-                              )}
+                                );
+                              }}
                             </Draggable>
                           ))}
                           {cardsProvided.placeholder}
