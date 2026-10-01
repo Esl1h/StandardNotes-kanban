@@ -324,13 +324,18 @@
 /* Due date badge */
 .kbn-due {
   display: inline-block;
-  margin-top: 6px;
   padding: 0.1em 0.55em;
   border-radius: 999px;
   font-size: 0.72em;
   font-weight: 600;
   background-color: var(--sn-stylekit-secondary-background-color);
   color: var(--sn-stylekit-secondary-foreground-color);
+}
+
+/* Only on the board card it sits on its own row; in the modal header
+   the margin misaligns the badge against the title. */
+.kbn-card .kbn-due {
+  margin-top: 6px;
 }
 
 .kbn-due-overdue {
@@ -363,6 +368,17 @@
 /* Modal action buttons */
 .ReactModalPortal button {
   border-radius: 6px;
+}
+
+/* Modal base: the SN context serves small fonts; the edit block needs
+   its own readable size, including browser-default inputs/textarea. */
+.ReactModalPortal .ReactModal__Content {
+  font-size: 1.1rem;
+}
+
+.ReactModalPortal input,
+.ReactModalPortal textarea {
+  font-size: inherit;
 }
 
 /* Unparsed lines banner */

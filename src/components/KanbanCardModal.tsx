@@ -34,10 +34,7 @@ const NoComments = () => (
   </div>
 );
 
-const ChecklistSection = ({
-  checklist,
-  onUpdate,
-}) => {
+const ChecklistSection = ({ checklist, onUpdate }) => {
   const [newItem, setNewItem] = useState('');
   const addItem = () => {
     if (!newItem.trim()) {
@@ -82,7 +79,9 @@ const ChecklistSection = ({
               type="checkbox"
               checked={item.done}
               onChange={() => toggleItem(i)}
-              aria-label={`Mark ${item.text} as ${item.done ? 'undone' : 'done'}`}
+              aria-label={`Mark ${item.text} as ${
+                item.done ? 'undone' : 'done'
+              }`}
             />
             <span style={{ flex: 1 }}>{item.text}</span>
             <button
@@ -140,7 +139,9 @@ export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
   const [newComment, setNewComment] = useState('');
   const [updatedComments, setUpdatedComments] = useState(comments || []);
   const [updatedChecklist, setUpdatedChecklist] = useState(checklist || []);
-  const [updatedDescription, setUpdatedDescription] = useState(description || '');
+  const [updatedDescription, setUpdatedDescription] = useState(
+    description || ''
+  );
   const [updatedDue, setUpdatedDue] = useState(due || '');
   const [updatedLabel, setUpdatedLabel] = useState(label || '');
   const addComment = () => {
@@ -171,9 +172,20 @@ export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
       style={customStyles}
       appElement={document.getElementById('sn-component') ?? undefined}
     >
-      <header style={{ display: 'flex', alignItems: 'center', gap: '0.5em', flexWrap: 'wrap' }}>
-        <span style={{ fontWeight: 'bold', lineHeight: '18px' }}>{title}</span>
-        {due && <span className={`kbn-due ${dueBadge(due)?.className}`}>{dueBadge(due)?.text}</span>}
+      <header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5em',
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ fontWeight: 'bold' }}>{title}</span>
+        {due && (
+          <span className={`kbn-due ${dueBadge(due)?.className}`}>
+            {dueBadge(due)?.text}
+          </span>
+        )}
         {labelChips(label).map((chip) => (
           <span
             key={chip.name}
@@ -211,7 +223,9 @@ export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
             flexWrap: 'wrap',
           }}
         >
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35em' }}>
+          <label
+            style={{ display: 'flex', alignItems: 'center', gap: '0.35em' }}
+          >
             <span>Due</span>
             <input
               type="date"
