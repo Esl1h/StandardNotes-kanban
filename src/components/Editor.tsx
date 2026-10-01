@@ -1,5 +1,6 @@
 import React from 'react';
-import { EditorKit, EditorKitDelegate } from 'sn-editor-kit';
+import EditorKit from '@standardnotes/editor-kit';
+import { type EditorKitDelegate } from '@standardnotes/editor-kit';
 import { ModalProvider } from 'react-modal-hook';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { updateCard } from '../lib/boardOps';
@@ -20,7 +21,8 @@ const initialState: EditorInterface = {
 };
 
 export default class Editor extends React.Component<Partial<EditorInterface>, EditorInterface> {
-  editorKit: EditorKit;
+  // Only the save entry point is used; tests stub this field.
+  editorKit: Pick<EditorKit, 'onEditorValueChanged'>;
 
   constructor(props: EditorInterface) {
     super(props);
@@ -64,8 +66,7 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
   }
 
   configureEditorKit = () => {
-    const delegate = new EditorKitDelegate({
-      /** This loads every time a different note is loaded */
+    const delegate: EditorKitDelegate = {
       setEditorRawText: (text: string) => {
         const newState = this.parseText(text);
         this.setState({
@@ -77,13 +78,13 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
         });
       },
       clearUndoHistory: () => {},
-      getElementsBySelector: () => [],
-    });
+      handleRequestForContentHeight: () => undefined,
+    };
 
-    this.editorKit = new EditorKit({
-      delegate: delegate,
+    this.editorKit = new EditorKit(delegate, {
       mode: 'plaintext',
-      supportsFilesafe: false,
+      coallesedSaving: true,
+      coallesedSavingDelay: 350,
     });
   };
 

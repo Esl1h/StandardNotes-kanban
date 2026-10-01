@@ -34,16 +34,15 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
+    "@standardnotes/editor-kit": "^2.3.1",
+    "@standardnotes/stylekit": "^5.29.3",
     "@tabler/icons-react": "^3.48.0",
     "filesafe-js": "^1.0.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-modal": "^3.16.3",
     "react-modal-hook": "^3.0.0",
-    "regenerator-runtime": "^0.14.1",
     "sass": "^1.105.1",
-    "sn-editor-kit": "1.0.6",
-    "sn-stylekit": "2.1.0",
     "uuid": "^14.0.2"
   },
   "devDependencies": {
