@@ -5,9 +5,6 @@ import boardWithComments from '../mocks/boardWithComments';
 import simpleBoard from '../mocks/simpleBoard';
 import fs from 'fs/promises';
 
-// const boardWithCommentsMarkdown = require('../mocks/boardWithComments.markdown');
-// const simpleBoardMarkdown = require('../mocks/simpleBoard.markdown');
-
 const defaultState = {
   editorConfig: {},
   parsingErrors: [],
@@ -26,7 +23,6 @@ test('converts simple board data', async () => {
 
 test('converts JSON with cards with comments', async () => {
   const boardData: KanbanBoard = boardWithComments;
-  // const boardWithCommentsMarkdown = require('../mocks/boardWithComments.markdown');
   const boardWithCommentsMarkdown = await fs.readFile(
     './src/mocks/boardWithComments.markdown',
     'utf8'

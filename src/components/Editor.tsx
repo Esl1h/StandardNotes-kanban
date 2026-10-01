@@ -1,6 +1,6 @@
 import React from 'react';
 import EditorKit from '@standardnotes/editor-kit';
-import { type EditorKitDelegate } from '@standardnotes/editor-kit';
+import type { EditorKitDelegate } from '@standardnotes/editor-kit';
 import { ModalProvider } from 'react-modal-hook';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { updateCard } from '../lib/boardOps';
@@ -19,9 +19,16 @@ const initialState: EditorInterface = {
   parsingErrors: [],
 };
 
-export default class Editor extends React.Component<Partial<EditorInterface>, EditorInterface> {
-  // Only the save entry point is used; tests stub this field.
-  editorKit: Pick<EditorKit, 'onEditorValueChanged'>;
+// What the editor needs from the kit; tests stub just this.
+interface SaveNoteBridge {
+  onEditorValueChanged(text: string): void;
+}
+
+export default class Editor extends React.Component<
+  Partial<EditorInterface>,
+  EditorInterface
+> {
+  editorKit: SaveNoteBridge;
 
   constructor(props: EditorInterface) {
     super(props);
@@ -85,7 +92,11 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
     });
   };
 
-  handleCardUpdate = (laneId: string, cardId: string, patch: Partial<KanbanCard>) => {
+  handleCardUpdate = (
+    laneId: string,
+    cardId: string,
+    patch: Partial<KanbanCard>
+  ) => {
     const boardData = updateCard(this.state.boardData, laneId, cardId, patch);
     this.setState({ boardData });
     this.saveNote(convertStateToMarkdown({ ...this.state, boardData }));

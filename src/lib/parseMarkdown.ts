@@ -12,7 +12,6 @@ enum Scope {
   Card = 'Card',
   Comments = 'Comments',
   Checklist = 'Checklist',
-  Options = 'Options',
 }
 
 const defaultConfig = {};

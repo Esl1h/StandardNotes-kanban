@@ -6,17 +6,16 @@ import { KanbanCardModal } from './KanbanCardModal';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { ParsingErrors } from '../../types/editor';
 
-export enum HtmlElementId {
-  snComponent = 'sn-component',
-}
-export enum HtmlClassName {
-  snComponent = 'sn-component',
-}
+const snComponentId = 'sn-component';
 
 interface EditorInternalProps {
   boardData: KanbanBoard;
   handleDataChange: (board: KanbanBoard | string) => void;
-  onCardUpdate: (laneId: string, cardId: string, patch: Partial<KanbanCard>) => void;
+  onCardUpdate: (
+    laneId: string,
+    cardId: string,
+    patch: Partial<KanbanCard>
+  ) => void;
   parsingErrors?: ParsingErrors[];
 }
 
@@ -40,7 +39,10 @@ export const EditorInternal = ({
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
         const target = e.target as HTMLElement | null;
-        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        if (
+          target &&
+          (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
+        ) {
           return;
         }
         e.preventDefault();
@@ -57,25 +59,22 @@ export const EditorInternal = ({
     setModalTarget(null);
   };
 
-  const [showModal, hideModal] = useModal(
-    () => {
-      const lane = boardData.lanes.find((l) => l.id === modalTarget?.laneId);
-      const card = lane?.cards.find((c) => c.id === modalTarget?.cardId);
-      if (!card || !modalTarget) {
-        return null;
-      }
-      return (
-        <KanbanCardModal
-          card={card}
-          hideModal={closeModal}
-          updateCard={(patch) =>
-            onCardUpdate(modalTarget.laneId, modalTarget.cardId, patch)
-          }
-        />
-      );
-    },
-    [modalTarget, boardData]
-  );
+  const [showModal, hideModal] = useModal(() => {
+    const lane = boardData.lanes.find((l) => l.id === modalTarget?.laneId);
+    const card = lane?.cards.find((c) => c.id === modalTarget?.cardId);
+    if (!card || !modalTarget) {
+      return null;
+    }
+    return (
+      <KanbanCardModal
+        card={card}
+        hideModal={closeModal}
+        updateCard={(patch) =>
+          onCardUpdate(modalTarget.laneId, modalTarget.cardId, patch)
+        }
+      />
+    );
+  }, [modalTarget, boardData]);
 
   React.useEffect(() => {
     if (modalTarget) {
@@ -87,7 +86,7 @@ export const EditorInternal = ({
   }, [modalTarget]);
 
   return (
-    <div className={HtmlClassName.snComponent} id={HtmlElementId.snComponent} tabIndex={0}>
+    <div className="sn-component" id={snComponentId} tabIndex={0}>
       {errorCount > 0 && (
         <div className="parse-errors" role="alert">
           <button

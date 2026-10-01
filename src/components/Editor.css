@@ -348,17 +348,6 @@
   color: var(--sn-stylekit-info-contrast-color);
 }
 
-/* Card chip for the free-text label */
-.card-label-chip {
-  display: inline-block;
-  padding: 0.15em 0.6em;
-  border-radius: 999px;
-  font-size: 0.75em;
-  font-weight: 600;
-  color: var(--sn-stylekit-info-contrast-color);
-  background-color: var(--sn-stylekit-info-color);
-}
-
 /* Card description textarea inside the modal */
 .card-description-input {
   background-color: var(--sn-stylekit-secondary-background-color);
