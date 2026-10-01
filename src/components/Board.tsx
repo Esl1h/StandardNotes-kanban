@@ -26,6 +26,7 @@ interface BoardProps {
   filter?: string;
   onDataChange: (board: KanbanBoard) => void;
   onCardClick: (laneId: string, cardId: string) => void;
+  onSearchRequest?: (query: string) => void;
 }
 
 /**
@@ -199,6 +200,7 @@ interface CardBodyProps {
   card: KanbanCard;
   laneId: string;
   onCardClick: (laneId: string, cardId: string) => void;
+  onSearchRequest?: (query: string) => void;
   onRemove: () => void;
   provided?: DraggableProvided;
   snapshot?: DraggableStateSnapshot;
@@ -208,6 +210,7 @@ const CardBody = ({
   card,
   laneId,
   onCardClick,
+  onSearchRequest,
   onRemove,
   provided,
   snapshot,
@@ -223,12 +226,26 @@ const CardBody = ({
     >
       <div className="kbn-card-row">
         <span className="kbn-card-title">{card.title}</span>
-        {labelChips(card.label).map((chip) => (
-          <span key={chip.name} className="kbn-card-chip" style={chipStyle(chip.color)}>
-            {chip.name}
-          </span>
-        ))}
       </div>
+      {labelChips(card.label).length > 0 && (
+        <div className="kbn-card-chips">
+          {labelChips(card.label).map((chip) => (
+            <button
+              key={chip.name}
+              type="button"
+              className="kbn-card-chip"
+              style={chipStyle(chip.color)}
+              title={`Filter by ${chip.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSearchRequest?.(chip.name);
+              }}
+            >
+              {chip.name}
+            </button>
+          ))}
+        </div>
+      )}
       {card.description && (
         <div className="kbn-card-description">{card.description}</div>
       )}
@@ -248,7 +265,7 @@ const CardBody = ({
   );
 };
 
-export const Board = ({ data, filter = '', onDataChange, onCardClick }: BoardProps) => {
+export const Board = ({ data, filter = '', onDataChange, onCardClick, onSearchRequest }: BoardProps) => {
   const filtering = isFiltering(filter);
   const query = filter.trim().toLowerCase();
   const [openCardFormLaneId, setOpenCardFormLaneId] = useState<string | null>(null);
@@ -346,7 +363,9 @@ export const Board = ({ data, filter = '', onDataChange, onCardClick }: BoardPro
             {...boardProvided.droppableProps}
           >
             {lanesToRender.map((lane, laneIndex) => {
-              const collapsed = collapsedLaneIds.has(lane.id!);
+              // While filtering, lanes with matches render their cards
+              // even if collapsed, so chip clicks reveal results.
+              const collapsed = !filtering && collapsedLaneIds.has(lane.id!);
               const titleMatches = lane.title.toLowerCase().includes(query);
               const visibleCards = filtering
                 ? titleMatches
@@ -418,6 +437,7 @@ export const Board = ({ data, filter = '', onDataChange, onCardClick }: BoardPro
                                       card={card}
                                       laneId={lane.id!}
                                       onCardClick={onCardClick}
+                                      onSearchRequest={onSearchRequest}
                                       onRemove={() =>
                                         onDataChange(removeCard(data, lane.id!, card.id!))
                                       }
@@ -433,6 +453,7 @@ export const Board = ({ data, filter = '', onDataChange, onCardClick }: BoardPro
                                           card={card}
                                           laneId={lane.id!}
                                           onCardClick={onCardClick}
+                                          onSearchRequest={onSearchRequest}
                                           onRemove={() =>
                                             onDataChange(removeCard(data, lane.id!, card.id!))
                                           }

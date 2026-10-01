@@ -115,6 +115,7 @@
   border-radius: 8px;
   background-color: var(--sn-stylekit-secondary-background-color);
   color: var(--sn-stylekit-secondary-foreground-color);
+  font-size: 1.05em;
   box-shadow: 0 1px 2px var(--sn-stylekit-shadow-color);
   cursor: pointer;
   transition: box-shadow 0.15s ease, transform 0.15s ease;
@@ -131,10 +132,7 @@
 }
 
 .kbn-card-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px;
+  padding-right: 16px;
 }
 
 .kbn-card-title {
@@ -142,14 +140,32 @@
   overflow-wrap: anywhere;
 }
 
+/* Label chips live on their own row below the title so multiple labels
+   wrap instead of squeezing next to the title. */
+.kbn-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  margin-top: 5px;
+}
+
 .kbn-card-chip {
-  flex-shrink: 0;
-  padding: 0.1em 0.55em;
+  display: inline-block;
+  padding: 0.15em 0.55em;
+  border: 0;
   border-radius: 999px;
-  font-size: 0.72em;
+  font-size: 0.8em;
   font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
   color: var(--sn-stylekit-info-contrast-color);
   background-color: var(--sn-stylekit-info-color);
+  white-space: nowrap;
+}
+
+.kbn-card-chip:hover {
+  filter: brightness(1.08);
 }
 
 .kbn-card-description {
@@ -269,18 +285,6 @@
 .kbn-btn-ghost {
   background-color: var(--sn-stylekit-neutral-color);
   color: var(--sn-stylekit-neutral-contrast-color);
-}
-
-/* Card chip for the free-text label */
-.kbn-card-chip {
-  display: inline-block;
-  padding: 0.1em 0.55em;
-  border-radius: 999px;
-  font-size: 0.72em;
-  font-weight: 600;
-  background-color: var(--sn-stylekit-neutral-color);
-  color: var(--sn-stylekit-neutral-contrast-color);
-  white-space: nowrap;
 }
 
 /* Due date badge */

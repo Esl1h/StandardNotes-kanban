@@ -143,6 +143,7 @@ export const EditorInternal = ({
         filter={query}
         onDataChange={handleDataChange}
         onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
+        onSearchRequest={setQuery}
       />
     </div>
   );
