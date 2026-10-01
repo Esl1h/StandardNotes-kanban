@@ -1,6 +1,6 @@
 {
-  "name": "sn-kanban",
-  "version": "0.9.0",
+  "name": "standardnotes-kanban",
+  "version": "1.0.0",
   "description": "Kanban board editor for Standard Notes",
   "keywords": [
     "Standard Notes",
@@ -10,10 +10,10 @@
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Esl1h/sn-kanban.git"
+    "url": "https://github.com/Esl1h/StandardNotes-kanban.git"
   },
   "bugs": {
-    "url": "https://github.com/Esl1h/sn-kanban/issues"
+    "url": "https://github.com/Esl1h/StandardNotes-kanban/issues"
   },
   "sn": {
     "main": "index.html"
