@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import ReactModal from 'react-modal';
-import { IconMessage, IconCircleX } from '@tabler/icons-react';
+import { IconMessage, IconCircleX, IconX } from '@tabler/icons-react';
 import { chipStyle, dueBadge, labelChips } from '../lib/labels';
+import { KanbanChecklistItem } from '../../types/kanban';
 
 const CardComment = ({ comment, deleteComment }) => (
   <div
@@ -33,6 +34,88 @@ const NoComments = () => (
   </div>
 );
 
+const ChecklistSection = ({
+  checklist,
+  onUpdate,
+}) => {
+  const [newItem, setNewItem] = useState('');
+  const addItem = () => {
+    if (!newItem.trim()) {
+      return;
+    }
+    onUpdate([...checklist, { done: false, text: newItem.trim() }]);
+    setNewItem('');
+  };
+  const toggleItem = (index) => {
+    onUpdate(
+      checklist.map((item, i) =>
+        i === index ? { ...item, done: !item.done } : item
+      )
+    );
+  };
+  const removeItem = (index) => {
+    onUpdate(checklist.filter((_, i) => index !== i));
+  };
+  const done = checklist.filter((item) => item.done).length;
+  return (
+    <div style={{ marginTop: '1em' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+        <span style={{ fontWeight: 'bold' }}>Checklist</span>
+        <span style={{ fontSize: '0.85em', opacity: 0.7 }}>
+          {done}/{checklist.length}
+        </span>
+      </div>
+      <ul style={{ listStyle: 'none', padding: 0, marginTop: '0.5em' }}>
+        {checklist.map((item: KanbanChecklistItem, i: number) => (
+          <li
+            key={`${i}-${item.text}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5em',
+              padding: '0.25em 0',
+              textDecoration: item.done ? 'line-through' : 'none',
+              opacity: item.done ? 0.7 : 1,
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={item.done}
+              onChange={() => toggleItem(i)}
+              aria-label={`Mark ${item.text} as ${item.done ? 'undone' : 'done'}`}
+            />
+            <span style={{ flex: 1 }}>{item.text}</span>
+            <button
+              type="button"
+              className="comment-remove-button"
+              style={{ border: '0', background: 'transparent' }}
+              onClick={() => removeItem(i)}
+              aria-label={`Remove checklist item ${item.text}`}
+            >
+              <IconX size={14} stroke={1} />
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div style={{ display: 'flex', gap: '0.5em', marginTop: '0.5em' }}>
+        <input
+          placeholder="New checklist item"
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              addItem();
+              e.preventDefault();
+            }
+          }}
+          style={{ flex: 1 }}
+        />
+        <button onClick={addItem}>Add Item</button>
+      </div>
+    </div>
+  );
+};
+
 const customStyles = {
   content: {
     top: '50%',
@@ -53,9 +136,10 @@ const customStyles = {
 };
 
 export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
-  const { title, description, label, due, comments } = card;
+  const { title, description, label, due, checklist, comments } = card;
   const [newComment, setNewComment] = useState('');
   const [updatedComments, setUpdatedComments] = useState(comments || []);
+  const [updatedChecklist, setUpdatedChecklist] = useState(checklist || []);
   const [updatedDescription, setUpdatedDescription] = useState(description || '');
   const [updatedDue, setUpdatedDue] = useState(due || '');
   const [updatedLabel, setUpdatedLabel] = useState(label || '');
@@ -74,6 +158,7 @@ export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
       description: updatedDescription,
       due: updatedDue,
       label: updatedLabel,
+      checklist: updatedChecklist,
       comments: updatedComments,
     });
     hideModal();
@@ -156,6 +241,10 @@ export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
           </label>
         </div>
       </div>
+      <ChecklistSection
+        checklist={updatedChecklist}
+        onUpdate={setUpdatedChecklist}
+      />
       <div>
         {updatedComments && updatedComments.length > 0 ? (
           updatedComments.map((comment, i) => (

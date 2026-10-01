@@ -287,6 +287,34 @@
   color: var(--sn-stylekit-neutral-contrast-color);
 }
 
+/* Checklist progress on the card */
+.kbn-checklist {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.kbn-checklist-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--sn-stylekit-secondary-border-color);
+  overflow: hidden;
+}
+
+.kbn-checklist-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--sn-stylekit-success-color);
+}
+
+.kbn-checklist-count {
+  font-size: 0.8em;
+  color: var(--sn-stylekit-secondary-foreground-color);
+  white-space: nowrap;
+}
+
 /* Due date badge */
 .kbn-due {
   display: inline-block;

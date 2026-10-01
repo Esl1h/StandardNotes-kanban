@@ -1,3 +1,7 @@
+export interface KanbanChecklistItem {
+  done: boolean;
+  text: string;
+}
 export interface KanbanCard {
   id?: string;
   title: string;
@@ -5,6 +9,7 @@ export interface KanbanCard {
   label?: string;
   due?: string;
   laneId?: string;
+  checklist?: Array<KanbanChecklistItem>;
   comments?: Array<string>;
 }
 export interface KanbanLane {

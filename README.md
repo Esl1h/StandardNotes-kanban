@@ -13,8 +13,8 @@ portable.
 
 ## Features
 
-1. Manage lanes and cards with titles, descriptions, labels, due dates
-   and comments
+1. Manage lanes and cards with titles, descriptions, labels, checklists,
+   due dates and comments
 2. Drag and drop cards between lanes (and reorder them inside a lane),
    with keyboard drag support
 3. Reorder, rename and collapse lanes; card counts in lane headers
@@ -54,6 +54,9 @@ one `*` bullet per card, indented `*` bullets for card fields:
     > bring the spreadsheet
   * Due: 2026-09-30
   * Label: work, blue
+  * Checklist:
+    [x] first draft
+    [ ] review with the team
   * Comments:
     * First draft looks good
 * Call the bank
@@ -64,6 +67,9 @@ one `*` bullet per card, indented `*` bullets for card fields:
   `yellow`, `green`, `blue`, `purple`, `pink`) render as colored chips,
   any other text renders as a neutral chip
 - `Due` takes a `YYYY-MM-DD` date; the card shows an overdue/today badge
+- `Checklist` is a header line followed by `    [x] item` (done) and
+  `    [ ] item` (pending) sub-items; the card shows a `3/7` counter with
+  a progress bar, and the modal edits the items
 - The `[id:xxxxxx]` markers are managed by the editor and keep drag and
   modal references stable between loads; they are recreated
   automatically when missing

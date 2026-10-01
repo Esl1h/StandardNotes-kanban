@@ -73,6 +73,33 @@ test('writes multiline descriptions as blockquote continuations', () => {
   );
 });
 
+test('converts done checklist items with x marks', () => {
+  const boardData: KanbanBoard = {
+    lanes: [
+      {
+        title: 'Lane',
+        cards: [
+          {
+            title: 'Card',
+            checklist: [
+              { done: true, text: 'finished item' },
+              { done: false, text: 'pending item' },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  const result = convertStateToMarkdown({ ...defaultState, boardData });
+  expect(result.trim()).toBe(
+    `# Lane
+* Card
+  * Checklist:
+    [x] finished item
+    [ ] pending item`
+  );
+});
+
 test('round-trips metadata through markdown without loss', () => {
   const markdown = `# Lane
 * Card 1
@@ -80,6 +107,9 @@ test('round-trips metadata through markdown without loss', () => {
     > second
   * Due: 2026-12-31
   * Label: red, blue
+  * Checklist:
+    [x] finished item
+    [ ] pending item
   * Comments:
     * a comment
 * Card 2

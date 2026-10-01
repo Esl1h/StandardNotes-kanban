@@ -11,6 +11,7 @@ enum Scope {
   Lane = 'Lane',
   Card = 'Card',
   Comments = 'Comments',
+  Checklist = 'Checklist',
   Options = 'Options',
 }
 
@@ -123,6 +124,27 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
       }
       scope = Scope.Comments;
       boardData.lanes[laneIndex].cards[cardIndex].comments = [];
+    } else if (line.toLowerCase().startsWith('  * checklist:')) {
+      if (cardIndex < 0) {
+        parsingErrors.push(
+          errorData('Cannot add card fields before adding a card!')
+        );
+        continue;
+      }
+      scope = Scope.Checklist;
+      boardData.lanes[laneIndex].cards[cardIndex].checklist = [];
+    } else if (scope === Scope.Checklist && /^ +\[[xX ]\] ./.test(line)) {
+      if (cardIndex < 0) {
+        parsingErrors.push(
+          errorData('Cannot add checklist items before adding a card!')
+        );
+        continue;
+      }
+      const match = /^ +\[([xX ])\] (.*)$/.exec(line)!;
+      boardData.lanes[laneIndex].cards[cardIndex].checklist!.push({
+        done: match[1].toLowerCase() === 'x',
+        text: match[2],
+      });
     } else if (
       scope === Scope.Comments &&
       line.toLowerCase().startsWith('    * ')

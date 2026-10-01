@@ -47,6 +47,12 @@ const convertCards = (cards: Array<KanbanCard>): string =>
       if (card.label) {
         lines.push(`  * Label: ${card.label}`);
       }
+      if (card.checklist && card.checklist.length > 0) {
+        lines.push('  * Checklist:');
+        card.checklist.forEach((item) =>
+          lines.push(`    [${item.done ? 'x' : ' '}] ${item.text}`)
+        );
+      }
       if (card.comments && card.comments.length > 0) {
         lines.push('  * Comments:');
         card.comments.forEach((comment) => lines.push(`    * ${comment}`));

@@ -152,3 +152,35 @@ test('converts markdown with cards with comments', () => {
   const { boardData } = parseMarkdown(input);
   expect(boardData).toEqual(expectedResult);
 });
+
+test('parses checklist items with done marks', () => {
+  const input = `# Lane
+* Card
+  * Checklist:
+    [x] finished item
+    [ ] pending item
+    [X] uppercase mark
+  * Comments:
+    * not part of the checklist`;
+  const expectedResult: KanbanBoard = {
+    lanes: [
+      {
+        title: 'Lane',
+        cards: [
+          {
+            title: 'Card',
+            checklist: [
+              { done: true, text: 'finished item' },
+              { done: false, text: 'pending item' },
+              { done: true, text: 'uppercase mark' },
+            ],
+            comments: ['not part of the checklist'],
+          },
+        ],
+      },
+    ],
+  };
+  const { boardData, parsingErrors } = parseMarkdown(input);
+  expect(boardData).toEqual(expectedResult);
+  expect(parsingErrors.filter((e) => e.message)).toEqual([]);
+});

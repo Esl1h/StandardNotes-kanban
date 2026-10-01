@@ -216,6 +216,8 @@ const CardBody = ({
   snapshot,
 }: CardBodyProps) => {
   const badge = dueBadge(card.due);
+  const checklist = card.checklist || [];
+  const checklistDone = checklist.filter((item) => item.done).length;
   return (
     <div
       className={`kbn-card${snapshot?.isDragging ? ' kbn-card-dragging' : ''}`}
@@ -248,6 +250,19 @@ const CardBody = ({
       )}
       {card.description && (
         <div className="kbn-card-description">{card.description}</div>
+      )}
+      {checklist.length > 0 && (
+        <div className="kbn-checklist">
+          <div className="kbn-checklist-bar" role="presentation">
+            <div
+              className="kbn-checklist-bar-fill"
+              style={{ width: `${(checklistDone / checklist.length) * 100}%` }}
+            />
+          </div>
+          <span className="kbn-checklist-count">
+            {checklistDone}/{checklist.length}
+          </span>
+        </div>
       )}
       {badge && <div className={`kbn-due ${badge.className}`}>{badge.text}</div>}
       <button

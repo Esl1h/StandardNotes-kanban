@@ -8,6 +8,10 @@
   * Description: [x] / [ ] items with a 3/7 counter on the card
     > same parser recipe as comments
   * Label: green
+  * Checklist:
+    [x] parser and converter round-trip
+    [x] progress bar on the card
+    [ ] edit items in the modal
 * arrow shortcuts [id:5e44b8]
   * Description: Alt+Left / Alt+Right move the focused card between lanes
   * Label: orange
