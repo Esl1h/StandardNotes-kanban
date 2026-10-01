@@ -3,10 +3,10 @@
   "name": "Kanban Editor",
   "content_type": "SN|Component",
   "area": "editor-editor",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Kanban board editor for Standard Notes",
   "url": "https://esli.cafe/sn-kanban/index.html",
-  "download_url": "https://github.com/Esl1h/sn-kanban/releases/download/v0.6.2/extension.zip",
+  "download_url": "https://github.com/Esl1h/sn-kanban/releases/download/v0.7.0/extension.zip",
   "latest_url": "https://esli.cafe/sn-kanban/ext.json",
   "marketing_url": "https://github.com/Esl1h/sn-kanban",
   "thumbnail_url": "https://esli.cafe/sn-kanban/logo512.png"
