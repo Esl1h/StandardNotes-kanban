@@ -1,3 +1,4 @@
+import { withIdMarker } from './ids';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import {
   EditorConfig,
@@ -26,7 +27,7 @@ const convertEditorConfig = (_config: EditorConfig): string => {
 
 const convertBoardData = (boardData: KanbanBoard): string => {
   const boardText = boardData.lanes
-    .map((lane) => `# ${lane.title}\n${convertCards(lane.cards)}`)
+    .map((lane) => `# ${withIdMarker(lane.title, lane.id)}\n${convertCards(lane.cards)}`)
     .join('\n\n');
   return addNewlineIfNotEmpty(boardText);
 };
@@ -50,7 +51,9 @@ const convertCards = (cards: Array<KanbanCard>): string =>
         lines.push('  * Comments:');
         card.comments.forEach((comment) => lines.push(`    * ${comment}`));
       }
-      return `* ${card.title}${lines.length > 0 ? `\n${lines.join('\n')}` : ''}`;
+      return `* ${withIdMarker(card.title, card.id)}${
+        lines.length > 0 ? `\n${lines.join('\n')}` : ''
+      }`;
     })
     .join('\n');
 

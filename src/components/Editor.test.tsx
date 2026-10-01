@@ -22,7 +22,7 @@ test('saves the note when the last lane is removed', () => {
   });
   editor.handleDataChange({ lanes: [] });
 
-  expect(saved).toEqual(['# Only lane\n\n', '']);
+  expect(saved).toEqual(['# Only lane [id:lane-1]\n\n', '']);
 });
 
 test('wraps legacy JSON notes so their data is not lost on save', () => {

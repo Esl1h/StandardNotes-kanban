@@ -52,17 +52,24 @@ one `*` bullet per card, indented `*` bullets for card fields:
 
 ```
 # To Do
-* Write the report
+* Write the report [id:a3f9k2]
   * Description: Q4 numbers, then review with the team
-  * Label: work
+    > bring the spreadsheet
+  * Due: 2026-09-30
+  * Label: work, blue
   * Comments:
     * First draft looks good
 * Call the bank
-  * Label: errands
-
-# Done
-* Pay rent
 ```
+
+- `Description` spans multiple lines: continue it with `    > ` lines
+- `Label` takes a comma separated list; palette names (`red`, `orange`,
+  `yellow`, `green`, `blue`, `purple`, `pink`) render as colored chips,
+  any other text renders as a neutral chip
+- `Due` takes a `YYYY-MM-DD` date; the card shows an overdue/today badge
+- The `[id:xxxxxx]` markers are managed by the editor and keep drag and
+  modal references stable between loads; they are recreated
+  automatically when missing
 
 Notes saved by the very first release of this editor (raw JSON) are
 detected and converted to Markdown automatically the first time they are
