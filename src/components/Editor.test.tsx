@@ -45,7 +45,6 @@ test('wraps legacy JSON notes so their data is not lost on save', () => {
   // On first edit the editor saves whatever convertStateToMarkdown returns;
   // the legacy data must end up in that markdown, not be wiped.
   const markdown = convertStateToMarkdown({
-    editorConfig: {},
     parsingErrors: [],
     boardData: state.boardData,
   });

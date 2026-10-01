@@ -16,12 +16,9 @@ test('examples/Kanban.txt parses cleanly and round-trips', async () => {
   ]);
   expect(boardData.lanes.map((l) => l.cards.length)).toEqual([4, 3, 2, 2, 8]);
   expect(boardData.lanes.every((l) => l.id)).toBe(true);
-  expect(
-    boardData.lanes.every((l) => l.cards.every((c) => c.id))
-  ).toBe(true);
+  expect(boardData.lanes.every((l) => l.cards.every((c) => c.id))).toBe(true);
 
   const converted = convertStateToMarkdown({
-    editorConfig: {},
     parsingErrors: [],
     boardData,
   });

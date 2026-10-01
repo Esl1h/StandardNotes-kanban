@@ -6,7 +6,6 @@ import simpleBoard from '../mocks/simpleBoard';
 import fs from 'fs/promises';
 
 const defaultState = {
-  editorConfig: {},
   parsingErrors: [],
 };
 

@@ -1,10 +1,6 @@
 import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
 import { stripIdMarker } from './ids';
-import {
-  EditorConfig,
-  EditorInterface,
-  ParsingErrors,
-} from '../../types/editor';
+import { EditorInterface, ParsingErrors } from '../../types/editor';
 
 enum Scope {
   Board = 'Board',
@@ -13,8 +9,6 @@ enum Scope {
   Comments = 'Comments',
   Checklist = 'Checklist',
 }
-
-const defaultConfig = {};
 
 /**
  * Parses our Markdown code and transforms it into a state object
@@ -29,7 +23,6 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
   let laneIndex = -1; // a value of -1 denotes that we aren't in a lane
   let cardIndex = -1; // or card
   let scope = Scope.Board;
-  const editorConfig: EditorConfig = defaultConfig;
   const parsingErrors: ParsingErrors[] = [];
 
   for (let i = 0; i < lines.length; ++i) {
@@ -161,7 +154,6 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
   }
   return {
     boardData,
-    editorConfig,
     parsingErrors,
   };
 };

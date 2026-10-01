@@ -1,18 +1,13 @@
 import { withIdMarker } from './ids';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
-import {
-  EditorConfig,
-  EditorInterface,
-  ParsingErrors,
-} from '../../types/editor';
+import { EditorInterface, ParsingErrors } from '../../types/editor';
 
 export const convertStateToMarkdown = (state: EditorInterface): string => {
-  const { boardData, editorConfig, parsingErrors } = state;
+  const { boardData, parsingErrors } = state;
 
   const boardText = convertBoardData(boardData);
-  const configText = convertEditorConfig(editorConfig);
   const errorText = convertParsingErrors(parsingErrors);
-  return `${boardText}${configText}${errorText}`;
+  return `${boardText}${errorText}`;
 };
 
 const convertParsingErrors = (parsingErrors: ParsingErrors[]): string => {
@@ -20,14 +15,12 @@ const convertParsingErrors = (parsingErrors: ParsingErrors[]): string => {
   return addNewlineIfNotEmpty(errorText);
 };
 
-const convertEditorConfig = (_config: EditorConfig): string => {
-  const configText = '';
-  return addNewlineIfNotEmpty(configText);
-};
-
 const convertBoardData = (boardData: KanbanBoard): string => {
   const boardText = boardData.lanes
-    .map((lane) => `# ${withIdMarker(lane.title, lane.id)}\n${convertCards(lane.cards)}`)
+    .map(
+      (lane) =>
+        `# ${withIdMarker(lane.title, lane.id)}\n${convertCards(lane.cards)}`
+    )
     .join('\n\n');
   return addNewlineIfNotEmpty(boardText);
 };
