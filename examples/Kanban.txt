@@ -1,31 +1,83 @@
 # BACKLOG [id:4d6746]
-* theme paring [id:408778]
-  * Description: sync theme with app
-  * Due: 2026-10-05
+* theme pairing [id:408778]
+  * Description: sync editor with the theme selected in the app
+    > stylekit 5 covers the variables
+    > the relay injects the theme css at runtime
   * Label: blue
+* checklists on cards [id:9c11a2]
+  * Description: [x] / [ ] items with a 3/7 counter on the card
+    > same parser recipe as comments
+  * Label: green
+* arrow shortcuts [id:5e44b8]
+  * Description: Alt+Left / Alt+Right move the focused card between lanes
+  * Label: orange
+* print mode [id:c3d4e5]
+  * Description: hide controls and print the board as columns
+  * Label: orange
 
 # TO DO [id:ca9c33]
-* standardnote editor-kit 2.x [id:768d18]
-* sn-stylekit 5.x [id:9953f2]
+* replace demo.png [id:d4e5f6]
+  * Description: new screenshot with the current board
+  * Due: 2026-10-15
+  * Label: purple
+* husky 4 to 9 [id:e5f6a7]
+  * Description: hooks folder instead of package.json config
+  * Label: orange
+* collect feedback [id:f6a7b8]
+  * Description: daily-drive the board for a week
+  * Label: pink
+  * Comments:
+    * note any parser edge cases
 
 # IN PROGRESS [id:bbc8f4]
-* Update fork [id:3f05b4]
-  * Description: testing
+* reinstall desktop extension [id:a1b2c3]
+  * Description: uninstall and install with the new ext.json url
+    > pages path moved to /StandardNotes-kanban/
+  * Due: 2026-09-30
+  * Label: urgent, red
+* v1.0.0 release notes [id:1b2c3d]
+  * Description: first standalone release
+    > reinstall required once
+  * Due: 2026-10-01
+  * Label: blue, green
+
+# REVIEW [id:r3v100]
+* short ids round-trip [id:2c3d4e]
+  * Description: parse - convert - parse keeps the same board
+  * Label: yellow
+* search filter safety [id:3d4e5f]
+  * Description: filtered view can never overwrite the full board
   * Comments:
-    * teste
-    * comments
-* remove react-trello [id:5aacf2]
-  * Description: change to dnd
-* vulnerabilities [id:ac234f]
-  * Description: clean report
-* 11 vulns [id:267574]
-  * Description: remove CRA/react-scripts
+    * drag disabled while filtering
 
 # DONE [id:43322f]
-* bump new version [id:ccecc5]
-  * Description: release 0.7
+* remove react-trello [id:5aacf2]
+  * Description: custom board on @hello-pangea/dnd
+    > keyboard drag included
+  * Label: green
+* clean audit report [id:ac234f]
+  * Description: 0 known vulnerabilities
+    > 80 advisories at the start
+  * Label: green
+* editor-kit 2.x [id:768d18]
+  * Description: current standardnotes component stack
+  * Label: blue
+* stylekit 5.x [id:9953f2]
+  * Description: editor follows the app theme
+  * Label: blue
+* migration to vite + react 18 [id:5c6d7e]
+  * Description: 30s build down to 0.5s
+    > 245 kB to 91 kB gzip
+  * Label: purple
+* rename repository [id:6b7c8d]
+  * Description: StandardNotes-kanban
+  * Label: red
+* release v0.8.0 [id:b0adb2]
+  * Description: colored labels, due dates, multiline descriptions
+  * Label: release
+* release v0.9.0 [id:4b5c6d]
+  * Description: short ids, search, collapse, shortcuts
   * Due: 2026-09-30
   * Label: release
   * Comments:
-    * feito
-* release v0.8.0 [id:b0adb2]
+    * pipeline published it automatically
