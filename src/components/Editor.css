@@ -115,7 +115,9 @@
   border-radius: 8px;
   background-color: var(--sn-stylekit-secondary-background-color);
   color: var(--sn-stylekit-secondary-foreground-color);
-  font-size: 1.05em;
+  /* The SN app serves this editor inside a small font context; cards
+     need a real bump or titles stay cramped. */
+  font-size: 1.15em;
   box-shadow: 0 1px 2px var(--sn-stylekit-shadow-color);
   cursor: pointer;
   transition: box-shadow 0.15s ease, transform 0.15s ease;
@@ -174,7 +176,7 @@
 
 .kbn-card-description {
   margin-top: 6px;
-  font-size: 0.9em;
+  font-size: 0.95em;
   color: var(--sn-stylekit-paragraph-text-color);
   overflow-wrap: anywhere;
   white-space: pre-line;
@@ -314,7 +316,7 @@
 }
 
 .kbn-checklist-count {
-  font-size: 0.8em;
+  font-size: 0.9em;
   color: var(--sn-stylekit-secondary-foreground-color);
   white-space: nowrap;
 }

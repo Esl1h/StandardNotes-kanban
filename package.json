@@ -30,7 +30,8 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --port 3001",
     "lint": "eslint src",
-    "server-cors": "vite preview --port 3000 --cors"
+    "server-cors": "vite preview --port 3000 --cors",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -56,7 +57,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^9.39.5",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "husky": "^4.3.6",
+    "husky": "^9.1.7",
     "jsdom": "^30.1.1",
     "lint-staged": "^16.4.0",
     "prettier": "^2.2.1",
@@ -65,11 +66,6 @@
     "vite": "^8.3.1",
     "vitest": "^5.0.3",
     "yalc": "^1.0.0-pre.50"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "README.md": [
