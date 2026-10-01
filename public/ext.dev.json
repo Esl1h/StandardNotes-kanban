@@ -3,7 +3,7 @@
   "name": "Kanban Editor (Dev)",
   "content_type": "SN|Component",
   "area": "editor-editor",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "DEV Kanban board editor for Standard Notes",
   "url": "http://localhost:3000/index.html",
   "download_url": "",
