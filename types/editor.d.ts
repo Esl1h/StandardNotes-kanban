@@ -1,6 +1,5 @@
 import { KanbanBoard } from './kanban';
 
-declare module 'sn-kanban-editor';
 
 export interface EditorInterface {
   printUrl?: boolean;

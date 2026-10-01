@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Only the [latest release](https://github.com/Esl1h/sn-kanban/releases/latest)
+Only the [latest release](https://github.com/Esl1h/StandardNotes-kanban/releases/latest)
 receives security fixes.
 
 ## Reporting a vulnerability

@@ -51,7 +51,7 @@ jobs:
           node -e "
             const fs = require('fs');
             const pkg = {
-              name: 'sn-kanban-editor',
+              name: 'standardnotes-kanban',
               version: '$VERSION',
               description: 'Kanban board editor for Standard Notes',
               private: true,

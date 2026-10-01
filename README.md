@@ -1,30 +1,30 @@
-# Kanban Editor for Standard Notes
+# StandardNotes Kanban
 
-[![CI](https://github.com/Esl1h/sn-kanban/actions/workflows/ci.yml/badge.svg)](https://github.com/Esl1h/sn-kanban/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/Esl1h/sn-kanban)](https://github.com/Esl1h/sn-kanban/releases/latest)
-[![License](https://img.shields.io/github/license/Esl1h/sn-kanban)](LICENSE)
+[![CI](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/ci.yml/badge.svg)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Esl1h/StandardNotes-kanban)](https://github.com/Esl1h/StandardNotes-kanban/releases/latest)
+[![License](https://img.shields.io/github/license/Esl1h/StandardNotes-kanban)](LICENSE)
 
 A Kanban board editor for [Standard Notes](https://standardnotes.org), a
 free, open-source, end-to-end encrypted notes app. Your board is stored as
 plain Markdown inside the note, so it stays readable, exportable and
 portable.
 
-![Kanban Editor screenshot](public/demo.png)
-
-This is a maintained fork of
-[corvec/sn-kanban-editor](https://github.com/corvec/sn-kanban-editor), which
-is no longer actively developed. This fork fixes data-preservation bugs,
-removes unused dependencies, and keeps the extension installable from its
-own hosted endpoint.
+![Kanban board screenshot](public/demo.png)
 
 ## Features
 
-1. Manage lanes and cards with titles, descriptions, labels and comments
-2. Drag and drop cards between lanes (and reorder them inside a lane)
-3. Edit card descriptions and comments in a card modal
-4. Your board lives in the note as Markdown; read or tweak it with any
+1. Manage lanes and cards with titles, descriptions, labels, due dates
+   and comments
+2. Drag and drop cards between lanes (and reorder them inside a lane),
+   with keyboard drag support
+3. Reorder, rename and collapse lanes; card counts in lane headers
+4. Edit card descriptions, labels, due dates and comments in a card modal
+5. Search across titles, descriptions and labels
+6. Keyboard shortcuts: `N` adds a card, `Ctrl/Cmd+F` focuses search
+7. Your board lives in the note as Markdown; read or tweak it with any
    other editor without breaking the board
-5. Works with the Standard Notes web and desktop apps
+8. Works with the Standard Notes web and desktop apps; follows the theme
+   selected in the app
 
 ## Installation
 
@@ -35,15 +35,13 @@ own hosted endpoint.
    **Install Custom Plugin** box:
 
    ```
-   https://esli.cafe/sn-kanban/ext.json
+   https://esli.cafe/StandardNotes-kanban/ext.json
    ```
 
 5. Confirm the installation.
-6. Create a new note, open the **Editor** menu and pick **Kanban Editor**.
+6. Create a new note, open the **Editor** menu and pick **StandardNotes
+   Kanban**.
 7. Add a lane, add some cards, and have fun!
-
-Note: this editor has a different extension identifier than the original,
-so it can be installed alongside (or instead of) the upstream version.
 
 ## Note format
 
@@ -89,7 +87,8 @@ anywhere.
 1. (Optional) Fork this repo on GitHub.
 2. [Clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
    this repo or your fork.
-3. Run `cd sn-kanban` and then `npm install` to install all dependencies.
+3. Run `cd StandardNotes-kanban` and then `npm install` to install all
+   dependencies.
 
 ### Testing in the browser (standalone)
 
@@ -118,8 +117,8 @@ npm run server
 http://localhost:3000/ext.dev.json
 ```
 
-The dev extension uses a separate identifier (`Kanban Editor (Dev)`) so it
-does not clash with the hosted one.
+The dev extension uses a separate identifier (`StandardNotes Kanban
+(Dev)`) so it does not clash with the hosted one.
 
 3. When you're done, press `Ctrl + C` to shut down the server.
 
@@ -129,8 +128,8 @@ If you run into issues, please refer to the
 ### Deployment
 
 The extension is hosted on GitHub Pages from the `gh-pages` branch, served
-at `https://esli.cafe/sn-kanban/`. Releases are automated by the
-`Release` workflow:
+at `https://esli.cafe/StandardNotes-kanban/`. Releases are automated by
+the `Release` workflow:
 
 1. Bump the version in `package.json`, `public/ext.json` and
    `public/ext.dev.json` (the `download_url` points at the release
@@ -138,30 +137,17 @@ at `https://esli.cafe/sn-kanban/`. Releases are automated by the
 2. Commit, then push a tag:
 
 ```
-git tag v0.7.0 && git push origin v0.7.0
+git tag v1.1.0 && git push origin v1.1.0
 ```
 
 The workflow builds, runs the checks, attaches `extension.zip` to the
 GitHub release (that zip is what the desktop app installs) and
 publishes the hosted build to Pages.
 
-## Project status and roadmap
-
-This fork focuses on correctness and maintainability first:
-
-- Fixed: legacy JSON notes no longer lose their data on first edit
-- Fixed: one malformed line no longer breaks parsing of the whole board
-- Fixed: card modal app element wiring; descriptions are editable in the
-  modal
-- Removed: unused dependencies; the board polish continues
-- Planned: replace the abandoned `react-trello` dependency with a
-  maintained drag-and-drop implementation, migrate off Create React App,
-  and follow the app theme via the current `sn-stylekit`
-
 ## Credits and license
 
-- Original editor by [corvec](https://github.com/corvec), forked from
-  [StandardNotes/editor-template-cra-typescript](https://github.com/standardnotes/editor-template-cra-typescript)
-- Board UI based on
-  [react-trello](https://github.com/rcdexta/react-trello)
+- Board concept and early versions by
+  [corvec](https://github.com/corvec) (sn-kanban-editor)
+- Built on [Standard Notes](https://standardnotes.org) and
+  [@standardnotes/editor-kit](https://github.com/standardnotes/editor-kit)
 - Licensed under [AGPL-3.0](LICENSE) or later

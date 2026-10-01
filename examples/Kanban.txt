@@ -1,0 +1,31 @@
+# BACKLOG [id:4d6746]
+* theme paring [id:408778]
+  * Description: sync theme with app
+  * Due: 2026-10-05
+  * Label: blue
+
+# TO DO [id:ca9c33]
+* standardnote editor-kit 2.x [id:768d18]
+* sn-stylekit 5.x [id:9953f2]
+
+# IN PROGRESS [id:bbc8f4]
+* Update fork [id:3f05b4]
+  * Description: testing
+  * Comments:
+    * teste
+    * comments
+* remove react-trello [id:5aacf2]
+  * Description: change to dnd
+* vulnerabilities [id:ac234f]
+  * Description: clean report
+* 11 vulns [id:267574]
+  * Description: remove CRA/react-scripts
+
+# DONE [id:43322f]
+* bump new version [id:ccecc5]
+  * Description: release 0.7
+  * Due: 2026-09-30
+  * Label: release
+  * Comments:
+    * feito
+* release v0.8.0 [id:b0adb2]

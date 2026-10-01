@@ -1,4 +1,4 @@
-# Contributing to Kanban Editor
+# Contributing to StandardNotes Kanban
 
 Thanks for helping out. This is a small, focused editor: a Kanban board for
 Standard Notes that stores the board as portable Markdown inside the note.
@@ -6,8 +6,8 @@ Standard Notes that stores the board as portable Markdown inside the note.
 ## Development setup
 
 ```
-git clone https://github.com/Esl1h/sn-kanban.git
-cd sn-kanban
+git clone https://github.com/Esl1h/StandardNotes-kanban.git
+cd StandardNotes-kanban
 npm install
 npm start
 ```
