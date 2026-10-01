@@ -39,8 +39,7 @@ portable.
    ```
 
 5. Confirm the installation.
-6. Create a new note, open the **Editor** menu and pick **StandardNotes
-   Kanban**.
+6. Create a new note, open the **Editor** menu and pick **Kanban**.
 7. Add a lane, add some cards, and have fun!
 
 ## Note format
@@ -117,8 +116,8 @@ npm run server
 http://localhost:3000/ext.dev.json
 ```
 
-The dev extension uses a separate identifier (`StandardNotes Kanban
-(Dev)`) so it does not clash with the hosted one.
+The dev extension uses a separate identifier (`Kanban (Dev)`) so it does
+not clash with the hosted one.
 
 3. When you're done, press `Ctrl + C` to shut down the server.
 

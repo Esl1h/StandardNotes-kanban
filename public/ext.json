@@ -1,12 +1,12 @@
 {
   "identifier": "org.esl1h.sn-kanban-editor",
-  "name": "StandardNotes Kanban",
+  "name": "Kanban",
   "content_type": "SN|Component",
   "area": "editor-editor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Kanban board editor for Standard Notes",
   "url": "https://esli.cafe/StandardNotes-kanban/index.html",
-  "download_url": "https://github.com/Esl1h/StandardNotes-kanban/releases/download/v1.0.0/extension.zip",
+  "download_url": "https://github.com/Esl1h/StandardNotes-kanban/releases/download/v1.0.1/extension.zip",
   "latest_url": "https://esli.cafe/StandardNotes-kanban/ext.json",
   "marketing_url": "https://github.com/Esl1h/StandardNotes-kanban",
   "thumbnail_url": "https://esli.cafe/StandardNotes-kanban/logo512.png"
