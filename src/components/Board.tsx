@@ -3,9 +3,11 @@ import {
   DragDropContext,
   Draggable,
   Droppable,
+  type DraggableProvided,
+  type DraggableStateSnapshot,
   type DropResult,
 } from '@hello-pangea/dnd';
-import { IconPlus, IconX } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronRight, IconPlus, IconX } from '@tabler/icons-react';
 import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
 import {
   addCardToLane,
@@ -17,51 +19,19 @@ import {
   renameLane,
 } from '../lib/boardOps';
 import { chipStyle, dueBadge, labelChips } from '../lib/labels';
+import { cardMatchesQuery, isFiltering } from '../lib/filter';
 
 interface BoardProps {
   data: KanbanBoard;
+  filter?: string;
   onDataChange: (board: KanbanBoard) => void;
   onCardClick: (laneId: string, cardId: string) => void;
 }
 
 /**
- * Card title editing inside the add forms commits on Enter or the Add
- * button and cancels on Escape or Cancel, matching Trello's behaviour.
+ * Add forms commit on Enter or the Add button and cancel on Escape or
+ * Cancel, matching Trello's behaviour.
  */
-const useForm = (onCommit: (value: string) => void) => {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState('');
-  const close = () => {
-    setOpen(false);
-    setValue('');
-  };
-  const commit = () => {
-    const trimmed = value.trim();
-    if (trimmed) {
-      onCommit(trimmed);
-    }
-    close();
-  };
-  return {
-    open,
-    value,
-    openForm: () => setOpen(true),
-    close,
-    commit,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      setValue(e.target.value),
-    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        commit();
-        e.preventDefault();
-      }
-      if (e.key === 'Escape') {
-        close();
-      }
-    },
-  };
-};
-
 const LaneTitle = ({
   lane,
   onRename,
@@ -112,17 +82,27 @@ const LaneTitle = ({
   );
 };
 
-const AddCard = ({
-  laneId,
-  onAdd,
-}: {
+interface AddCardProps {
   laneId: string;
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
   onAdd: (title: string) => void;
-}) => {
-  const form = useForm((title) => onAdd(title));
-  if (!form.open) {
+}
+
+const AddCard = ({ laneId, open, onOpen, onClose, onAdd }: AddCardProps) => {
+  const [value, setValue] = useState('');
+  const commit = () => {
+    const trimmed = value.trim();
+    if (trimmed) {
+      onAdd(trimmed);
+    }
+    setValue('');
+    onClose();
+  };
+  if (!open) {
     return (
-      <button type="button" className="kbn-add-card" onClick={form.openForm}>
+      <button type="button" className="kbn-add-card" onClick={onOpen}>
         <IconPlus size={14} stroke={1.5} /> Add card
       </button>
     );
@@ -133,16 +113,25 @@ const AddCard = ({
         autoFocus
         className="kbn-input"
         placeholder="Card title"
-        value={form.value}
-        onChange={form.onChange}
-        onKeyDown={form.onKeyDown}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            commit();
+            e.preventDefault();
+          }
+          if (e.key === 'Escape') {
+            setValue('');
+            onClose();
+          }
+        }}
         aria-label={`New card title in lane ${laneId}`}
       />
       <div className="kbn-form-actions">
-        <button type="button" className="kbn-btn kbn-btn-primary" onClick={form.commit}>
+        <button type="button" className="kbn-btn kbn-btn-primary" onClick={commit}>
           Add card
         </button>
-        <button type="button" className="kbn-btn kbn-btn-ghost" onClick={form.close}>
+        <button type="button" className="kbn-btn kbn-btn-ghost" onClick={() => { setValue(''); onClose(); }}>
           Cancel
         </button>
       </div>
@@ -150,11 +139,26 @@ const AddCard = ({
   );
 };
 
-const AddLane = ({ onAdd }: { onAdd: (title: string) => void }) => {
-  const form = useForm((title) => onAdd(title));
-  if (!form.open) {
+interface AddLaneProps {
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onAdd: (title: string) => void;
+}
+
+const AddLane = ({ open, onOpen, onClose, onAdd }: AddLaneProps) => {
+  const [value, setValue] = useState('');
+  const commit = () => {
+    const trimmed = value.trim();
+    if (trimmed) {
+      onAdd(trimmed);
+    }
+    setValue('');
+    onClose();
+  };
+  if (!open) {
     return (
-      <button type="button" className="kbn-add-lane" onClick={form.openForm}>
+      <button type="button" className="kbn-add-lane" onClick={onOpen}>
         <IconPlus size={14} stroke={1.5} /> Add lane
       </button>
     );
@@ -165,16 +169,25 @@ const AddLane = ({ onAdd }: { onAdd: (title: string) => void }) => {
         autoFocus
         className="kbn-input"
         placeholder="Lane title"
-        value={form.value}
-        onChange={form.onChange}
-        onKeyDown={form.onKeyDown}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            commit();
+            e.preventDefault();
+          }
+          if (e.key === 'Escape') {
+            setValue('');
+            onClose();
+          }
+        }}
         aria-label="New lane title"
       />
       <div className="kbn-form-actions">
-        <button type="button" className="kbn-btn kbn-btn-primary" onClick={form.commit}>
+        <button type="button" className="kbn-btn kbn-btn-primary" onClick={commit}>
           Add lane
         </button>
-        <button type="button" className="kbn-btn kbn-btn-ghost" onClick={form.close}>
+        <button type="button" className="kbn-btn kbn-btn-ghost" onClick={() => { setValue(''); onClose(); }}>
           Cancel
         </button>
       </div>
@@ -182,9 +195,82 @@ const AddLane = ({ onAdd }: { onAdd: (title: string) => void }) => {
   );
 };
 
-export const Board = ({ data, onDataChange, onCardClick }: BoardProps) => {
+interface CardBodyProps {
+  card: KanbanCard;
+  laneId: string;
+  onCardClick: (laneId: string, cardId: string) => void;
+  onRemove: () => void;
+  provided?: DraggableProvided;
+  snapshot?: DraggableStateSnapshot;
+}
+
+const CardBody = ({
+  card,
+  laneId,
+  onCardClick,
+  onRemove,
+  provided,
+  snapshot,
+}: CardBodyProps) => {
+  const badge = dueBadge(card.due);
+  return (
+    <div
+      className={`kbn-card${snapshot?.isDragging ? ' kbn-card-dragging' : ''}`}
+      ref={provided?.innerRef}
+      {...(provided?.draggableProps || {})}
+      {...(provided?.dragHandleProps || {})}
+      onClick={() => onCardClick(laneId, card.id!)}
+    >
+      <div className="kbn-card-row">
+        <span className="kbn-card-title">{card.title}</span>
+        {labelChips(card.label).map((chip) => (
+          <span key={chip.name} className="kbn-card-chip" style={chipStyle(chip.color)}>
+            {chip.name}
+          </span>
+        ))}
+      </div>
+      {card.description && (
+        <div className="kbn-card-description">{card.description}</div>
+      )}
+      {badge && <div className={`kbn-due ${badge.className}`}>{badge.text}</div>}
+      <button
+        type="button"
+        className="kbn-icon-btn kbn-card-delete"
+        aria-label={`Delete card ${card.title}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+      >
+        <IconX size={14} stroke={1.5} />
+      </button>
+    </div>
+  );
+};
+
+export const Board = ({ data, filter = '', onDataChange, onCardClick }: BoardProps) => {
+  const filtering = isFiltering(filter);
+  const query = filter.trim().toLowerCase();
+  const [openCardFormLaneId, setOpenCardFormLaneId] = useState<string | null>(null);
+  const [addLaneOpen, setAddLaneOpen] = useState(false);
+  const [collapsedLaneIds, setCollapsedLaneIds] = useState<ReadonlySet<string>>(
+    new Set()
+  );
+
+  const toggleCollapse = (laneId: string) => {
+    setCollapsedLaneIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(laneId)) {
+        next.delete(laneId);
+      } else {
+        next.add(laneId);
+      }
+      return next;
+    });
+  };
+
   const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) {
+    if (filtering || !result.destination) {
       return;
     }
     if (result.type === 'LANE') {
@@ -204,124 +290,190 @@ export const Board = ({ data, onDataChange, onCardClick }: BoardProps) => {
     );
   };
 
+  // "N" opens the add-card form on the first expanded lane, or the
+  // add-lane form when the board has no expanded lanes. Ignored while
+  // typing or while the card modal is open.
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'n' && e.key !== 'N') {
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey) {
+        return;
+      }
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (document.body.classList.contains('ReactModal__Body--open')) {
+        return;
+      }
+      e.preventDefault();
+      const firstExpanded = data.lanes.find((lane) => !collapsedLaneIds.has(lane.id!));
+      if (firstExpanded?.id) {
+        setAddLaneOpen(false);
+        setOpenCardFormLaneId(firstExpanded.id);
+      } else {
+        setOpenCardFormLaneId(null);
+        setAddLaneOpen(true);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [data, collapsedLaneIds]);
+
+  let lanesToRender = data.lanes;
+  if (filtering) {
+    lanesToRender = data.lanes.filter(
+      (lane) =>
+        lane.title.toLowerCase().includes(query) ||
+        lane.cards.some((card) => cardMatchesQuery(card, query))
+    );
+  }
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="board" type="LANE" direction="horizontal">
+      <Droppable droppableId="board" type="LANE" direction="horizontal" isDropDisabled={filtering}>
         {(boardProvided) => (
           <div
             className="kbn-board"
             ref={boardProvided.innerRef}
             {...boardProvided.droppableProps}
           >
-            {data.lanes.map((lane, laneIndex) => (
-              <Draggable
-                draggableId={`lane-${lane.id}`}
-                index={laneIndex}
-                key={lane.id}
-              >
-                {(laneProvided) => (
-                  <div
-                    className="kbn-lane"
-                    ref={laneProvided.innerRef}
-                    {...laneProvided.draggableProps}
-                  >
+            {lanesToRender.map((lane, laneIndex) => {
+              const collapsed = collapsedLaneIds.has(lane.id!);
+              const titleMatches = lane.title.toLowerCase().includes(query);
+              const visibleCards = filtering
+                ? titleMatches
+                  ? lane.cards
+                  : lane.cards.filter((card) => cardMatchesQuery(card, query))
+                : lane.cards;
+              return (
+                <Draggable
+                  draggableId={`lane-${lane.id}`}
+                  index={laneIndex}
+                  key={lane.id}
+                  isDragDisabled={filtering}
+                >
+                  {(laneProvided) => (
                     <div
-                      className="kbn-lane-header"
-                      {...laneProvided.dragHandleProps}
+                      className={`kbn-lane${collapsed ? ' kbn-lane-collapsed' : ''}`}
+                      ref={laneProvided.innerRef}
+                      {...laneProvided.draggableProps}
                     >
-                      <LaneTitle
-                        lane={lane}
-                        onRename={(title) => onDataChange(renameLane(data, lane.id!, title))}
-                      />
-                      <span className="kbn-lane-count">{lane.cards.length}</span>
-                      <button
-                        type="button"
-                        className="kbn-icon-btn"
-                        aria-label={`Delete lane ${lane.title}`}
-                        onClick={() => onDataChange(removeLane(data, lane.id!))}
+                      <div
+                        className="kbn-lane-header"
+                        {...laneProvided.dragHandleProps}
                       >
-                        <IconX size={14} stroke={1.5} />
-                      </button>
-                    </div>
-                    <Droppable droppableId={lane.id!} type="CARD">
-                      {(cardsProvided, cardsSnapshot) => (
-                        <div
-                          className={`kbn-cards${
-                            cardsSnapshot.isDraggingOver ? ' kbn-dragging-over' : ''
-                          }`}
-                          ref={cardsProvided.innerRef}
-                          {...cardsProvided.droppableProps}
+                        <button
+                          type="button"
+                          className="kbn-icon-btn"
+                          aria-label={collapsed ? `Expand lane ${lane.title}` : `Collapse lane ${lane.title}`}
+                          onClick={() => toggleCollapse(lane.id!)}
                         >
-                          {lane.cards.map((card: KanbanCard, cardIndex) => (
-                            <Draggable
-                              draggableId={card.id!}
-                              index={cardIndex}
-                              key={card.id}
-                            >
-                              {(cardProvided, cardSnapshot) => {
-                                const badge = dueBadge(card.due);
-                                return (
-                                <div
-                                  className={`kbn-card${
-                                    cardSnapshot.isDragging ? ' kbn-card-dragging' : ''
-                                  }`}
-                                  ref={cardProvided.innerRef}
-                                  {...cardProvided.draggableProps}
-                                  {...cardProvided.dragHandleProps}
-                                  onClick={() => onCardClick(lane.id!, card.id!)}
-                                >
-                                  <div className="kbn-card-row">
-                                    <span className="kbn-card-title">{card.title}</span>
-                                    {labelChips(card.label).map((chip) => (
-                                      <span
-                                        key={chip.name}
-                                        className="kbn-card-chip"
-                                        style={chipStyle(chip.color)}
-                                      >
-                                        {chip.name}
-                                      </span>
-                                    ))}
-                                  </div>
-                                  {card.description && (
-                                    <div className="kbn-card-description">
-                                      {card.description}
-                                    </div>
-                                  )}
-                                  {badge && (
-                                    <div className={`kbn-due ${badge.className}`}>
-                                      {badge.text}
-                                    </div>
-                                  )}
-                                  <button
-                                    type="button"
-                                    className="kbn-icon-btn kbn-card-delete"
-                                    aria-label={`Delete card ${card.title}`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      onDataChange(removeCard(data, lane.id!, card.id!));
-                                    }}
-                                  >
-                                    <IconX size={14} stroke={1.5} />
-                                  </button>
-                                </div>
-                                );
-                              }}
-                            </Draggable>
-                          ))}
-                          {cardsProvided.placeholder}
-                        </div>
+                          {collapsed ? (
+                            <IconChevronRight size={14} stroke={1.5} />
+                          ) : (
+                            <IconChevronDown size={14} stroke={1.5} />
+                          )}
+                        </button>
+                        <LaneTitle
+                          lane={lane}
+                          onRename={(title) => onDataChange(renameLane(data, lane.id!, title))}
+                        />
+                        <span className="kbn-lane-count">{lane.cards.length}</span>
+                        <button
+                          type="button"
+                          className="kbn-icon-btn"
+                          aria-label={`Delete lane ${lane.title}`}
+                          onClick={() => onDataChange(removeLane(data, lane.id!))}
+                        >
+                          <IconX size={14} stroke={1.5} />
+                        </button>
+                      </div>
+                      {!collapsed && (
+                        <>
+                          <Droppable
+                            droppableId={lane.id!}
+                            type="CARD"
+                            isDropDisabled={filtering}
+                          >
+                            {(cardsProvided, cardsSnapshot) => (
+                              <div
+                                className={`kbn-cards${
+                                  cardsSnapshot.isDraggingOver ? ' kbn-dragging-over' : ''
+                                }`}
+                                ref={cardsProvided.innerRef}
+                                {...cardsProvided.droppableProps}
+                              >
+                                {visibleCards.map((card: KanbanCard, cardIndex) =>
+                                  filtering ? (
+                                    <CardBody
+                                      key={card.id}
+                                      card={card}
+                                      laneId={lane.id!}
+                                      onCardClick={onCardClick}
+                                      onRemove={() =>
+                                        onDataChange(removeCard(data, lane.id!, card.id!))
+                                      }
+                                    />
+                                  ) : (
+                                    <Draggable
+                                      draggableId={card.id!}
+                                      index={cardIndex}
+                                      key={card.id}
+                                    >
+                                      {(cardProvided, cardSnapshot) => (
+                                        <CardBody
+                                          card={card}
+                                          laneId={lane.id!}
+                                          onCardClick={onCardClick}
+                                          onRemove={() =>
+                                            onDataChange(removeCard(data, lane.id!, card.id!))
+                                          }
+                                          provided={cardProvided}
+                                          snapshot={cardSnapshot}
+                                        />
+                                      )}
+                                    </Draggable>
+                                  )
+                                )}
+                                {cardsProvided.placeholder}
+                              </div>
+                            )}
+                          </Droppable>
+                          <AddCard
+                            laneId={lane.id!}
+                            open={openCardFormLaneId === lane.id}
+                            onOpen={() => setOpenCardFormLaneId(lane.id!)}
+                            onClose={() => setOpenCardFormLaneId(null)}
+                            onAdd={(title) => {
+                              onDataChange(addCardToLane(data, lane.id!, title));
+                              setOpenCardFormLaneId(null);
+                            }}
+                          />
+                        </>
                       )}
-                    </Droppable>
-                    <AddCard
-                      laneId={lane.id!}
-                      onAdd={(title) => onDataChange(addCardToLane(data, lane.id!, title))}
-                    />
-                  </div>
-                )}
-              </Draggable>
-            ))}
+                    </div>
+                  )}
+                </Draggable>
+              );
+            })}
             {boardProvided.placeholder}
-            <AddLane onAdd={(title) => onDataChange(addLane(data, title))} />
+            <AddLane
+              open={addLaneOpen}
+              onOpen={() => setAddLaneOpen(true)}
+              onClose={() => setAddLaneOpen(false)}
+              onAdd={(title) => {
+                onDataChange(addLane(data, title));
+                setAddLaneOpen(false);
+              }}
+            />
           </div>
         )}
       </Droppable>

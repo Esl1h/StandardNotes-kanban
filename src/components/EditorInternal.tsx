@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useModal } from 'react-modal-hook';
+import { IconX } from '@tabler/icons-react';
 import { Board } from './Board';
 import { KanbanCardModal } from './KanbanCardModal';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
@@ -31,8 +32,27 @@ export const EditorInternal = ({
     laneId: string;
     cardId: string;
   } | null>(null);
+  const [query, setQuery] = useState('');
   const [errorsOpen, setErrorsOpen] = useState(true);
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
+  const searchRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Ctrl/Cmd+F focuses the in-board search while the editor has focus.
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        const target = e.target as HTMLElement | null;
+        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+          return;
+        }
+        e.preventDefault();
+        searchRef.current?.focus();
+        searchRef.current?.select();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const closeModal = () => {
     hideModal();
@@ -97,8 +117,30 @@ export const EditorInternal = ({
           )}
         </div>
       )}
+      <div className="kbn-toolbar">
+        <input
+          ref={searchRef}
+          type="search"
+          className="kbn-input kbn-search"
+          placeholder="Search title, description or label"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label="Search cards"
+        />
+        {query && (
+          <button
+            type="button"
+            className="kbn-icon-btn"
+            aria-label="Clear search"
+            onClick={() => setQuery('')}
+          >
+            <IconX size={14} stroke={1.5} />
+          </button>
+        )}
+      </div>
       <Board
         data={boardData}
+        filter={query}
         onDataChange={handleDataChange}
         onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
       />
