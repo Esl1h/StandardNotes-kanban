@@ -128,6 +128,7 @@
   font-size: 0.9em;
   color: var(--sn-stylekit-paragraph-text-color);
   overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
 .kbn-icon-btn {
@@ -239,6 +240,45 @@
 .kbn-btn-ghost {
   background-color: var(--sn-stylekit-neutral-color);
   color: var(--sn-stylekit-neutral-contrast-color);
+}
+
+/* Card chip for the free-text label */
+.kbn-card-chip {
+  display: inline-block;
+  padding: 0.1em 0.55em;
+  border-radius: 999px;
+  font-size: 0.72em;
+  font-weight: 600;
+  background-color: var(--sn-stylekit-neutral-color);
+  color: var(--sn-stylekit-neutral-contrast-color);
+  white-space: nowrap;
+}
+
+/* Due date badge */
+.kbn-due {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 0.1em 0.55em;
+  border-radius: 999px;
+  font-size: 0.72em;
+  font-weight: 600;
+  background-color: var(--sn-stylekit-secondary-background-color);
+  color: var(--sn-stylekit-secondary-foreground-color);
+}
+
+.kbn-due-overdue {
+  background-color: var(--sn-stylekit-danger-color);
+  color: var(--sn-stylekit-danger-contrast-color);
+}
+
+.kbn-due-today {
+  background-color: var(--sn-stylekit-warning-color);
+  color: var(--sn-stylekit-warning-contrast-color);
+}
+
+.kbn-due-soon {
+  background-color: var(--sn-stylekit-info-color);
+  color: var(--sn-stylekit-info-contrast-color);
 }
 
 /* Card chip for the free-text label */

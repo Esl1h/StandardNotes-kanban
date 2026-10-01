@@ -3,6 +3,7 @@ export interface KanbanCard {
   title: string;
   description?: string;
   label?: string;
+  due?: string;
   laneId?: string;
   comments?: Array<string>;
 }

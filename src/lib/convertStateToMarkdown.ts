@@ -1,5 +1,4 @@
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
-import { titleCase } from './helpers';
 import {
   EditorConfig,
   EditorInterface,
@@ -32,26 +31,28 @@ const convertBoardData = (boardData: KanbanBoard): string => {
   return addNewlineIfNotEmpty(boardText);
 };
 
-const convertCards = (cards: Array<KanbanCard>): string => {
-  const cardFields = ['description', 'label'];
-  return cards
+const convertCards = (cards: Array<KanbanCard>): string =>
+  cards
     .map((card) => {
-      const fieldData = cardFields
-        .map(fieldToMarkdown(card))
-        .filter((_) => _)
-        .join('\n');
-      const commentData = (card.comments || [])
-        .map((comment) => `    * ${comment}`)
-        .join('\n');
-      return `* ${card.title}${fieldData && '\n'}${fieldData}${
-        commentData && '\n  * Comments:\n'
-      }${commentData}`;
+      const lines: string[] = [];
+      if (card.description) {
+        const [first, ...rest] = card.description.split('\n');
+        lines.push(`  * Description: ${first}`);
+        rest.forEach((text) => lines.push(`    > ${text}`));
+      }
+      if (card.due) {
+        lines.push(`  * Due: ${card.due}`);
+      }
+      if (card.label) {
+        lines.push(`  * Label: ${card.label}`);
+      }
+      if (card.comments && card.comments.length > 0) {
+        lines.push('  * Comments:');
+        card.comments.forEach((comment) => lines.push(`    * ${comment}`));
+      }
+      return `* ${card.title}${lines.length > 0 ? `\n${lines.join('\n')}` : ''}`;
     })
     .join('\n');
-};
-
-const fieldToMarkdown = (card: KanbanCard) => (fieldName: string): string =>
-  card[fieldName] ? `  * ${titleCase(fieldName)}: ${card[fieldName]}` : null;
 
 const addNewlineIfNotEmpty = (text: string): string => {
   return text ? `${text}\n` : '';

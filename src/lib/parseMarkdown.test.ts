@@ -1,6 +1,34 @@
 import { KanbanBoard } from '../../types/kanban';
 import { parseMarkdown } from './parseMarkdown';
 
+test('reports the error and keeps parsing when a card appears before any lane', () => {
+  const input = `* Stray card
+# Lane 1
+* Card 1`;
+  const { boardData, parsingErrors } = parseMarkdown(input);
+
+  expect(
+    parsingErrors.some((e) => /before adding lanes/i.test(e.message))
+  ).toBe(true);
+  // The lane after the bad line must still be parsed out.
+  expect(boardData.lanes).toHaveLength(1);
+  expect(boardData.lanes[0].cards[0].title).toBe('Card 1');
+});
+
+test('reports the error and keeps parsing when a field appears before any card', () => {
+  const input = `# Lane 1
+  * Description: orphan field
+* Card 1
+  * Description: desc`;
+  const { boardData, parsingErrors } = parseMarkdown(input);
+
+  expect(
+    parsingErrors.some((e) => /before adding a card/i.test(e.message))
+  ).toBe(true);
+  expect(boardData.lanes).toHaveLength(1);
+  expect(boardData.lanes[0].cards[0].description).toBe('desc');
+});
+
 test('converts simple markdown file', () => {
   const input = `# Lane 1
 * Card 1
@@ -18,15 +46,36 @@ test('converts simple markdown file', () => {
   expect(boardData).toEqual(expectedResult);
 });
 
+test('parses due dates', () => {
+  const input = `# Lane 1
+* Card 1
+  * Due: 2026-09-30`;
+  const { boardData } = parseMarkdown(input);
+
+  expect(boardData.lanes[0].cards[0].due).toBe('2026-09-30');
+});
+
+test('parses blockquoted lines as a multiline description', () => {
+  const input = `# Lane 1
+* Card 1
+  * Description: first line
+    > second line
+    > third line`;
+  const { boardData } = parseMarkdown(input);
+
+  expect(boardData.lanes[0].cards[0].description).toBe(
+    'first line\nsecond line\nthird line'
+  );
+});
 test('reports the error and keeps parsing when a card appears before any lane', () => {
   const input = `* Stray card
 # Lane 1
 * Card 1`;
   const { boardData, parsingErrors } = parseMarkdown(input);
 
-  expect(parsingErrors.some((e) => /before adding lanes/i.test(e.message))).toBe(
-    true
-  );
+  expect(
+    parsingErrors.some((e) => /before adding lanes/i.test(e.message))
+  ).toBe(true);
   // The lane after the bad line must still be parsed out.
   expect(boardData.lanes).toHaveLength(1);
   expect(boardData.lanes[0].cards[0].title).toBe('Card 1');
