@@ -1,5 +1,5 @@
-import { v4 as uuid } from 'uuid';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
+import { shortId } from './ids';
 
 /**
  * Pure board operations. Each function returns a new board object and
@@ -11,7 +11,7 @@ const laneById = (board: KanbanBoard, laneId: string) =>
   board.lanes.find((lane) => lane.id === laneId);
 
 export const addLane = (board: KanbanBoard, title: string): KanbanBoard => ({
-  lanes: [...board.lanes, { id: uuid(), title, cards: [] }],
+  lanes: [...board.lanes, { id: shortId(), title, cards: [] }],
 });
 
 export const renameLane = (
@@ -35,7 +35,7 @@ export const addCardToLane = (
 ): KanbanBoard => ({
   lanes: board.lanes.map((lane) =>
     lane.id === laneId
-      ? { ...lane, cards: [...lane.cards, { id: uuid(), title, laneId }] }
+      ? { ...lane, cards: [...lane.cards, { id: shortId(), title, laneId }] }
       : lane
   ),
 });

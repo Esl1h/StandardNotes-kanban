@@ -1,4 +1,5 @@
-import { KanbanBoard, KanbanCard } from '../../types/kanban';
+import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
+import { stripIdMarker } from './ids';
 import {
   EditorConfig,
   EditorInterface,
@@ -55,14 +56,22 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
       laneIndex += 1;
       cardIndex = -1;
       scope = Scope.Lane;
-      const lane = { title: line.slice(2), cards: [] };
+      const { title, id } = stripIdMarker(line.slice(2));
+      const lane: KanbanLane = { title, cards: [] };
+      if (id) {
+        lane.id = id;
+      }
       boardData.lanes.push(lane);
     } else if (line.startsWith('* ')) {
       if (boardData.lanes.length === 0) {
         parsingErrors.push(errorData('Cannot add cards before adding lanes!'));
         continue;
       }
-      const card: KanbanCard = { title: line.slice(2) };
+      const { title, id } = stripIdMarker(line.slice(2));
+      const card: KanbanCard = { title };
+      if (id) {
+        card.id = id;
+      }
       cardIndex += 1;
       scope = Scope.Card;
       boardData.lanes[laneIndex].cards.push(card);
