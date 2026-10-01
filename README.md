@@ -4,7 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/Esl1h/StandardNotes-kanban)](https://github.com/Esl1h/StandardNotes-kanban/releases/latest)
 [![License](https://img.shields.io/github/license/Esl1h/StandardNotes-kanban)](LICENSE)
 
-A Kanban board editor for [Standard Notes](https://standardnotes.org), a
+A Kanban board editor for [Standard Notes](https://standardnotes.com), a
 free, open-source, end-to-end encrypted notes app. Your board is stored as
 plain Markdown inside the note, so it stays readable, exportable and
 portable.
@@ -147,6 +147,6 @@ publishes the hosted build to Pages.
 
 - Board concept and early versions by
   [corvec](https://github.com/corvec) (sn-kanban-editor)
-- Built on [Standard Notes](https://standardnotes.org) and
+- Built on [Standard Notes](https://standardnotes.com) and
   [@standardnotes/editor-kit](https://github.com/standardnotes/editor-kit)
 - Licensed under [AGPL-3.0](LICENSE) or later
