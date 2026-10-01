@@ -14,7 +14,6 @@ export enum HtmlClassName {
 }
 
 interface EditorInternalProps {
-  printUrl?: boolean;
   boardData: KanbanBoard;
   handleDataChange: (board: KanbanBoard | string) => void;
   onCardUpdate: (laneId: string, cardId: string, patch: Partial<KanbanCard>) => void;
@@ -22,7 +21,6 @@ interface EditorInternalProps {
 }
 
 export const EditorInternal = ({
-  printUrl,
   boardData,
   handleDataChange,
   onCardUpdate,
@@ -89,11 +87,7 @@ export const EditorInternal = ({
   }, [modalTarget]);
 
   return (
-    <div
-      className={`${HtmlClassName.snComponent}${printUrl ? ' print-url' : ''}`}
-      id={HtmlElementId.snComponent}
-      tabIndex={0}
-    >
+    <div className={HtmlClassName.snComponent} id={HtmlElementId.snComponent} tabIndex={0}>
       {errorCount > 0 && (
         <div className="parse-errors" role="alert">
           <button

@@ -2,7 +2,6 @@ import { KanbanBoard } from './kanban';
 
 
 export interface EditorInterface {
-  printUrl?: boolean;
   boardData: KanbanBoard;
   editorConfig: EditorConfig;
   parsingErrors: ParsingErrors[];

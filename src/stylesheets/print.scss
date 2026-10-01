@@ -1,8 +1,35 @@
 @media print {
-  .print-url {
-    a[href]:after {
-      content: ' (' attr(href) ')';
-    }
+  /* Hide every editor control; the board itself prints as columns. */
+  .kbn-toolbar,
+  .kbn-add-card,
+  .kbn-add-form,
+  .kbn-add-lane,
+  .kbn-lane-count,
+  .kbn-icon-btn,
+  .kbn-checklist-count {
+    display: none !important;
+  }
+
+  .kbn-board {
+    min-height: auto;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .kbn-lane {
+    break-inside: avoid;
+    max-height: none;
+    width: auto;
+    flex: 1;
+    border-color: #ccc;
+    box-shadow: none;
+  }
+
+  .kbn-card {
+    box-shadow: none;
+    transform: none;
+    border-color: #ccc;
+    page-break-inside: avoid;
   }
 
   .sn-component,

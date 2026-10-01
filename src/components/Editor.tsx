@@ -12,7 +12,6 @@ import { EditorInterface } from '../../types/editor';
 import { EditorInternal } from './EditorInternal';
 
 const initialState: EditorInterface = {
-  printUrl: false,
   boardData: {
     lanes: [],
   },
@@ -43,7 +42,6 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
         // Legacy JSON format stored lanes at the top level instead of
         // under boardData. Wrap it so the board renders and, most
         // importantly, is re-saved instead of being wiped on first edit.
-        console.log('Parsed data from JSON.');
         return { ...initialState, boardData: { lanes: data.lanes } };
       }
     } catch {
@@ -52,7 +50,6 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
     try {
       return parseMarkdown(text);
     } catch {
-      console.log('Could not parse data from Markdown.');
       const textByLine = text.split('\n');
       return {
         ...initialState,
@@ -126,7 +123,8 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
     try {
       this.editorKit.onEditorValueChanged(text);
     } catch (error) {
-      console.log('Error saving note:', error);
+      // The standalone editor has no save bridge; ignore.
+      void error;
     }
   };
 
@@ -134,7 +132,6 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
     return (
       <ModalProvider>
         <EditorInternal
-          printUrl={this.state.printUrl}
           boardData={this.state.boardData}
           handleDataChange={this.handleDataChange}
           onCardUpdate={this.handleCardUpdate}

@@ -202,6 +202,7 @@ interface CardBodyProps {
   onCardClick: (laneId: string, cardId: string) => void;
   onSearchRequest?: (query: string) => void;
   onRemove: () => void;
+  focused?: boolean;
   provided?: DraggableProvided;
   snapshot?: DraggableStateSnapshot;
 }
@@ -212,6 +213,7 @@ const CardBody = ({
   onCardClick,
   onSearchRequest,
   onRemove,
+  focused,
   provided,
   snapshot,
 }: CardBodyProps) => {
@@ -220,7 +222,9 @@ const CardBody = ({
   const checklistDone = checklist.filter((item) => item.done).length;
   return (
     <div
-      className={`kbn-card${snapshot?.isDragging ? ' kbn-card-dragging' : ''}`}
+      className={`kbn-card${snapshot?.isDragging ? ' kbn-card-dragging' : ''}${
+        focused ? ' kbn-card-focused' : ''
+      }`}
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
@@ -288,6 +292,54 @@ export const Board = ({ data, filter = '', onDataChange, onCardClick, onSearchRe
   const [collapsedLaneIds, setCollapsedLaneIds] = useState<ReadonlySet<string>>(
     new Set()
   );
+  // Last clicked card; Alt+Left/Right moves it between lanes.
+  const [focusedCard, setFocusedCard] = useState<{
+    laneId: string;
+    cardId: string;
+  } | null>(null);
+
+  const handleCardClick = (laneId: string, cardId: string) => {
+    setFocusedCard({ laneId, cardId });
+    onCardClick(laneId, cardId);
+  };
+
+  const moveFocusedCard = (direction: -1 | 1) => {
+    if (filtering || !focusedCard) {
+      return;
+    }
+    let nextBoard = data;
+    let nextFocused = focusedCard;
+    for (let attempt = 0; attempt < data.lanes.length; attempt++) {
+      const fromLaneIndex = data.lanes.findIndex((l) => l.id === nextFocused.laneId);
+      const toLaneIndex = fromLaneIndex + direction;
+      const fromLane = data.lanes[fromLaneIndex];
+      const toLane = data.lanes[toLaneIndex];
+      if (!fromLane || !toLane) {
+        return;
+      }
+      const fromIndex = fromLane.cards.findIndex((c) => c.id === nextFocused.cardId);
+      if (fromIndex < 0) {
+        return;
+      }
+      // Skip collapsed lanes so the card lands somewhere visible.
+      if (collapsedLaneIds.has(toLane.id!)) {
+        nextFocused = { ...nextFocused, laneId: toLane.id! };
+        continue;
+      }
+      nextBoard = moveCard(
+        data,
+        fromLane.id!,
+        fromIndex,
+        toLane.id!,
+        Math.min(fromIndex, toLane.cards.length)
+      );
+      break;
+    }
+    setFocusedCard(nextFocused);
+    if (nextBoard !== data) {
+      onDataChange(nextBoard);
+    }
+  };
 
   const toggleCollapse = (laneId: string) => {
     setCollapsedLaneIds((prev) => {
@@ -358,6 +410,39 @@ export const Board = ({ data, filter = '', onDataChange, onCardClick, onSearchRe
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [data, collapsedLaneIds]);
+
+  // Alt+Left/Right moves the focused (last clicked) card to the adjacent
+  // lane. Ignored while typing, while filtering or while the modal is
+  // open.
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!e.altKey || e.ctrlKey || e.metaKey) {
+        return;
+      }
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+        return;
+      }
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (document.body.classList.contains('ReactModal__Body--open')) {
+        return;
+      }
+      e.preventDefault();
+      moveFocusedCard(e.key === 'ArrowLeft' ? -1 : 1);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+    // moveFocusedCard is recreated on each render of the same deps
+    // listed here, so it is safe to omit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, collapsedLaneIds, filtering, focusedCard]);
 
   let lanesToRender = data.lanes;
   if (filtering) {
@@ -451,8 +536,9 @@ export const Board = ({ data, filter = '', onDataChange, onCardClick, onSearchRe
                                       key={card.id}
                                       card={card}
                                       laneId={lane.id!}
-                                      onCardClick={onCardClick}
+                                      onCardClick={handleCardClick}
                                       onSearchRequest={onSearchRequest}
+                                      focused={focusedCard?.cardId === card.id}
                                       onRemove={() =>
                                         onDataChange(removeCard(data, lane.id!, card.id!))
                                       }
@@ -467,8 +553,9 @@ export const Board = ({ data, filter = '', onDataChange, onCardClick, onSearchRe
                                         <CardBody
                                           card={card}
                                           laneId={lane.id!}
-                                          onCardClick={onCardClick}
+                                          onCardClick={handleCardClick}
                                           onSearchRequest={onSearchRequest}
+                                          focused={focusedCard?.cardId === card.id}
                                           onRemove={() =>
                                             onDataChange(removeCard(data, lane.id!, card.id!))
                                           }

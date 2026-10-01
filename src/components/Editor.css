@@ -126,6 +126,10 @@
   transform: translateY(-1px);
 }
 
+.kbn-card-focused {
+  border-color: var(--sn-stylekit-info-color);
+}
+
 .kbn-card.kbn-card-dragging {
   box-shadow: 0 8px 20px var(--sn-stylekit-shadow-color);
   transform: rotate(2deg);
