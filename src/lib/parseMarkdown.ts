@@ -1,5 +1,6 @@
 import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
 import { stripIdMarker } from './ids';
+import { toQuadrant } from './quadrants';
 import { EditorInterface, ParsingErrors } from '../../types/editor';
 
 enum Scope {
@@ -14,7 +15,7 @@ enum Scope {
 // notes edited elsewhere still load and are rewritten in the canonical form.
 const LANE = /^#{1,2}\s+([\s\S]*)$/;
 const CARD = /^[*+-]\s+([\s\S]*)$/;
-const FIELD = /^ {2,}[*+-]\s+(description|due|label):\s?([\s\S]*)$/i;
+const FIELD = /^ {2,}[*+-]\s+(description|due|label|quadrant):\s?([\s\S]*)$/i;
 const LIST_HEADER = /^( {2,})[*+-]\s+(comments|checklist):\s*$/i;
 const CONTINUATION = /^ {4,}>(?:\s([\s\S]*))?$/;
 const CHECKLIST_ITEM = /^ +\[([xX ])\] ([\s\S]+)$/;
@@ -119,11 +120,18 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         reject('Cannot add card fields before adding a card!');
         continue;
       }
-      const field = fieldMatch[1].toLowerCase() as
-        | 'description'
-        | 'due'
-        | 'label';
-      boardData.lanes[laneIndex].cards[cardIndex][field] = fieldMatch[2];
+      const card = boardData.lanes[laneIndex].cards[cardIndex];
+      const field = fieldMatch[1].toLowerCase();
+      if (field === 'quadrant') {
+        const quadrant = toQuadrant(fieldMatch[2]);
+        if (!quadrant) {
+          reject('Unknown quadrant');
+          continue;
+        }
+        card.quadrant = quadrant;
+      } else {
+        card[field as 'description' | 'due' | 'label'] = fieldMatch[2];
+      }
     } else if (continuation) {
       // Multiline description continuation: "    > more text" appends to
       // the current card's description, keeping the note readable as

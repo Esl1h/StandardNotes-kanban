@@ -2,12 +2,16 @@ export interface KanbanChecklistItem {
   done: boolean;
   text: string;
 }
+export type Quadrant = 'do' | 'schedule' | 'delegate' | 'eliminate';
+
 export interface KanbanCard {
   id?: string;
   title: string;
   description?: string;
   label?: string;
   due?: string;
+  /** Eisenhower matrix placement; unset means unclassified. */
+  quadrant?: Quadrant;
   laneId?: string;
   checklist?: Array<KanbanChecklistItem>;
   comments?: Array<string>;

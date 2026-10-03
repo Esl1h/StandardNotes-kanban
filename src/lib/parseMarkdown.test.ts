@@ -313,3 +313,40 @@ describe('tolerant input', () => {
     expect(convertStateToMarkdown(parseMarkdown(canonical))).toBe(canonical);
   });
 });
+
+describe('quadrant field', () => {
+  test('reads the Eisenhower quadrant of a card', () => {
+    const input = '# Lane\n* A\n  * Quadrant: do\n* B\n  * Quadrant: Eliminate';
+    const { boardData, parsingErrors } = parseMarkdown(input);
+
+    expect(parsingErrors).toEqual([]);
+    expect(boardData.lanes[0].cards.map((c) => c.quadrant)).toEqual([
+      'do',
+      'eliminate',
+    ]);
+  });
+
+  test('keeps an unknown quadrant as an unread line', () => {
+    const { boardData, parsingErrors } = parseMarkdown(
+      '# Lane\n* A\n  * Quadrant: someday'
+    );
+
+    expect(boardData.lanes[0].cards[0].quadrant).toBeUndefined();
+    expect(boardData.lanes[0].cards[0].extraLines).toEqual([
+      '  * Quadrant: someday',
+    ]);
+    expect(parsingErrors).toHaveLength(1);
+  });
+
+  test('writes the quadrant after the label', () => {
+    const markdown = `# Lane
+* Card
+  * Label: red
+  * Quadrant: schedule
+  * Comments:
+    * note
+`;
+
+    expect(convertStateToMarkdown(parseMarkdown(markdown))).toBe(markdown);
+  });
+});
