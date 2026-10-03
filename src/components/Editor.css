@@ -531,3 +531,167 @@
 .kbn-lane-done .kbn-lane-header {
   opacity: 0.75;
 }
+
+/* View switch */
+.kbn-view-toggle {
+  display: flex;
+  gap: 2px;
+}
+
+/* Lane chip on matrix cards, which mix lanes */
+.kbn-card-lane {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--sn-stylekit-neutral-color);
+}
+
+.kbn-card-finished {
+  opacity: 0.6;
+}
+
+.kbn-card-finished .kbn-card-title {
+  text-decoration: line-through;
+}
+
+.kbn-card-complete {
+  position: absolute;
+  top: 6px;
+  right: 28px;
+  visibility: hidden;
+}
+
+.kbn-card:hover .kbn-card-complete {
+  visibility: visible;
+}
+
+.kbn-card-complete:hover {
+  color: var(--sn-stylekit-success-color);
+}
+
+/* Touch screens have no hover to reveal the card buttons. */
+@media (hover: none) {
+  .kbn-card-delete,
+  .kbn-card-complete {
+    visibility: visible;
+  }
+}
+
+/* Eisenhower matrix */
+.kbn-matrix {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+}
+
+.kbn-quadrants {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.kbn-unclassified,
+.kbn-quadrant {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--sn-stylekit-contrast-border-color);
+  border-radius: 8px;
+  background-color: var(--sn-stylekit-contrast-background-color);
+  color: var(--sn-stylekit-contrast-foreground-color);
+}
+
+.kbn-unclassified {
+  max-height: calc(100vh - 80px);
+  max-height: calc(100dvh - 80px);
+}
+
+.kbn-quadrant {
+  min-height: 160px;
+  max-height: calc(50vh - 52px);
+  max-height: calc(50dvh - 52px);
+  border-top-width: 4px;
+}
+
+.kbn-quadrant-do {
+  border-top-color: var(--sn-stylekit-danger-color);
+}
+
+.kbn-quadrant-schedule {
+  border-top-color: var(--sn-stylekit-info-color);
+}
+
+.kbn-quadrant-delegate {
+  border-top-color: var(--sn-stylekit-warning-color);
+}
+
+.kbn-quadrant-eliminate {
+  border-top-color: var(--sn-stylekit-neutral-color);
+}
+
+.kbn-quadrant-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 10px 6px;
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.kbn-quadrant-title {
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.kbn-quadrant-title:hover {
+  background-color: var(--sn-stylekit-secondary-background-color);
+}
+
+.kbn-quadrant-hint {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: normal;
+  color: var(--sn-stylekit-neutral-color);
+}
+
+.kbn-matrix .kbn-cards {
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .kbn-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .kbn-search {
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .kbn-matrix,
+  .kbn-quadrants {
+    grid-template-columns: 1fr;
+  }
+
+  /* On a phone the matrix is mostly read, and cards are classified from
+     the card modal, so the quadrants come before the long unclassified
+     list. */
+  .kbn-unclassified {
+    order: 1;
+  }
+
+  .kbn-unclassified,
+  .kbn-quadrant {
+    max-height: none;
+  }
+}

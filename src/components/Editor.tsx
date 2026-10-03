@@ -3,6 +3,7 @@ import { ModalProvider } from 'react-modal-hook';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { updateCard } from '../lib/boardOps';
 import { NoteBridge } from '../lib/noteBridge';
+import { QuadrantNames } from '../lib/quadrants';
 import {
   emptyHistory,
   History,
@@ -39,6 +40,7 @@ interface EditorState extends EditorInterface {
   // and edits made meanwhile could not be saved.
   noteReceived: boolean;
   waitTimedOut: boolean;
+  noteId?: string;
 }
 
 // Standard Notes normally delivers the note within a moment of load.
@@ -141,6 +143,11 @@ export default class Editor extends React.Component<
 
   undo = () => this.stepHistory(undoStep);
 
+  handleQuadrantNamesChange = (quadrantNames: QuadrantNames) => {
+    this.setState({ quadrantNames });
+    this.saveNote(convertStateToMarkdown({ ...this.state, quadrantNames }));
+  };
+
   stepHistory = (
     step: (h: History, board: KanbanBoard) => HistoryStep | null
   ) => {
@@ -159,7 +166,7 @@ export default class Editor extends React.Component<
     this.undoHistory = emptyHistory;
   };
 
-  receiveText = (text: string) => {
+  receiveText = (text: string, noteId?: string) => {
     this.rawText = text;
     clearTimeout(this.waitTimer);
     // Our own save can be streamed back unchanged; only text the current
@@ -175,6 +182,7 @@ export default class Editor extends React.Component<
       // cards are draggable before the first edit happens.
       boardData: infuseBoardData(newState.boardData),
       noteReceived: true,
+      noteId,
       waitTimedOut: false,
     });
   };
@@ -261,6 +269,9 @@ export default class Editor extends React.Component<
             onCardUpdate={this.handleCardUpdate}
             parsingErrors={this.state.parsingErrors}
             onUndo={this.undo}
+            noteId={this.state.noteId}
+            quadrantNames={this.state.quadrantNames}
+            onQuadrantNamesChange={this.handleQuadrantNamesChange}
           />
         </ErrorBoundary>
       </ModalProvider>

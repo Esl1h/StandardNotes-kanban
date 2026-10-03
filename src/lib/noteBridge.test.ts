@@ -17,12 +17,17 @@ const fakeRelay = () => {
 
 const delegate = (): NoteBridgeDelegate & {
   texts: string[];
+  ids: string[];
   clears: number;
 } => {
   const d = {
     texts: [] as string[],
+    ids: [] as string[],
     clears: 0,
-    setEditorRawText: (text: string) => d.texts.push(text),
+    setEditorRawText: (text: string, id: string) => {
+      d.texts.push(text);
+      d.ids.push(id);
+    },
     clearUndoHistory: () => {
       d.clears += 1;
     },
@@ -36,7 +41,7 @@ const note = (uuid: string, text: string, extra = {}): StreamedNote => ({
   ...extra,
 });
 
-test('hands the streamed note text to the editor', () => {
+test('hands the streamed note text and id to the editor', () => {
   const { relay, push } = fakeRelay();
   const d = delegate();
   new NoteBridge(d, relay);
@@ -44,6 +49,7 @@ test('hands the streamed note text to the editor', () => {
   push(note('n1', '# Lane'));
 
   expect(d.texts).toEqual(['# Lane']);
+  expect(d.ids).toEqual(['n1']);
 });
 
 test('clears the undo history only when a different note arrives', () => {

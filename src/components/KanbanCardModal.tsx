@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ReactModal from 'react-modal';
 import { IconMessage, IconCircleX, IconX } from '@tabler/icons-react';
 import { chipStyle, dueBadge, labelChips } from '../lib/labels';
+import { QUADRANTS, QuadrantNames, toQuadrant } from '../lib/quadrants';
 import {
   KanbanCard,
   KanbanChecklistItem,
@@ -154,6 +155,7 @@ interface KanbanCardModalProps {
   card: KanbanCard;
   lanes: KanbanLane[];
   laneId: string;
+  quadrantNames: QuadrantNames;
   hideModal: () => void;
   updateCard: (patch: Partial<KanbanCard>) => void;
   onMove: (laneId: string) => void;
@@ -165,6 +167,7 @@ export const KanbanCardModal = ({
   updateCard,
   lanes,
   laneId,
+  quadrantNames,
   onMove,
 }: KanbanCardModalProps) => {
   const { title, description, label, due, checklist, comments } = card;
@@ -176,6 +179,7 @@ export const KanbanCardModal = ({
   );
   const [updatedDue, setUpdatedDue] = useState(due || '');
   const [updatedLabel, setUpdatedLabel] = useState(label || '');
+  const [updatedQuadrant, setUpdatedQuadrant] = useState(card.quadrant ?? '');
   const addComment = () => {
     if (!newComment.trim()) {
       return;
@@ -191,6 +195,7 @@ export const KanbanCardModal = ({
       description: updatedDescription,
       due: updatedDue,
       label: updatedLabel,
+      quadrant: toQuadrant(updatedQuadrant),
       checklist: updatedChecklist,
       comments: updatedComments,
     });
@@ -238,30 +243,48 @@ export const KanbanCardModal = ({
           <IconX size={18} stroke={1.5} />
         </button>
       </header>
-      {/* Dragging is unreliable on small touch screens; this is the
-          alternative. */}
-      <label
+      {/* Dragging is unreliable on small touch screens; these selects are
+          the alternative. */}
+      <div
         style={{
           display: 'flex',
-          alignItems: 'center',
-          gap: '0.35em',
+          flexWrap: 'wrap',
+          gap: '0.75em',
           marginTop: '1em',
         }}
       >
-        <span>Move to</span>
-        <select
-          className="kbn-input"
-          style={{ width: 'auto' }}
-          value={laneId}
-          onChange={(e) => onMove(e.target.value)}
-        >
-          {lanes.map((lane) => (
-            <option key={lane.id} value={lane.id}>
-              {lane.title}
-            </option>
-          ))}
-        </select>
-      </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.35em' }}>
+          <span>Move to</span>
+          <select
+            className="kbn-input"
+            style={{ width: 'auto' }}
+            value={laneId}
+            onChange={(e) => onMove(e.target.value)}
+          >
+            {lanes.map((lane) => (
+              <option key={lane.id} value={lane.id}>
+                {lane.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.35em' }}>
+          <span>Quadrant</span>
+          <select
+            className="kbn-input"
+            style={{ width: 'auto' }}
+            value={updatedQuadrant}
+            onChange={(e) => setUpdatedQuadrant(e.target.value)}
+          >
+            <option value="">Unclassified</option>
+            {QUADRANTS.map((q) => (
+              <option key={q} value={q}>
+                {quadrantNames[q]}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
       <div
         style={{
           marginTop: '1em',
