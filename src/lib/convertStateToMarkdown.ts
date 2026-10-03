@@ -14,11 +14,15 @@ export const convertStateToMarkdown = (state: EditorInterface): string => {
   return `${preambleText}${boardText}`;
 };
 
+// Lines are the unit of the format, so a line break inside a title, label
+// or comment would turn its tail into a different line on the next load.
+const oneLine = (text: string): string => text.replace(/\r?\n/g, ' ');
+
 const convertBoardData = (boardData: KanbanBoard): string => {
   const boardText = boardData.lanes
     .map(
       (lane) =>
-        `# ${withIdMarker(lane.title, lane.id)}\n${convertExtraLines(
+        `# ${withIdMarker(oneLine(lane.title), lane.id)}\n${convertExtraLines(
           lane.extraLines
         )}${convertCards(lane.cards)}`
     )
@@ -42,22 +46,24 @@ const convertCards = (cards: Array<KanbanCard>): string =>
         rest.forEach((text) => lines.push(`    > ${text}`));
       }
       if (card.due) {
-        lines.push(`  * Due: ${card.due}`);
+        lines.push(`  * Due: ${oneLine(card.due)}`);
       }
       if (card.label) {
-        lines.push(`  * Label: ${card.label}`);
+        lines.push(`  * Label: ${oneLine(card.label)}`);
       }
       if (card.checklist && card.checklist.length > 0) {
         lines.push('  * Checklist:');
         card.checklist.forEach((item) =>
-          lines.push(`    [${item.done ? 'x' : ' '}] ${item.text}`)
+          lines.push(`    [${item.done ? 'x' : ' '}] ${oneLine(item.text)}`)
         );
       }
       if (card.comments && card.comments.length > 0) {
         lines.push('  * Comments:');
-        card.comments.forEach((comment) => lines.push(`    * ${comment}`));
+        card.comments.forEach((comment) =>
+          lines.push(`    * ${oneLine(comment)}`)
+        );
       }
-      return `* ${withIdMarker(card.title, card.id)}${
+      return `* ${withIdMarker(oneLine(card.title), card.id)}${
         lines.length > 0 ? `\n${lines.join('\n')}` : ''
       }`;
     })

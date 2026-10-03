@@ -120,3 +120,56 @@ test('round-trips metadata through markdown without loss', () => {
   expect(converted.trim()).toBe(markdown);
   expect(reparsed.boardData).toEqual(parsed.boardData);
 });
+
+test('collapses line breaks in single-line fields so the format holds', () => {
+  // Legacy JSON notes can hold text the inputs would never accept.
+  const boardData: KanbanBoard = {
+    lanes: [
+      {
+        id: 'aaaaaa',
+        title: 'Lane\nTitle',
+        cards: [
+          {
+            id: 'bbbbbb',
+            title: 'Card\r\nTitle',
+            label: 'red\nblue',
+            due: '2026-12-31',
+            comments: ['first\nsecond'],
+            checklist: [{ done: false, text: 'one\ntwo' }],
+          },
+        ],
+      },
+    ],
+  };
+
+  const markdown = convertStateToMarkdown({ ...defaultState, boardData });
+  const reparsed = parseMarkdown(markdown);
+
+  expect(reparsed.parsingErrors).toEqual([]);
+  expect(reparsed.boardData.lanes[0].title).toBe('Lane Title');
+  expect(reparsed.boardData.lanes[0].cards[0]).toMatchObject({
+    title: 'Card Title',
+    label: 'red blue',
+    due: '2026-12-31',
+    comments: ['first second'],
+    checklist: [{ done: false, text: 'one two' }],
+  });
+});
+
+test('keeps an id-like marker typed into a title', () => {
+  const boardData: KanbanBoard = {
+    lanes: [
+      {
+        id: 'aaaaaa',
+        title: 'Lane [id:beef12]',
+        cards: [{ id: 'bbbbbb', title: 'foo [id:abcd]' }],
+      },
+    ],
+  };
+
+  const reparsed = parseMarkdown(
+    convertStateToMarkdown({ ...defaultState, boardData })
+  );
+
+  expect(reparsed.boardData).toEqual(boardData);
+});
