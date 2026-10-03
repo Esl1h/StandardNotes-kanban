@@ -22,9 +22,10 @@ const convertBoardData = (boardData: KanbanBoard): string => {
   const boardText = boardData.lanes
     .map(
       (lane) =>
-        `# ${withIdMarker(oneLine(lane.title), lane.id)}\n${convertExtraLines(
-          lane.extraLines
-        )}${convertCards(lane.cards)}`
+        `# ${withIdMarker(
+          `${oneLine(lane.title)}${lane.done ? ' [done]' : ''}`,
+          lane.id
+        )}\n${convertExtraLines(lane.extraLines)}${convertCards(lane.cards)}`
     )
     .join('\n\n');
   return addNewlineIfNotEmpty(boardText);

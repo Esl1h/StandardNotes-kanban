@@ -19,6 +19,8 @@ const FIELD = /^ {2,}[*+-]\s+(description|due|label|quadrant):\s?([\s\S]*)$/i;
 const LIST_HEADER = /^( {2,})[*+-]\s+(comments|checklist):\s*$/i;
 const CONTINUATION = /^ {4,}>(?:\s([\s\S]*))?$/;
 const CHECKLIST_ITEM = /^ +\[([xX ])\] ([\s\S]+)$/;
+// Written between the lane title and its id: "# Shipped [done] [id:x]".
+const DONE_MARKER = /\s*\[done\]$/i;
 const COMMENT_ITEM = /^( +)[*+-] ([\s\S]*)$/;
 
 // One leading tab is one indentation level (2 spaces). Tabs further into
@@ -89,7 +91,13 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
       cardIndex = -1;
       scope = Scope.Lane;
       const { title, id } = stripIdMarker(laneMatch[1]);
-      const lane: KanbanLane = { title, cards: [] };
+      const lane: KanbanLane = {
+        title: title.replace(DONE_MARKER, '').trim(),
+        cards: [],
+      };
+      if (DONE_MARKER.test(title)) {
+        lane.done = true;
+      }
       if (id) {
         lane.id = id;
       }
