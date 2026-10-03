@@ -1,9 +1,8 @@
 import React from 'react';
-import EditorKit from '@standardnotes/editor-kit';
-import type { EditorKitDelegate } from '@standardnotes/editor-kit';
 import { ModalProvider } from 'react-modal-hook';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { updateCard } from '../lib/boardOps';
+import { NoteBridge } from '../lib/noteBridge';
 import {
   emptyHistory,
   History,
@@ -181,16 +180,9 @@ export default class Editor extends React.Component<
   };
 
   configureEditorKit = () => {
-    const delegate: EditorKitDelegate = {
+    this.editorKit = new NoteBridge({
       setEditorRawText: this.receiveText,
       clearUndoHistory: this.clearUndoHistory,
-      handleRequestForContentHeight: () => undefined,
-    };
-
-    this.editorKit = new EditorKit(delegate, {
-      mode: 'plaintext',
-      coallesedSaving: true,
-      coallesedSavingDelay: 350,
     });
   };
 
