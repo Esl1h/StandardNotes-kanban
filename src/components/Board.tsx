@@ -342,42 +342,40 @@ export const Board = ({
     if (filtering || !focusedCard) {
       return;
     }
-    let nextBoard = data;
-    let nextFocused = focusedCard;
-    for (let attempt = 0; attempt < data.lanes.length; attempt++) {
-      const fromLaneIndex = data.lanes.findIndex(
-        (l) => l.id === nextFocused.laneId
-      );
-      const toLaneIndex = fromLaneIndex + direction;
-      const fromLane = data.lanes[fromLaneIndex];
-      const toLane = data.lanes[toLaneIndex];
-      if (!fromLane || !toLane) {
-        return;
-      }
-      const fromIndex = fromLane.cards.findIndex(
-        (c) => c.id === nextFocused.cardId
-      );
-      if (fromIndex < 0) {
-        return;
-      }
-      // Skip collapsed lanes so the card lands somewhere visible.
-      if (collapsedLaneIds.has(toLane.id!)) {
-        nextFocused = { ...nextFocused, laneId: toLane.id! };
-        continue;
-      }
-      nextBoard = moveCard(
+    const fromLaneIndex = data.lanes.findIndex(
+      (l) => l.id === focusedCard.laneId
+    );
+    const fromIndex =
+      data.lanes[fromLaneIndex]?.cards.findIndex(
+        (c) => c.id === focusedCard.cardId
+      ) ?? -1;
+    if (fromIndex < 0) {
+      return;
+    }
+    // Skip collapsed lanes so the card lands somewhere visible.
+    let toLaneIndex = fromLaneIndex + direction;
+    while (
+      data.lanes[toLaneIndex] &&
+      collapsedLaneIds.has(data.lanes[toLaneIndex].id!)
+    ) {
+      toLaneIndex += direction;
+    }
+    const toLane = data.lanes[toLaneIndex];
+    if (!toLane) {
+      return;
+    }
+    onDataChange(
+      moveCard(
         data,
-        fromLane.id!,
+        focusedCard.laneId,
         fromIndex,
         toLane.id!,
         Math.min(fromIndex, toLane.cards.length)
-      );
-      break;
-    }
-    setFocusedCard(nextFocused);
-    if (nextBoard !== data) {
-      onDataChange(nextBoard);
-    }
+      )
+    );
+    // Follow the card, or the next press would look for it in the lane it
+    // just left.
+    setFocusedCard({ laneId: toLane.id!, cardId: focusedCard.cardId });
   };
 
   const toggleCollapse = (laneId: string) => {
