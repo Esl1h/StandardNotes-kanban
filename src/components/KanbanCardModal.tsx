@@ -2,9 +2,19 @@ import React, { useState } from 'react';
 import ReactModal from 'react-modal';
 import { IconMessage, IconCircleX, IconX } from '@tabler/icons-react';
 import { chipStyle, dueBadge, labelChips } from '../lib/labels';
-import { KanbanChecklistItem } from '../../types/kanban';
+import {
+  KanbanCard,
+  KanbanChecklistItem,
+  KanbanLane,
+} from '../../types/kanban';
 
-const CardComment = ({ comment, deleteComment }) => (
+const CardComment = ({
+  comment,
+  deleteComment,
+}: {
+  comment: string;
+  deleteComment: () => void;
+}) => (
   <div
     className="card-comment"
     style={{
@@ -34,7 +44,13 @@ const NoComments = () => (
   </div>
 );
 
-const ChecklistSection = ({ checklist, onUpdate }) => {
+const ChecklistSection = ({
+  checklist,
+  onUpdate,
+}: {
+  checklist: KanbanChecklistItem[];
+  onUpdate: (checklist: KanbanChecklistItem[]) => void;
+}) => {
   const [newItem, setNewItem] = useState('');
   const addItem = () => {
     if (!newItem.trim()) {
@@ -134,6 +150,15 @@ const customStyles = {
   },
 };
 
+interface KanbanCardModalProps {
+  card: KanbanCard;
+  lanes: KanbanLane[];
+  laneId: string;
+  hideModal: () => void;
+  updateCard: (patch: Partial<KanbanCard>) => void;
+  onMove: (laneId: string) => void;
+}
+
 export const KanbanCardModal = ({
   card,
   hideModal,
@@ -141,7 +166,7 @@ export const KanbanCardModal = ({
   lanes,
   laneId,
   onMove,
-}) => {
+}: KanbanCardModalProps) => {
   const { title, description, label, due, checklist, comments } = card;
   const [newComment, setNewComment] = useState('');
   const [updatedComments, setUpdatedComments] = useState(comments || []);
