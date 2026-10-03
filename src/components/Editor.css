@@ -417,3 +417,21 @@
   stroke: var(--sn-stylekit-danger-contrast-color);
   fill: var(--sn-stylekit-danger-color);
 }
+
+.kbn-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100vw - 32px);
+  padding: 8px 12px;
+  border: 1px solid var(--sn-stylekit-contrast-border-color);
+  border-radius: 6px;
+  background-color: var(--sn-stylekit-contrast-background-color);
+  color: var(--sn-stylekit-contrast-foreground-color);
+  box-shadow: 0 4px 12px var(--sn-stylekit-shadow-color);
+}

@@ -111,6 +111,8 @@ export default class Editor extends React.Component<
     this.stepHistory(e.shiftKey ? redoStep : undoStep);
   };
 
+  undo = () => this.stepHistory(undoStep);
+
   stepHistory = (
     step: (h: History, board: KanbanBoard) => HistoryStep | null
   ) => {
@@ -216,6 +218,7 @@ export default class Editor extends React.Component<
           handleDataChange={this.handleDataChange}
           onCardUpdate={this.handleCardUpdate}
           parsingErrors={this.state.parsingErrors}
+          onUndo={this.undo}
         />
       </ModalProvider>
     );
