@@ -64,13 +64,13 @@ one `*` bullet per card, indented `*` bullets for card fields:
 * Call the bank
 ```
 
-- `Description` spans multiple lines: continue it with `    > ` lines
+- `Description` spans multiple lines: continue it with ` >` lines
 - `Label` takes a comma separated list; palette names (`red`, `orange`,
   `yellow`, `green`, `blue`, `purple`, `pink`) render as colored chips,
   any other text renders as a neutral chip
 - `Due` takes a `YYYY-MM-DD` date; the card shows an overdue/today badge
-- `Checklist` is a header line followed by `    [x] item` (done) and
-  `    [ ] item` (pending) sub-items; the card shows a `3/7` counter with
+- `Checklist` is a header line followed by ` [x] item` (done) and
+  ` [ ] item` (pending) sub-items; the card shows a `3/7` counter with
   a progress bar, and the modal edits the items
 - The `[id:xxxxxx]` markers are managed by the editor and keep drag and
   modal references stable between loads; they are recreated
@@ -156,5 +156,5 @@ publishes the hosted build to Pages.
 - Board concept and early versions by
   [corvec](https://github.com/corvec) (sn-kanban-editor)
 - Built on [Standard Notes](https://standardnotes.com) and
-  [@standardnotes/editor-kit](https://github.com/standardnotes/editor-kit)
+  [@standardnotes/component-relay](https://github.com/standardnotes/component-relay)
 - Licensed under [AGPL-3.0](LICENSE) or later
