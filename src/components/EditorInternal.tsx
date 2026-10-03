@@ -17,6 +17,7 @@ interface EditorInternalProps {
     patch: Partial<KanbanCard>
   ) => void;
   parsingErrors?: ParsingErrors[];
+  onUndo?: () => void;
 }
 
 export const EditorInternal = ({
@@ -24,6 +25,7 @@ export const EditorInternal = ({
   handleDataChange,
   onCardUpdate,
   parsingErrors = [],
+  onUndo,
 }: EditorInternalProps) => {
   const [modalTarget, setModalTarget] = useState<{
     laneId: string;
@@ -137,6 +139,7 @@ export const EditorInternal = ({
         onDataChange={handleDataChange}
         onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
         onSearchRequest={setQuery}
+        onUndo={onUndo}
       />
     </div>
   );

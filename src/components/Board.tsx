@@ -30,7 +30,11 @@ interface BoardProps {
   onDataChange: (board: KanbanBoard) => void;
   onCardClick: (laneId: string, cardId: string) => void;
   onSearchRequest?: (query: string) => void;
+  onUndo?: () => void;
 }
+
+// How long the "lane removed" toast stays up before it goes away.
+const UNDO_TOAST_MS = 6000;
 
 /**
  * Add forms commit on Enter or the Add button and cancel on Escape or
@@ -317,6 +321,7 @@ export const Board = ({
   onDataChange,
   onCardClick,
   onSearchRequest,
+  onUndo,
 }: BoardProps) => {
   const filtering = isFiltering(filter);
   const query = filter.trim().toLowerCase();
@@ -324,6 +329,12 @@ export const Board = ({
     null
   );
   const [addLaneOpen, setAddLaneOpen] = useState(false);
+  // The board right after a lane removal; the undo toast is only valid
+  // while it is still the current board.
+  const [removedLane, setRemovedLane] = useState<{
+    title: string;
+    board: KanbanBoard;
+  } | null>(null);
   const [collapsedLaneIds, setCollapsedLaneIds] = useState<ReadonlySet<string>>(
     new Set()
   );
@@ -494,6 +505,14 @@ export const Board = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, collapsedLaneIds, filtering, focusedCard]);
 
+  React.useEffect(() => {
+    if (!removedLane) {
+      return;
+    }
+    const timer = setTimeout(() => setRemovedLane(null), UNDO_TOAST_MS);
+    return () => clearTimeout(timer);
+  }, [removedLane]);
+
   let lanesToRender = data.lanes;
   if (filtering) {
     lanesToRender = data.lanes.filter(
@@ -575,9 +594,11 @@ export const Board = ({
                           type="button"
                           className="kbn-icon-btn"
                           aria-label={`Delete lane ${lane.title}`}
-                          onClick={() =>
-                            onDataChange(removeLane(data, lane.id!))
-                          }
+                          onClick={() => {
+                            const board = removeLane(data, lane.id!);
+                            onDataChange(board);
+                            setRemovedLane({ title: lane.title, board });
+                          }}
                         >
                           <IconX size={14} stroke={1.5} />
                         </button>
@@ -684,6 +705,21 @@ export const Board = ({
           </div>
         )}
       </Droppable>
+      {onUndo && removedLane?.board === data && (
+        <div className="kbn-toast" role="status">
+          <span>Lane "{removedLane.title}" removed</span>
+          <button
+            type="button"
+            className="kbn-btn kbn-btn-primary"
+            onClick={() => {
+              setRemovedLane(null);
+              onUndo();
+            }}
+          >
+            Undo
+          </button>
+        </div>
+      )}
     </DragDropContext>
   );
 };
