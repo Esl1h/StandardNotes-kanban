@@ -238,9 +238,14 @@ interface CardBodyProps {
   focused?: boolean;
   provided?: DraggableProvided;
   snapshot?: DraggableStateSnapshot;
+  /** Shown as a chip where cards from several lanes mix (the matrix). */
+  laneTitle?: string;
+  /** Offers a button that moves the card to the done lane. */
+  onComplete?: () => void;
+  finished?: boolean;
 }
 
-const CardBody = ({
+export const CardBody = ({
   card,
   laneId,
   onCardClick,
@@ -249,6 +254,9 @@ const CardBody = ({
   focused,
   provided,
   snapshot,
+  laneTitle,
+  onComplete,
+  finished,
 }: CardBodyProps) => {
   const badge = dueBadge(card.due);
   const checklist = card.checklist || [];
@@ -257,7 +265,7 @@ const CardBody = ({
     <div
       className={`kbn-card${snapshot?.isDragging ? ' kbn-card-dragging' : ''}${
         focused ? ' kbn-card-focused' : ''
-      }`}
+      }${finished ? ' kbn-card-finished' : ''}`}
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
@@ -265,6 +273,7 @@ const CardBody = ({
     >
       <div className="kbn-card-row">
         <span className="kbn-card-title">{card.title}</span>
+        {laneTitle && <span className="kbn-card-lane">{laneTitle}</span>}
       </div>
       {labelChips(card.label).length > 0 && (
         <div className="kbn-card-chips">
@@ -303,6 +312,20 @@ const CardBody = ({
       )}
       {badge && (
         <div className={`kbn-due ${badge.className}`}>{badge.text}</div>
+      )}
+      {onComplete && (
+        <button
+          type="button"
+          className="kbn-icon-btn kbn-card-complete"
+          aria-label={`Complete card ${card.title}`}
+          title="Move to the done lane"
+          onClick={(e) => {
+            e.stopPropagation();
+            onComplete();
+          }}
+        >
+          <IconCircleCheck size={14} stroke={1.5} />
+        </button>
       )}
       <button
         type="button"

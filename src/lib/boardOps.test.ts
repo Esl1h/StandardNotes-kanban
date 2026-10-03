@@ -9,6 +9,7 @@ import {
   updateCard,
   setDoneLane,
   completeCard,
+  setCardQuadrant,
 } from './boardOps';
 import { KanbanBoard } from '../../types/kanban';
 
@@ -138,5 +139,36 @@ describe('done lane', () => {
     const plain = setDoneLane(board(), null);
 
     expect(completeCard(plain, 'a', 'c1')).toBe(plain);
+  });
+});
+
+describe('setCardQuadrant', () => {
+  const board = (): KanbanBoard => ({
+    lanes: [
+      { id: 'a', title: 'A', cards: [{ id: 'c1', title: 'One', laneId: 'a' }] },
+      {
+        id: 'b',
+        title: 'B',
+        cards: [{ id: 'c2', title: 'Two', laneId: 'b', quadrant: 'do' }],
+      },
+    ],
+  });
+
+  test('sets the quadrant of a card wherever its lane is', () => {
+    const next = setCardQuadrant(board(), 'c1', 'schedule');
+
+    expect(next.lanes[0].cards[0].quadrant).toBe('schedule');
+  });
+
+  test('clears the quadrant', () => {
+    const next = setCardQuadrant(board(), 'c2', undefined);
+
+    expect(next.lanes[1].cards[0].quadrant).toBeUndefined();
+  });
+
+  test('returns the board unchanged for an unknown card', () => {
+    const b = board();
+
+    expect(setCardQuadrant(b, 'nope', 'do')).toBe(b);
   });
 });

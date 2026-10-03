@@ -1,4 +1,4 @@
-import { KanbanBoard, KanbanCard } from '../../types/kanban';
+import { KanbanBoard, KanbanCard, Quadrant } from '../../types/kanban';
 import { shortId } from './ids';
 
 /**
@@ -142,4 +142,14 @@ export const completeCard = (
     return board;
   }
   return moveCard(board, laneId, index, doneLane.id!, doneLane.cards.length);
+};
+
+/** Places a card in an Eisenhower quadrant, or unclassifies it. */
+export const setCardQuadrant = (
+  board: KanbanBoard,
+  cardId: string,
+  quadrant: Quadrant | undefined
+): KanbanBoard => {
+  const lane = board.lanes.find((l) => l.cards.some((c) => c.id === cardId));
+  return lane ? updateCard(board, lane.id!, cardId, { quadrant }) : board;
 };

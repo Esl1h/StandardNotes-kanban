@@ -19,7 +19,7 @@ export interface StreamedNote {
 }
 
 export interface NoteBridgeDelegate {
-  setEditorRawText(text: string): void;
+  setEditorRawText(text: string, noteId: string): void;
   clearUndoHistory(): void;
 }
 
@@ -58,7 +58,7 @@ export class NoteBridge {
       if (note.isMetadataUpdate) {
         return;
       }
-      this.delegate.setEditorRawText(note.content?.text || '');
+      this.delegate.setEditorRawText(note.content?.text || '', note.uuid);
       if (isNewNote) {
         this.delegate.clearUndoHistory();
       }

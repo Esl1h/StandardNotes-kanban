@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { IconX } from '@tabler/icons-react';
 import { Board } from './Board';
+import { Matrix } from './Matrix';
 import { KanbanCardModal } from './KanbanCardModal';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { ParsingErrors } from '../../types/editor';
 import { moveCard } from '../lib/boardOps';
+import { DEFAULT_QUADRANT_NAMES, QuadrantNames } from '../lib/quadrants';
 
 const snComponentId = 'sn-component';
 
@@ -19,7 +21,26 @@ interface EditorInternalProps {
   ) => void;
   parsingErrors?: ParsingErrors[];
   onUndo?: () => void;
+  /** Identifies the note so each one remembers its own view. */
+  noteId?: string;
+  quadrantNames?: QuadrantNames;
+  onQuadrantNamesChange?: (names: QuadrantNames) => void;
 }
+
+type View = 'board' | 'matrix';
+
+// Per device on purpose: switching views should not save the note.
+const viewKey = (noteId: string) => `kbn-view:${noteId}`;
+
+const readView = (noteId?: string): View => {
+  try {
+    return noteId && localStorage.getItem(viewKey(noteId)) === 'matrix'
+      ? 'matrix'
+      : 'board';
+  } catch {
+    return 'board';
+  }
+};
 
 export const EditorInternal = ({
   boardData,
@@ -27,6 +48,9 @@ export const EditorInternal = ({
   onCardUpdate,
   parsingErrors = [],
   onUndo,
+  noteId,
+  quadrantNames = DEFAULT_QUADRANT_NAMES,
+  onQuadrantNamesChange,
 }: EditorInternalProps) => {
   const [modalTarget, setModalTarget] = useState<{
     laneId: string;
@@ -35,6 +59,23 @@ export const EditorInternal = ({
   const [query, setQuery] = useState('');
   const [errorsOpen, setErrorsOpen] = useState(true);
   const [showDone, setShowDone] = useState(false);
+  const [view, setView] = useState<View>(() => readView(noteId));
+  const [viewNoteId, setViewNoteId] = useState(noteId);
+  if (viewNoteId !== noteId) {
+    // Another note was opened: show the view that note was left in.
+    setViewNoteId(noteId);
+    setView(readView(noteId));
+  }
+  const changeView = (next: View) => {
+    setView(next);
+    try {
+      if (noteId) {
+        localStorage.setItem(viewKey(noteId), next);
+      }
+    } catch {
+      /* storage may be unavailable; the view just won't be remembered */
+    }
+  };
   const doneLanes = boardData.lanes.filter((lane) => lane.done);
   const doneCount = doneLanes.reduce((n, lane) => n + lane.cards.length, 0);
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
@@ -101,6 +142,7 @@ export const EditorInternal = ({
         card={card}
         lanes={boardData.lanes}
         laneId={modalTarget.laneId}
+        quadrantNames={quadrantNames}
         onMove={moveModalCard}
         hideModal={closeModal}
         updateCard={(patch) =>
@@ -108,7 +150,7 @@ export const EditorInternal = ({
         }
       />
     );
-  }, [modalTarget, boardData]);
+  }, [modalTarget, boardData, quadrantNames]);
 
   React.useEffect(() => {
     if (modalTarget) {
@@ -164,6 +206,19 @@ export const EditorInternal = ({
             <IconX size={14} stroke={1.5} />
           </button>
         )}
+        <div className="kbn-view-toggle" role="group" aria-label="View">
+          {(['board', 'matrix'] as View[]).map((v) => (
+            <button
+              key={v}
+              type="button"
+              className="kbn-btn kbn-btn-ghost kbn-toolbar-btn"
+              aria-pressed={view === v}
+              onClick={() => changeView(v)}
+            >
+              {v === 'board' ? 'Board' : 'Matrix'}
+            </button>
+          ))}
+        </div>
         {doneLanes.length > 0 && (
           <button
             type="button"
@@ -176,15 +231,30 @@ export const EditorInternal = ({
           </button>
         )}
       </div>
-      <Board
-        data={boardData}
-        filter={query}
-        onDataChange={handleDataChange}
-        onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
-        onSearchRequest={setQuery}
-        onUndo={onUndo}
-        showDone={showDone}
-      />
+      {view === 'matrix' ? (
+        <Matrix
+          data={boardData}
+          filter={query}
+          showDone={showDone}
+          quadrantNames={quadrantNames}
+          onDataChange={handleDataChange}
+          onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
+          onSearchRequest={setQuery}
+          onRenameQuadrant={(quadrant, name) =>
+            onQuadrantNamesChange?.({ ...quadrantNames, [quadrant]: name })
+          }
+        />
+      ) : (
+        <Board
+          data={boardData}
+          filter={query}
+          onDataChange={handleDataChange}
+          onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
+          onSearchRequest={setQuery}
+          onUndo={onUndo}
+          showDone={showDone}
+        />
+      )}
     </div>
   );
 };
