@@ -11,7 +11,9 @@
   max-width: 380px;
 }
 
-.kbn-lane-collapsed {
+/* Needs the extra class: .kbn-lane sets width later in the file with the
+   same specificity and would otherwise win. */
+.kbn-lane.kbn-lane-collapsed {
   width: 56px;
   align-items: center;
 }
