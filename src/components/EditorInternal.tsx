@@ -5,6 +5,7 @@ import { Board } from './Board';
 import { KanbanCardModal } from './KanbanCardModal';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { ParsingErrors } from '../../types/editor';
+import { moveCard } from '../lib/boardOps';
 
 const snComponentId = 'sn-component';
 
@@ -61,6 +62,31 @@ export const EditorInternal = ({
     setModalTarget(null);
   };
 
+  const moveModalCard = (toLaneId: string) => {
+    if (!modalTarget) {
+      return;
+    }
+    const fromLane = boardData.lanes.find((l) => l.id === modalTarget.laneId);
+    const toLane = boardData.lanes.find((l) => l.id === toLaneId);
+    const index =
+      fromLane?.cards.findIndex((c) => c.id === modalTarget.cardId) ?? -1;
+    if (!toLane || index < 0 || toLane === fromLane) {
+      return;
+    }
+    handleDataChange(
+      moveCard(
+        boardData,
+        modalTarget.laneId,
+        index,
+        toLaneId,
+        toLane.cards.length
+      )
+    );
+    // Edits still pending in the modal are saved against this lane when it
+    // closes, so it has to follow the card.
+    setModalTarget({ laneId: toLaneId, cardId: modalTarget.cardId });
+  };
+
   const [showModal, hideModal] = useModal(() => {
     const lane = boardData.lanes.find((l) => l.id === modalTarget?.laneId);
     const card = lane?.cards.find((c) => c.id === modalTarget?.cardId);
@@ -70,6 +96,9 @@ export const EditorInternal = ({
     return (
       <KanbanCardModal
         card={card}
+        lanes={boardData.lanes}
+        laneId={modalTarget.laneId}
+        onMove={moveModalCard}
         hideModal={closeModal}
         updateCard={(patch) =>
           onCardUpdate(modalTarget.laneId, modalTarget.cardId, patch)
