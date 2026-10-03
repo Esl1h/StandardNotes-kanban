@@ -329,6 +329,7 @@ export const Board = ({
     null
   );
   const [addLaneOpen, setAddLaneOpen] = useState(false);
+  const [dragging, setDragging] = useState(false);
   // The board right after a lane removal; the undo toast is only valid
   // while it is still the current board.
   const [removedLane, setRemovedLane] = useState<{
@@ -402,6 +403,7 @@ export const Board = ({
   };
 
   const handleDragEnd = (result: DropResult) => {
+    setDragging(false);
     if (filtering || !result.destination) {
       return;
     }
@@ -523,7 +525,10 @@ export const Board = ({
   }
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
+    <DragDropContext
+      onDragStart={() => setDragging(true)}
+      onDragEnd={handleDragEnd}
+    >
       <Droppable
         droppableId="board"
         type="LANE"
@@ -532,7 +537,7 @@ export const Board = ({
       >
         {(boardProvided) => (
           <div
-            className="kbn-board"
+            className={`kbn-board${dragging ? ' kbn-board-dragging' : ''}`}
             ref={boardProvided.innerRef}
             {...boardProvided.droppableProps}
           >
