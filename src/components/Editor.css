@@ -35,16 +35,33 @@
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
+  /* vh ignores the mobile browser's dynamic toolbars; dvh follows them. */
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: auto;
+}
+
+/* One lane at a time on phones. Snapping is turned off while dragging
+   because it fights the library's edge auto-scroll. */
+@media (max-width: 640px) {
+  .kbn-board {
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 12px;
+  }
+
+  .kbn-board.kbn-board-dragging {
+    scroll-snap-type: none;
+  }
 }
 
 .kbn-lane {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  width: 280px;
+  width: min(280px, 85vw);
+  scroll-snap-align: start;
   max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
   border: 1px solid var(--sn-stylekit-contrast-border-color);
   border-radius: 8px;
   background-color: var(--sn-stylekit-contrast-background-color);
@@ -370,6 +387,20 @@
 /* Modal action buttons */
 .ReactModalPortal button {
   border-radius: 6px;
+}
+
+/* Full screen on phones. The modal's size and position are inline styles
+   from react-modal, so overriding them takes !important. */
+@media (max-width: 640px) {
+  .ReactModalPortal .ReactModal__Content {
+    inset: 0 !important;
+    width: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    box-sizing: border-box;
+  }
 }
 
 /* Modal base: the SN context serves small fonts; the edit block needs
