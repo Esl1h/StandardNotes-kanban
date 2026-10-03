@@ -51,6 +51,9 @@ const convertCards = (cards: Array<KanbanCard>): string =>
       if (card.label) {
         lines.push(`  * Label: ${oneLine(card.label)}`);
       }
+      if (card.quadrant) {
+        lines.push(`  * Quadrant: ${card.quadrant}`);
+      }
       if (card.checklist && card.checklist.length > 0) {
         lines.push('  * Checklist:');
         card.checklist.forEach((item) =>
