@@ -106,3 +106,24 @@ test('edits made before moving are saved on the lane the card ended in', () => {
     expect.objectContaining({ description: 'typed before moving' })
   );
 });
+
+test('the modal has a button that saves and closes it', () => {
+  // Full screen on a phone leaves neither an overlay to tap nor an Escape key.
+  const onCardUpdate = vi.fn();
+  render(<Harness onCardUpdate={onCardUpdate} />);
+  const dialog = openCard('Write docs');
+  fireEvent.change(within(dialog).getByPlaceholderText('Description'), {
+    target: { value: 'kept' },
+  });
+
+  fireEvent.click(
+    within(dialog).getByRole('button', { name: 'Save and close' })
+  );
+
+  expect(onCardUpdate).toHaveBeenCalledWith(
+    'laneA',
+    'c1',
+    expect.objectContaining({ description: 'kept' })
+  );
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+});
