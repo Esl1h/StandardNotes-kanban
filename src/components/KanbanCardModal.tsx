@@ -134,7 +134,14 @@ const customStyles = {
   },
 };
 
-export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
+export const KanbanCardModal = ({
+  card,
+  hideModal,
+  updateCard,
+  lanes,
+  laneId,
+  onMove,
+}) => {
   const { title, description, label, due, checklist, comments } = card;
   const [newComment, setNewComment] = useState('');
   const [updatedComments, setUpdatedComments] = useState(comments || []);
@@ -196,6 +203,30 @@ export const KanbanCardModal = ({ card, hideModal, updateCard }) => {
           </span>
         ))}
       </header>
+      {/* Dragging is unreliable on small touch screens; this is the
+          alternative. */}
+      <label
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35em',
+          marginTop: '1em',
+        }}
+      >
+        <span>Move to</span>
+        <select
+          className="kbn-input"
+          style={{ width: 'auto' }}
+          value={laneId}
+          onChange={(e) => onMove(e.target.value)}
+        >
+          {lanes.map((lane) => (
+            <option key={lane.id} value={lane.id}>
+              {lane.title}
+            </option>
+          ))}
+        </select>
+      </label>
       <div
         style={{
           marginTop: '1em',
