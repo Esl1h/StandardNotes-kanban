@@ -4,6 +4,14 @@ import type { EditorKitDelegate } from '@standardnotes/editor-kit';
 import { ModalProvider } from 'react-modal-hook';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { updateCard } from '../lib/boardOps';
+import {
+  emptyHistory,
+  History,
+  HistoryStep,
+  recordChange,
+  redoStep,
+  undoStep,
+} from '../lib/history';
 import { infuseBoardData } from '../lib/helpers';
 import { parseMarkdown } from '../lib/parseMarkdown';
 import { convertStateToMarkdown } from '../lib/convertStateToMarkdown';
@@ -28,6 +36,8 @@ export default class Editor extends React.Component<
   EditorInterface
 > {
   editorKit: SaveNoteBridge;
+  // Not React state: nothing renders from it, it only feeds Ctrl+Z.
+  undoHistory: History = emptyHistory;
 
   constructor(props: EditorInterface) {
     super(props);
@@ -71,19 +81,74 @@ export default class Editor extends React.Component<
     }
   }
 
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown = (e: KeyboardEvent) => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.key.toLowerCase() !== 'z') {
+      return;
+    }
+    // Inside a field, Ctrl+Z belongs to the browser's text undo; with the
+    // card modal open it would change the board behind it.
+    const target = e.target as HTMLElement | null;
+    if (
+      target &&
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable)
+    ) {
+      return;
+    }
+    if (document.body.classList.contains('ReactModal__Body--open')) {
+      return;
+    }
+    e.preventDefault();
+    this.stepHistory(e.shiftKey ? redoStep : undoStep);
+  };
+
+  stepHistory = (
+    step: (h: History, board: KanbanBoard) => HistoryStep | null
+  ) => {
+    const result = step(this.undoHistory, this.state.boardData);
+    if (!result) {
+      return;
+    }
+    this.undoHistory = result.history;
+    this.setState({ boardData: result.board });
+    this.saveNote(
+      convertStateToMarkdown({ ...this.state, boardData: result.board })
+    );
+  };
+
+  clearUndoHistory = () => {
+    this.undoHistory = emptyHistory;
+  };
+
+  receiveText = (text: string) => {
+    // Our own save can be streamed back unchanged; only text the current
+    // board would not have written came from another device or note.
+    if (text !== convertStateToMarkdown(this.state)) {
+      this.clearUndoHistory();
+    }
+    const newState = this.parseText(text);
+    this.setState({
+      ...initialState,
+      ...newState,
+      // Regenerate IDs deterministically at load time so lanes and
+      // cards are draggable before the first edit happens.
+      boardData: infuseBoardData(newState.boardData),
+    });
+  };
+
   configureEditorKit = () => {
     const delegate: EditorKitDelegate = {
-      setEditorRawText: (text: string) => {
-        const newState = this.parseText(text);
-        this.setState({
-          ...initialState,
-          ...newState,
-          // Regenerate IDs deterministically at load time so lanes and
-          // cards are draggable before the first edit happens.
-          boardData: infuseBoardData(newState.boardData),
-        });
-      },
-      clearUndoHistory: () => {},
+      setEditorRawText: this.receiveText,
+      clearUndoHistory: this.clearUndoHistory,
       handleRequestForContentHeight: () => undefined,
     };
 
@@ -100,6 +165,7 @@ export default class Editor extends React.Component<
     patch: Partial<KanbanCard>
   ) => {
     const boardData = updateCard(this.state.boardData, laneId, cardId, patch);
+    this.undoHistory = recordChange(this.undoHistory, this.state.boardData);
     this.setState({ boardData });
     this.saveNote(convertStateToMarkdown({ ...this.state, boardData }));
   };
@@ -121,6 +187,7 @@ export default class Editor extends React.Component<
     }
     // Any user-driven board change is saved, including removing the
     // last lane.
+    this.undoHistory = recordChange(this.undoHistory, this.state.boardData);
     this.setState({ boardData });
     const markdown = convertStateToMarkdown({
       ...this.state,
