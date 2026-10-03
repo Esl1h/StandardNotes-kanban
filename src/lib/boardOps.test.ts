@@ -7,6 +7,8 @@ import {
   removeLane,
   renameLane,
   updateCard,
+  setDoneLane,
+  completeCard,
 } from './boardOps';
 import { KanbanBoard } from '../../types/kanban';
 
@@ -88,4 +90,53 @@ test('moves a card to another lane and updates its laneId', () => {
 test('keeps the board unchanged for unknown lanes or cards', () => {
   expect(moveCard(board, 'nope', 0, 'lane-2', 0)).toBe(board);
   expect(moveCard(board, 'lane-1', 9, 'lane-2', 0)).toBe(board);
+});
+
+describe('done lane', () => {
+  const board = (): KanbanBoard => ({
+    lanes: [
+      {
+        id: 'a',
+        title: 'Todo',
+        cards: [{ id: 'c1', title: 'One', laneId: 'a' }],
+      },
+      {
+        id: 'b',
+        title: 'Done',
+        cards: [{ id: 'c2', title: 'Two', laneId: 'b' }],
+      },
+      { id: 'c', title: 'Shipped', cards: [], done: true },
+    ],
+  });
+
+  test('marking a lane as done unmarks any other', () => {
+    const next = setDoneLane(board(), 'b');
+
+    expect(next.lanes.map((l) => l.done ?? false)).toEqual([
+      false,
+      true,
+      false,
+    ]);
+  });
+
+  test('can clear the done lane', () => {
+    expect(setDoneLane(board(), null).lanes.some((lane) => lane.done)).toBe(
+      false
+    );
+  });
+
+  test('completing a card moves it to the end of the done lane', () => {
+    const next = completeCard(board(), 'a', 'c1');
+
+    expect(next.lanes[0].cards).toEqual([]);
+    expect(next.lanes[2].cards.map((c) => [c.id, c.laneId])).toEqual([
+      ['c1', 'c'],
+    ]);
+  });
+
+  test('completing does nothing without a done lane', () => {
+    const plain = setDoneLane(board(), null);
+
+    expect(completeCard(plain, 'a', 'c1')).toBe(plain);
+  });
 });

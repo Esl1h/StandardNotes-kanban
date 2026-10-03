@@ -24,7 +24,10 @@ export const renameLane = (
   ),
 });
 
-export const removeLane = (board: KanbanBoard, laneId: string): KanbanBoard => ({
+export const removeLane = (
+  board: KanbanBoard,
+  laneId: string
+): KanbanBoard => ({
   lanes: board.lanes.filter((lane) => lane.id !== laneId),
 });
 
@@ -67,7 +70,7 @@ export const removeCard = (
     lane.id !== laneId
       ? lane
       : { ...lane, cards: lane.cards.filter((card) => card.id !== cardId) }
-  )
+  ),
 });
 
 export const moveLane = (
@@ -113,4 +116,30 @@ export const moveCard = (
       return { ...lane, cards };
     }),
   };
+};
+
+/** At most one lane is the done lane; pass null to have none. */
+export const setDoneLane = (
+  board: KanbanBoard,
+  laneId: string | null
+): KanbanBoard => ({
+  lanes: board.lanes.map(({ done: _done, ...lane }) =>
+    lane.id === laneId ? { ...lane, done: true } : lane
+  ),
+});
+
+/** Moves a card to the end of the done lane, if there is one. */
+export const completeCard = (
+  board: KanbanBoard,
+  laneId: string,
+  cardId: string
+): KanbanBoard => {
+  const doneLane = board.lanes.find((lane) => lane.done);
+  const index =
+    laneById(board, laneId)?.cards.findIndex((card) => card.id === cardId) ??
+    -1;
+  if (!doneLane || index < 0 || doneLane.id === laneId) {
+    return board;
+  }
+  return moveCard(board, laneId, index, doneLane.id!, doneLane.cards.length);
 };

@@ -34,6 +34,9 @@ export const EditorInternal = ({
   } | null>(null);
   const [query, setQuery] = useState('');
   const [errorsOpen, setErrorsOpen] = useState(true);
+  const [showDone, setShowDone] = useState(false);
+  const doneLanes = boardData.lanes.filter((lane) => lane.done);
+  const doneCount = doneLanes.reduce((n, lane) => n + lane.cards.length, 0);
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
   const searchRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -161,6 +164,17 @@ export const EditorInternal = ({
             <IconX size={14} stroke={1.5} />
           </button>
         )}
+        {doneLanes.length > 0 && (
+          <button
+            type="button"
+            className="kbn-btn kbn-btn-ghost kbn-toolbar-btn"
+            aria-pressed={showDone}
+            title={showDone ? 'Hide finished cards' : 'Show finished cards'}
+            onClick={() => setShowDone(!showDone)}
+          >
+            Done ({doneCount})
+          </button>
+        )}
       </div>
       <Board
         data={boardData}
@@ -169,6 +183,7 @@ export const EditorInternal = ({
         onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
         onSearchRequest={setQuery}
         onUndo={onUndo}
+        showDone={showDone}
       />
     </div>
   );
