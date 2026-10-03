@@ -1,5 +1,6 @@
 import { KanbanBoard } from '../../types/kanban';
 import { parseMarkdown } from './parseMarkdown';
+import { convertStateToMarkdown } from './convertStateToMarkdown';
 
 test('reports the error and keeps parsing when a card appears before any lane', () => {
   const input = `* Stray card
@@ -183,4 +184,132 @@ test('parses checklist items with done marks', () => {
   const { boardData, parsingErrors } = parseMarkdown(input);
   expect(boardData).toEqual(expectedResult);
   expect(parsingErrors.filter((e) => e.message)).toEqual([]);
+});
+
+describe('tolerant input', () => {
+  const unreadable = (markdown: string) =>
+    parseMarkdown(markdown).parsingErrors.filter((e) => e.message);
+
+  test('reads tab-indented fields', () => {
+    const input =
+      '# Lane\n* Card\n\t* Description: desc\n\t* Due: 2026-01-01\n\t* Label: red';
+    const { boardData } = parseMarkdown(input);
+
+    expect(unreadable(input)).toEqual([]);
+    expect(boardData.lanes[0].cards[0]).toMatchObject({
+      description: 'desc',
+      due: '2026-01-01',
+      label: 'red',
+    });
+  });
+
+  test('keeps tabs inside field values', () => {
+    const { boardData } = parseMarkdown(
+      '# Lane\n* Card\n  * Description: a\tb'
+    );
+
+    expect(boardData.lanes[0].cards[0].description).toBe('a\tb');
+  });
+
+  test('reads - and + as card bullets', () => {
+    const input = '# Lane\n- first\n+ second\n  - Label: red';
+    const { boardData } = parseMarkdown(input);
+
+    expect(unreadable(input)).toEqual([]);
+    expect(boardData.lanes[0].cards.map((c) => c.title)).toEqual([
+      'first',
+      'second',
+    ]);
+    expect(boardData.lanes[0].cards[1].label).toBe('red');
+  });
+
+  test('reads a field without a value', () => {
+    const input = '# Lane\n* Card\n  * Description:\n  * Due:\n  * Label:';
+    const { boardData } = parseMarkdown(input);
+
+    expect(unreadable(input)).toEqual([]);
+    expect(boardData.lanes[0].cards[0].extraLines).toBeUndefined();
+  });
+
+  test('reads ## as a lane', () => {
+    const input = '## Lane\n* Card';
+    const { boardData } = parseMarkdown(input);
+
+    expect(unreadable(input)).toEqual([]);
+    expect(boardData.lanes.map((l) => l.title)).toEqual(['Lane']);
+  });
+
+  test('reads fields indented with four spaces', () => {
+    const input = `# Lane
+* Card
+    * Description: first
+        > second
+    * Due: 2026-01-01
+    * Comments:
+        * Due: tomorrow
+    * Label: red`;
+    const { boardData } = parseMarkdown(input);
+
+    expect(unreadable(input)).toEqual([]);
+    expect(boardData.lanes[0].cards[0]).toMatchObject({
+      description: 'first\nsecond',
+      due: '2026-01-01',
+      label: 'red',
+      comments: ['Due: tomorrow'],
+    });
+  });
+
+  test('a comment that looks like a field stays a comment', () => {
+    const input = `# Lane
+* Card
+\t* Comments:
+\t\t* Due: tomorrow
+\t\t* Label: not a label
+\t* Due: 2026-01-01`;
+    const { boardData } = parseMarkdown(input);
+
+    expect(boardData.lanes[0].cards[0]).toMatchObject({
+      comments: ['Due: tomorrow', 'Label: not a label'],
+      due: '2026-01-01',
+    });
+  });
+
+  test('keeps text after a Comments header instead of dropping it', () => {
+    const { boardData } = parseMarkdown('# Lane\n* Card\n  * Comments: hello');
+
+    expect(boardData.lanes[0].cards[0].extraLines).toEqual([
+      '  * Comments: hello',
+    ]);
+  });
+
+  test('reads a bare blockquote line as an empty continuation', () => {
+    const input = '# Lane\n* Card\n  * Description: a\n    >\n    > b';
+    const { boardData } = parseMarkdown(input);
+
+    expect(boardData.lanes[0].cards[0].description).toBe('a\n\nb');
+  });
+
+  test('writes the canonical format back', () => {
+    const messy = `## Lane [id:aaa111]
+- Card [id:bbb222]
+\t* Description: desc
+\t* Due: 2026-01-01
+\t* Comments:
+\t\t* note
++ Other [id:ccc333]
+    * Label: red
+`;
+    const canonical = `# Lane [id:aaa111]
+* Card [id:bbb222]
+  * Description: desc
+  * Due: 2026-01-01
+  * Comments:
+    * note
+* Other [id:ccc333]
+  * Label: red
+`;
+
+    expect(convertStateToMarkdown(parseMarkdown(messy))).toBe(canonical);
+    expect(convertStateToMarkdown(parseMarkdown(canonical))).toBe(canonical);
+  });
 });
