@@ -59,6 +59,9 @@ export default class Editor extends React.Component<
       const textByLine = text.split('\n');
       return {
         ...initialState,
+        // The converter no longer re-emits parsingErrors, so the raw text
+        // has to be kept here or the next save would erase the note.
+        preamble: textByLine,
         parsingErrors: textByLine.map((lineText, lineIndex) => ({
           lineText,
           lineIndex,
