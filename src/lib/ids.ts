@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 /**
  * Short, human-tolerable ids persisted inside the note as
  * "[id:xxxxxx]" markers after lane and card titles. They keep drag and
@@ -9,10 +8,14 @@ import { v4 as uuid } from 'uuid';
 const MARKER_PATTERN = /\s*\[id:([a-z0-9]{4,8})\]\s*$/i;
 
 export const shortId = (): string =>
-  uuid().replace(/-/g, '').slice(0, 6).toLowerCase();
+  Array.from(crypto.getRandomValues(new Uint8Array(3)), (byte) =>
+    byte.toString(16).padStart(2, '0')
+  ).join('');
 
 /** Splits a raw title into the display title and its persisted id, if any. */
-export const stripIdMarker = (title: string): { title: string; id?: string } => {
+export const stripIdMarker = (
+  title: string
+): { title: string; id?: string } => {
   const match = title.match(MARKER_PATTERN);
   if (!match) {
     return { title: title.trim() };
