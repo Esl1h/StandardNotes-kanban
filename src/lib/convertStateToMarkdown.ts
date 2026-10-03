@@ -1,9 +1,10 @@
 import { withIdMarker } from './ids';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { EditorInterface } from '../../types/editor';
+import { DEFAULT_QUADRANT_NAMES, QUADRANTS } from './quadrants';
 
 export const convertStateToMarkdown = (state: EditorInterface): string => {
-  const { boardData, preamble = [] } = state;
+  const { boardData, preamble = [], quadrantNames } = state;
 
   const boardText = convertBoardData(boardData);
   // Unrecognized lines that came before the first lane stay on top.
@@ -11,7 +12,16 @@ export const convertStateToMarkdown = (state: EditorInterface): string => {
     preamble.length > 0
       ? `${preamble.join('\n')}\n${boardText ? '\n' : ''}`
       : '';
-  return `${preambleText}${boardText}`;
+  const rest = `${preambleText}${boardText}`;
+  // Default names are implied, so only renamed quadrants are written.
+  const renamed =
+    quadrantNames &&
+    QUADRANTS.some((q) => quadrantNames[q] !== DEFAULT_QUADRANT_NAMES[q]);
+  if (!renamed) {
+    return rest;
+  }
+  const names = QUADRANTS.map((q) => quadrantNames[q]).join(' | ');
+  return `Quadrants: ${names}\n${rest ? `\n${rest}` : ''}`;
 };
 
 // Lines are the unit of the format, so a line break inside a title, label

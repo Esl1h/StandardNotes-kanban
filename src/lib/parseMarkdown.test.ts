@@ -372,3 +372,52 @@ describe('done lane marker', () => {
     expect(convertStateToMarkdown(parseMarkdown(markdown))).toBe(markdown);
   });
 });
+
+describe('quadrant names', () => {
+  test('reads custom quadrant names from the top of the note', () => {
+    const { quadrantNames, preamble, parsingErrors } = parseMarkdown(
+      'Quadrants: Fazer | Agendar | Delegar | Eliminar\n\n# Lane\n'
+    );
+
+    expect(quadrantNames).toEqual({
+      do: 'Fazer',
+      schedule: 'Agendar',
+      delegate: 'Delegar',
+      eliminate: 'Eliminar',
+    });
+    expect(preamble).toEqual([]);
+    expect(parsingErrors).toEqual([]);
+  });
+
+  test('keeps a malformed names line as an unread line', () => {
+    const { quadrantNames, preamble } = parseMarkdown(
+      'Quadrants: Fazer | Agendar\n# Lane\n'
+    );
+
+    expect(quadrantNames).toBeUndefined();
+    expect(preamble).toEqual(['Quadrants: Fazer | Agendar']);
+  });
+
+  test('is only read before the first lane', () => {
+    const { quadrantNames, boardData } = parseMarkdown(
+      '# Lane\nQuadrants: A | B | C | D\n'
+    );
+
+    expect(quadrantNames).toBeUndefined();
+    expect(boardData.lanes[0].extraLines).toEqual(['Quadrants: A | B | C | D']);
+  });
+
+  test('writes custom names on top and leaves default names out', () => {
+    const custom =
+      'Quadrants: Fazer | Agendar | Delegar | Eliminar\n\n# Lane\n* Card\n';
+
+    expect(convertStateToMarkdown(parseMarkdown(custom))).toBe(custom);
+    expect(
+      convertStateToMarkdown(
+        parseMarkdown(
+          'Quadrants: Do | Schedule | Delegate | Eliminate\n# Lane\n* Card\n'
+        )
+      )
+    ).toBe('# Lane\n* Card\n');
+  });
+});

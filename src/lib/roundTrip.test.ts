@@ -54,6 +54,8 @@ const knownLine = fc.constantFrom(
   '  * Quadrant: DELEGATE',
   '  * Quadrant: nope',
   'loose text',
+  'Quadrants: A | B | C | D',
+  'Quadrants: A | B',
   '    * loose',
   '--- ',
   'text\r'
