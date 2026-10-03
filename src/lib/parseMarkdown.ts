@@ -1,6 +1,6 @@
 import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
 import { stripIdMarker } from './ids';
-import { toQuadrant } from './quadrants';
+import { QUADRANTS, QuadrantNames, toQuadrant } from './quadrants';
 import { EditorInterface, ParsingErrors } from '../../types/editor';
 
 enum Scope {
@@ -21,6 +21,8 @@ const CONTINUATION = /^ {4,}>(?:\s([\s\S]*))?$/;
 const CHECKLIST_ITEM = /^ +\[([xX ])\] ([\s\S]+)$/;
 // Written between the lane title and its id: "# Shipped [done] [id:x]".
 const DONE_MARKER = /\s*\[done\]$/i;
+// Renamed quadrants, before the first lane: "Quadrants: A | B | C | D".
+const QUADRANT_NAMES = /^quadrants:\s*([\s\S]*)$/i;
 const COMMENT_ITEM = /^( +)[*+-] ([\s\S]*)$/;
 
 // One leading tab is one indentation level (2 spaces). Tabs further into
@@ -46,6 +48,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
   let commentsIndent = 0;
   const parsingErrors: ParsingErrors[] = [];
   const preamble: string[] = [];
+  let quadrantNames: QuadrantNames | undefined;
 
   for (let i = 0; i < lines.length; ++i) {
     const line = lines[i];
@@ -83,10 +86,20 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
     const continuation = CONTINUATION.exec(norm);
     const itemMatch =
       scope === Scope.Checklist ? CHECKLIST_ITEM.exec(norm) : null;
+    const namesMatch = laneIndex < 0 ? QUADRANT_NAMES.exec(norm) : null;
     const commentMatch =
       scope === Scope.Comments ? COMMENT_ITEM.exec(norm) : null;
 
-    if (laneMatch) {
+    if (namesMatch) {
+      const names = namesMatch[1].split('|').map((name) => name.trim());
+      if (names.length !== QUADRANTS.length || names.some((name) => !name)) {
+        reject('Quadrants needs four names separated by |');
+        continue;
+      }
+      quadrantNames = Object.fromEntries(
+        QUADRANTS.map((q, i) => [q, names[i]])
+      ) as QuadrantNames;
+    } else if (laneMatch) {
       laneIndex += 1;
       cardIndex = -1;
       scope = Scope.Lane;
@@ -184,5 +197,6 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
     boardData,
     parsingErrors,
     preamble,
+    quadrantNames,
   };
 };
