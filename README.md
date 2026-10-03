@@ -27,6 +27,15 @@ portable.
    other editor without breaking the board
 8. Works with the Standard Notes web and desktop apps; follows the theme
    selected in the app
+9. Mark one lane as the done lane: it is hidden from the board, and a
+   `Done (N)` toolbar button shows or hides it
+10. Switch to an Eisenhower matrix with the `Board | Matrix` toggle: the
+    same cards sorted into Do, Schedule, Delegate and Eliminate, plus an
+    Unclassified list. Drag cards between quadrants or pick one in the
+    card modal; rename a quadrant by clicking its title. The chosen view
+    is remembered per note on each device
+
+![Eisenhower matrix screenshot](public/matrix.png)
 
 ## Installation
 
@@ -50,18 +59,24 @@ The board is saved in the note body as Markdown. One `#` heading per lane,
 one `*` bullet per card, indented `*` bullets for card fields:
 
 ```
+Quadrants: Now | Plan | Hand off | Drop
+
 # To Do
 * Write the report [id:a3f9k2]
   * Description: Q4 numbers, then review with the team
     > bring the spreadsheet
   * Due: 2026-09-30
   * Label: work, blue
+  * Quadrant: do
   * Checklist:
     [x] first draft
     [ ] review with the team
   * Comments:
     * First draft looks good
 * Call the bank
+
+# Done [done]
+* Book the flights
 ```
 
 - `Description` spans multiple lines: continue it with ` >` lines
@@ -72,6 +87,14 @@ one `*` bullet per card, indented `*` bullets for card fields:
 - `Checklist` is a header line followed by ` [x] item` (done) and
   ` [ ] item` (pending) sub-items; the card shows a `3/7` counter with
   a progress bar, and the modal edits the items
+- `Quadrant` places the card in the Eisenhower matrix; it takes a fixed
+  key (`do`, `schedule`, `delegate`, `eliminate`), so renaming a
+  quadrant never rewrites cards
+- `[done]` after a lane title marks the done lane; at most one lane
+  carries it
+- The optional `Quadrants:` line before the first lane holds renamed
+  quadrant names, in the order Do | Schedule | Delegate | Eliminate; it
+  is only written when a name differs from the default
 - The `[id:xxxxxx]` markers are managed by the editor and keep drag and
   modal references stable between loads; they are recreated
   automatically when missing
