@@ -18,6 +18,7 @@ import { convertStateToMarkdown } from '../lib/convertStateToMarkdown';
 import './Editor.css';
 import { EditorInterface } from '../../types/editor';
 import { EditorInternal } from './EditorInternal';
+import { ErrorBoundary } from './ErrorBoundary';
 
 const initialState: EditorInterface = {
   boardData: {
@@ -29,13 +30,32 @@ const initialState: EditorInterface = {
 // What the editor needs from the kit; tests stub just this.
 interface SaveNoteBridge {
   onEditorValueChanged(text: string): void;
+  environment?: string;
+  platform?: string;
 }
+
+interface EditorState extends EditorInterface {
+  // False until Standard Notes streams the note in. Showing the board
+  // before that would make an empty note look the same as a missing one,
+  // and edits made meanwhile could not be saved.
+  noteReceived: boolean;
+  waitTimedOut: boolean;
+}
+
+// Standard Notes normally delivers the note within a moment of load.
+const NOTE_WAIT_MS = 5000;
+
+// Inside Standard Notes the plugin always runs in an iframe. Standalone
+// (npm start) it has no host to wait for.
+const isEmbedded = () => window.parent !== window;
 
 export default class Editor extends React.Component<
   Partial<EditorInterface>,
-  EditorInterface
+  EditorState
 > {
   editorKit: SaveNoteBridge;
+  rawText = '';
+  waitTimer: ReturnType<typeof setTimeout> | undefined;
   // Not React state: nothing renders from it, it only feeds Ctrl+Z.
   undoHistory: History = emptyHistory;
 
@@ -45,6 +65,8 @@ export default class Editor extends React.Component<
     this.state = {
       ...initialState,
       ...props,
+      noteReceived: props.boardData !== undefined || !isEmbedded(),
+      waitTimedOut: false,
     };
   }
 
@@ -83,10 +105,17 @@ export default class Editor extends React.Component<
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
+    if (!this.state.noteReceived) {
+      this.waitTimer = setTimeout(
+        () => this.setState({ waitTimedOut: true }),
+        NOTE_WAIT_MS
+      );
+    }
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown);
+    clearTimeout(this.waitTimer);
   }
 
   handleKeyDown = (e: KeyboardEvent) => {
@@ -132,6 +161,8 @@ export default class Editor extends React.Component<
   };
 
   receiveText = (text: string) => {
+    this.rawText = text;
+    clearTimeout(this.waitTimer);
     // Our own save can be streamed back unchanged; only text the current
     // board would not have written came from another device or note.
     if (text !== convertStateToMarkdown(this.state)) {
@@ -144,6 +175,8 @@ export default class Editor extends React.Component<
       // Regenerate IDs deterministically at load time so lanes and
       // cards are draggable before the first edit happens.
       boardData: infuseBoardData(newState.boardData),
+      noteReceived: true,
+      waitTimedOut: false,
     });
   };
 
@@ -211,15 +244,33 @@ export default class Editor extends React.Component<
   };
 
   render() {
+    if (!this.state.noteReceived) {
+      return this.state.waitTimedOut ? (
+        <div className="sn-component kbn-status" role="alert">
+          <p>Note not received from Standard Notes. Reopen the note.</p>
+          <p className="kbn-status-detail">
+            Environment: {this.editorKit.environment ?? 'not reported'},
+            platform: {this.editorKit.platform ?? 'not reported'}
+          </p>
+        </div>
+      ) : (
+        <div className="sn-component kbn-status" role="status">
+          <span className="kbn-spinner" aria-hidden="true" />
+          Loading note
+        </div>
+      );
+    }
     return (
       <ModalProvider>
-        <EditorInternal
-          boardData={this.state.boardData}
-          handleDataChange={this.handleDataChange}
-          onCardUpdate={this.handleCardUpdate}
-          parsingErrors={this.state.parsingErrors}
-          onUndo={this.undo}
-        />
+        <ErrorBoundary rawText={this.rawText} resetKey={this.state.boardData}>
+          <EditorInternal
+            boardData={this.state.boardData}
+            handleDataChange={this.handleDataChange}
+            onCardUpdate={this.handleCardUpdate}
+            parsingErrors={this.state.parsingErrors}
+            onUndo={this.undo}
+          />
+        </ErrorBoundary>
       </ModalProvider>
     );
   }

@@ -435,3 +435,49 @@
   color: var(--sn-stylekit-contrast-foreground-color);
   box-shadow: 0 4px 12px var(--sn-stylekit-shadow-color);
 }
+
+.kbn-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px;
+  color: var(--sn-stylekit-foreground-color);
+}
+
+.kbn-status p {
+  margin: 0;
+  padding: 0;
+}
+
+.kbn-status-detail {
+  font-size: 12px;
+  color: var(--sn-stylekit-neutral-color);
+}
+
+.kbn-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border: 2px solid var(--sn-stylekit-neutral-color);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: kbn-spin 0.8s linear infinite;
+}
+
+@keyframes kbn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.kbn-error {
+  border: 1px solid var(--sn-stylekit-danger-color);
+}
+
+.kbn-raw-text {
+  width: 100%;
+  min-height: 200px;
+  font-family: var(--sn-stylekit-monospace-font);
+}
