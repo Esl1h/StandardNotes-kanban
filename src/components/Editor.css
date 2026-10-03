@@ -514,3 +514,20 @@
   min-height: 200px;
   font-family: var(--sn-stylekit-monospace-font);
 }
+
+.kbn-toolbar-btn {
+  white-space: nowrap;
+}
+
+.kbn-toolbar-btn[aria-pressed='true'] {
+  background-color: var(--sn-stylekit-info-color);
+  color: var(--sn-stylekit-info-contrast-color);
+}
+
+.kbn-done-toggle-on {
+  color: var(--sn-stylekit-success-color);
+}
+
+.kbn-lane-done .kbn-lane-header {
+  opacity: 0.75;
+}

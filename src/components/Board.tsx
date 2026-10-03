@@ -8,6 +8,7 @@ import type {
 import {
   IconChevronDown,
   IconChevronRight,
+  IconCircleCheck,
   IconPlus,
   IconX,
 } from '@tabler/icons-react';
@@ -20,6 +21,7 @@ import {
   removeCard,
   removeLane,
   renameLane,
+  setDoneLane,
 } from '../lib/boardOps';
 import { chipStyle, dueBadge, labelChips } from '../lib/labels';
 import { cardMatchesQuery, isFiltering } from '../lib/filter';
@@ -31,6 +33,8 @@ interface BoardProps {
   onCardClick: (laneId: string, cardId: string) => void;
   onSearchRequest?: (query: string) => void;
   onUndo?: () => void;
+  /** Show the done lane, which is hidden by default. */
+  showDone?: boolean;
 }
 
 // How long the "lane removed" toast stays up before it goes away.
@@ -322,8 +326,10 @@ export const Board = ({
   onCardClick,
   onSearchRequest,
   onUndo,
+  showDone = false,
 }: BoardProps) => {
   const filtering = isFiltering(filter);
+  const isHidden = (lane: KanbanLane) => !!lane.done && !showDone;
   const query = filter.trim().toLowerCase();
   const [openCardFormLaneId, setOpenCardFormLaneId] = useState<string | null>(
     null
@@ -368,7 +374,8 @@ export const Board = ({
     let toLaneIndex = fromLaneIndex + direction;
     while (
       data.lanes[toLaneIndex] &&
-      collapsedLaneIds.has(data.lanes[toLaneIndex].id!)
+      (collapsedLaneIds.has(data.lanes[toLaneIndex].id!) ||
+        isHidden(data.lanes[toLaneIndex]))
     ) {
       toLaneIndex += direction;
     }
@@ -411,8 +418,16 @@ export const Board = ({
       if (result.source.index === result.destination.index) {
         return;
       }
+      // Indexes are positions among the rendered lanes, which leave the
+      // hidden done lane out.
+      const toDataIndex = (index: number) =>
+        data.lanes.findIndex((lane) => lane.id === lanesToRender[index].id);
       onDataChange(
-        moveLane(data, result.source.index, result.destination.index)
+        moveLane(
+          data,
+          toDataIndex(result.source.index),
+          toDataIndex(result.destination.index)
+        )
       );
       return;
     }
@@ -460,7 +475,7 @@ export const Board = ({
       }
       e.preventDefault();
       const firstExpanded = data.lanes.find(
-        (lane) => !collapsedLaneIds.has(lane.id!)
+        (lane) => !collapsedLaneIds.has(lane.id!) && !(lane.done && !showDone)
       );
       if (firstExpanded?.id) {
         setAddLaneOpen(false);
@@ -472,7 +487,7 @@ export const Board = ({
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [data, collapsedLaneIds]);
+  }, [data, collapsedLaneIds, showDone]);
 
   // Alt+Left/Right moves the focused (last clicked) card to the adjacent
   // lane. Ignored while typing, while filtering or while the modal is
@@ -505,7 +520,7 @@ export const Board = ({
     // moveFocusedCard is recreated on each render of the same deps
     // listed here, so it is safe to omit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, collapsedLaneIds, filtering, focusedCard]);
+  }, [data, collapsedLaneIds, filtering, focusedCard, showDone]);
 
   React.useEffect(() => {
     if (!removedLane) {
@@ -515,9 +530,9 @@ export const Board = ({
     return () => clearTimeout(timer);
   }, [removedLane]);
 
-  let lanesToRender = data.lanes;
+  let lanesToRender = data.lanes.filter((lane) => !isHidden(lane));
   if (filtering) {
-    lanesToRender = data.lanes.filter(
+    lanesToRender = lanesToRender.filter(
       (lane) =>
         lane.title.toLowerCase().includes(query) ||
         lane.cards.some((card) => cardMatchesQuery(card, query))
@@ -562,7 +577,7 @@ export const Board = ({
                     <div
                       className={`kbn-lane${
                         collapsed ? ' kbn-lane-collapsed' : ''
-                      }`}
+                      }${lane.done ? ' kbn-lane-done' : ''}`}
                       ref={laneProvided.innerRef}
                       {...laneProvided.draggableProps}
                     >
@@ -595,6 +610,29 @@ export const Board = ({
                         <span className="kbn-lane-count">
                           {lane.cards.length}
                         </span>
+                        <button
+                          type="button"
+                          className={`kbn-icon-btn${
+                            lane.done ? ' kbn-done-toggle-on' : ''
+                          }`}
+                          aria-label={
+                            lane.done
+                              ? `Unmark done lane ${lane.title}`
+                              : `Mark lane ${lane.title} as done`
+                          }
+                          title={
+                            lane.done
+                              ? 'Done lane: its cards count as finished'
+                              : 'Mark as the done lane'
+                          }
+                          onClick={() =>
+                            onDataChange(
+                              setDoneLane(data, lane.done ? null : lane.id!)
+                            )
+                          }
+                        >
+                          <IconCircleCheck size={14} stroke={1.5} />
+                        </button>
                         <button
                           type="button"
                           className="kbn-icon-btn"
