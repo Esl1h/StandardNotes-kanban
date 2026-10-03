@@ -18,6 +18,8 @@ const knownLine = fc.constantFrom(
   '## Lane',
   '#',
   '# [id:abc123]',
+  '# Done [done] [id:abc123]',
+  '# [done]',
   '* Card',
   '* Card [id:def456]',
   '- Card',

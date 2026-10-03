@@ -350,3 +350,25 @@ describe('quadrant field', () => {
     expect(convertStateToMarkdown(parseMarkdown(markdown))).toBe(markdown);
   });
 });
+
+describe('done lane marker', () => {
+  test('reads [done] before the id as the done lane flag', () => {
+    const { boardData } = parseMarkdown(
+      '# Doing [id:aaa111]\n# Finished [done] [id:bbb222]\n# Shipped [DONE]'
+    );
+
+    expect(
+      boardData.lanes.map((l) => [l.title, l.id, l.done ?? false])
+    ).toEqual([
+      ['Doing', 'aaa111', false],
+      ['Finished', 'bbb222', true],
+      ['Shipped', undefined, true],
+    ]);
+  });
+
+  test('writes the marker between the title and the id', () => {
+    const markdown = '# Finished [done] [id:bbb222]\n* Card [id:ccc333]\n';
+
+    expect(convertStateToMarkdown(parseMarkdown(markdown))).toBe(markdown);
+  });
+});

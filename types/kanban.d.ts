@@ -22,6 +22,8 @@ export interface KanbanLane {
   id?: string;
   title: string;
   cards: Array<KanbanCard>;
+  /** Cards in this lane count as finished and are hidden by default. */
+  done?: boolean;
   /** Lines the parser did not understand, kept here to be written back. */
   extraLines?: Array<string>;
 }
