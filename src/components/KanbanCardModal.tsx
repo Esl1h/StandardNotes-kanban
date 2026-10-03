@@ -202,6 +202,16 @@ export const KanbanCardModal = ({
             {chip.name}
           </span>
         ))}
+        <button
+          type="button"
+          className="kbn-icon-btn"
+          style={{ marginLeft: 'auto' }}
+          aria-label="Save and close"
+          title="Save and close"
+          onClick={closeModal}
+        >
+          <IconX size={18} stroke={1.5} />
+        </button>
       </header>
       {/* Dragging is unreliable on small touch screens; this is the
           alternative. */}
