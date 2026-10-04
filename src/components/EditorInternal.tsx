@@ -226,6 +226,7 @@ export const EditorInternal = ({
           showDone={showDone}
           quadrantNames={quadrantNames}
           onDataChange={handleDataChange}
+          onUndo={onUndo}
           onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
           onSearchRequest={setQuery}
           onRenameQuadrant={(quadrant, name) =>
