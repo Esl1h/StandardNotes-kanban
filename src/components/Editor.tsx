@@ -4,6 +4,7 @@ import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { updateCard } from '../lib/boardOps';
 import { NoteBridge } from '../lib/noteBridge';
 import { QuadrantNames } from '../lib/quadrants';
+import { PreferenceStore } from '../lib/viewPreference';
 import {
   emptyHistory,
   History,
@@ -30,6 +31,8 @@ const initialState: EditorInterface = {
 // What the editor needs from the kit; tests stub just this.
 interface SaveNoteBridge {
   onEditorValueChanged(text: string): void;
+  getPreference?(key: string): unknown;
+  setPreference?(key: string, value: unknown): void;
   environment?: string;
   platform?: string;
 }
@@ -59,6 +62,11 @@ export default class Editor extends React.Component<
   waitTimer: ReturnType<typeof setTimeout> | undefined;
   // Not React state: nothing renders from it, it only feeds Ctrl+Z.
   undoHistory: History = emptyHistory;
+  // The app's per component store; stubs without it just remember nothing.
+  preferences: PreferenceStore = {
+    get: (key) => this.editorKit.getPreference?.(key),
+    set: (key, value) => this.editorKit.setPreference?.(key, value),
+  };
 
   constructor(props: EditorInterface) {
     super(props);
@@ -272,6 +280,7 @@ export default class Editor extends React.Component<
             noteId={this.state.noteId}
             quadrantNames={this.state.quadrantNames}
             onQuadrantNamesChange={this.handleQuadrantNamesChange}
+            preferences={this.preferences}
           />
         </ErrorBoundary>
       </ModalProvider>
