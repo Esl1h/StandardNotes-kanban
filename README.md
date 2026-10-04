@@ -20,9 +20,7 @@ portable.
 3. Reorder, rename and collapse lanes; card counts in lane headers
 4. Edit card descriptions, labels, due dates and comments in a card modal
 5. Search across titles, descriptions and labels
-6. Keyboard shortcuts: `N` adds a card, `Ctrl/Cmd+F` focuses search,
-   `Alt+Left/Right` moves the focused (last clicked) card to the
-   adjacent lane
+6. Keyboard shortcuts: `N` adds a card, `Ctrl/Cmd+F` focuses search, `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z` undo and redo changes to the board, `Alt+Left/Right` moves the focused (last clicked) card to the adjacent lane. The card modal also has a "Move to" select to send the card to any lane
 7. Your board lives in the note as Markdown; read or tweak it with any
    other editor without breaking the board
 8. Works with the Standard Notes web and desktop apps; follows the theme
