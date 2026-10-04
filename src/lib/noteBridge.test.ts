@@ -11,6 +11,8 @@ const fakeRelay = () => {
     saveItemWithPresave: vi.fn((_note: StreamedNote, presave: () => void) =>
       presave()
     ),
+    getComponentDataValueForKey: vi.fn(),
+    setComponentDataValueForKey: vi.fn(),
   };
   return { relay, push: (note: StreamedNote) => stream!(note) };
 };
@@ -151,6 +153,20 @@ test('applies a note that merely equals a save of the previous note', () => {
 
   expect(d.texts).toEqual(['a', 'ab']);
   expect(d.ids).toEqual(['n1', 'n2']);
+});
+
+test('reads and writes component data through the relay', () => {
+  const { relay } = fakeRelay();
+  relay.getComponentDataValueForKey.mockReturnValue({ n1: 'matrix' });
+  const bridge = new NoteBridge(delegate(), relay);
+
+  expect(bridge.getPreference('views')).toEqual({ n1: 'matrix' });
+  expect(relay.getComponentDataValueForKey).toHaveBeenCalledWith('views');
+
+  bridge.setPreference('views', { n2: 'matrix' });
+  expect(relay.setComponentDataValueForKey).toHaveBeenCalledWith('views', {
+    n2: 'matrix',
+  });
 });
 
 test('reports what the relay was told at registration', () => {
