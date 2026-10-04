@@ -11,6 +11,7 @@ import {
 import { completeCard, removeCard, setCardQuadrant } from '../lib/boardOps';
 import { cardMatchesQuery, isFiltering } from '../lib/filter';
 import { QUADRANTS, QuadrantNames, toQuadrant } from '../lib/quadrants';
+import { useUndoToast } from './useUndoToast';
 
 interface MatrixProps {
   data: KanbanBoard;
@@ -18,6 +19,8 @@ interface MatrixProps {
   showDone: boolean;
   quadrantNames: QuadrantNames;
   onDataChange: (board: KanbanBoard) => void;
+  /** Reverts the latest change; offered in a toast after a removal. */
+  onUndo?: () => void;
   onCardClick: (laneId: string, cardId: string) => void;
   onSearchRequest?: (query: string) => void;
   onRenameQuadrant: (quadrant: Quadrant, name: string) => void;
@@ -103,10 +106,12 @@ export const Matrix = ({
   showDone,
   quadrantNames,
   onDataChange,
+  onUndo,
   onCardClick,
   onSearchRequest,
   onRenameQuadrant,
 }: MatrixProps) => {
+  const { announce, toast } = useUndoToast(data, onUndo);
   const filtering = isFiltering(filter);
   const query = filter.trim().toLowerCase();
   const hasDoneLane = data.lanes.some((lane) => lane.done);
@@ -146,10 +151,18 @@ export const Matrix = ({
             finished={lane.done}
             onCardClick={onCardClick}
             onSearchRequest={onSearchRequest}
-            onRemove={() => onDataChange(removeCard(data, lane.id!, card.id!))}
+            onRemove={() => {
+              const board = removeCard(data, lane.id!, card.id!);
+              onDataChange(board);
+              announce(`Card "${card.title}" removed`, board);
+            }}
             onComplete={
               hasDoneLane && !lane.done
-                ? () => onDataChange(completeCard(data, lane.id!, card.id!))
+                ? () => {
+                    const board = completeCard(data, lane.id!, card.id!);
+                    onDataChange(board);
+                    announce(`Card "${card.title}" completed`, board);
+                  }
                 : undefined
             }
             provided={provided}
@@ -217,6 +230,7 @@ export const Matrix = ({
           ))}
         </div>
       </div>
+      {toast}
     </DragDropContext>
   );
 };

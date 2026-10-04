@@ -25,6 +25,7 @@ import {
 } from '../lib/boardOps';
 import { chipStyle, dueBadge, labelChips } from '../lib/labels';
 import { cardMatchesQuery, isFiltering } from '../lib/filter';
+import { useUndoToast } from './useUndoToast';
 
 interface BoardProps {
   data: KanbanBoard;
@@ -36,9 +37,6 @@ interface BoardProps {
   /** Show the done lane, which is hidden by default. */
   showDone?: boolean;
 }
-
-// How long the "lane removed" toast stays up before it goes away.
-const UNDO_TOAST_MS = 6000;
 
 /**
  * Add forms commit on Enter or the Add button and cancel on Escape or
@@ -359,12 +357,7 @@ export const Board = ({
   );
   const [addLaneOpen, setAddLaneOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
-  // The board right after a lane removal; the undo toast is only valid
-  // while it is still the current board.
-  const [removedLane, setRemovedLane] = useState<{
-    title: string;
-    board: KanbanBoard;
-  } | null>(null);
+  const { announce, toast } = useUndoToast(data, onUndo);
   const [collapsedLaneIds, setCollapsedLaneIds] = useState<ReadonlySet<string>>(
     new Set()
   );
@@ -373,6 +366,12 @@ export const Board = ({
     laneId: string;
     cardId: string;
   } | null>(null);
+
+  const removeCardWithUndo = (laneId: string, card: KanbanCard) => {
+    const board = removeCard(data, laneId, card.id!);
+    onDataChange(board);
+    announce(`Card "${card.title}" removed`, board);
+  };
 
   const handleCardClick = (laneId: string, cardId: string) => {
     setFocusedCard({ laneId, cardId });
@@ -545,14 +544,6 @@ export const Board = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, collapsedLaneIds, filtering, focusedCard, showDone]);
 
-  React.useEffect(() => {
-    if (!removedLane) {
-      return;
-    }
-    const timer = setTimeout(() => setRemovedLane(null), UNDO_TOAST_MS);
-    return () => clearTimeout(timer);
-  }, [removedLane]);
-
   let lanesToRender = data.lanes.filter((lane) => !isHidden(lane));
   if (filtering) {
     lanesToRender = lanesToRender.filter(
@@ -663,7 +654,7 @@ export const Board = ({
                           onClick={() => {
                             const board = removeLane(data, lane.id!);
                             onDataChange(board);
-                            setRemovedLane({ title: lane.title, board });
+                            announce(`Lane "${lane.title}" removed`, board);
                           }}
                         >
                           <IconX size={14} stroke={1.5} />
@@ -699,9 +690,7 @@ export const Board = ({
                                           focusedCard?.cardId === card.id
                                         }
                                         onRemove={() =>
-                                          onDataChange(
-                                            removeCard(data, lane.id!, card.id!)
-                                          )
+                                          removeCardWithUndo(lane.id!, card)
                                         }
                                       />
                                     ) : (
@@ -720,13 +709,7 @@ export const Board = ({
                                               focusedCard?.cardId === card.id
                                             }
                                             onRemove={() =>
-                                              onDataChange(
-                                                removeCard(
-                                                  data,
-                                                  lane.id!,
-                                                  card.id!
-                                                )
-                                              )
+                                              removeCardWithUndo(lane.id!, card)
                                             }
                                             provided={cardProvided}
                                             snapshot={cardSnapshot}
@@ -771,21 +754,7 @@ export const Board = ({
           </div>
         )}
       </Droppable>
-      {onUndo && removedLane?.board === data && (
-        <div className="kbn-toast" role="status">
-          <span>Lane "{removedLane.title}" removed</span>
-          <button
-            type="button"
-            className="kbn-btn kbn-btn-primary"
-            onClick={() => {
-              setRemovedLane(null);
-              onUndo();
-            }}
-          >
-            Undo
-          </button>
-        </div>
-      )}
+      {toast}
     </DragDropContext>
   );
 };
