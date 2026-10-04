@@ -186,8 +186,10 @@ export default class Editor extends React.Component<
     this.setState({
       ...initialState,
       ...newState,
-      // Regenerate IDs deterministically at load time so lanes and
-      // cards are draggable before the first edit happens.
+      // Ids missing from the text ("[id:x]" markers) are generated here, at
+      // random, so lanes and cards are draggable before the first edit.
+      // They stay the same only once the note has been saved with them: until
+      // then every text received gets new ones.
       boardData: infuseBoardData(newState.boardData),
       noteReceived: true,
       noteId,
