@@ -109,7 +109,7 @@ test('saves the text and its plain preview into the current note', () => {
   );
   expect(current.content).toEqual({
     text: '# New',
-    preview_plain: '# New',
+    preview_plain: 'New (0)',
     preview_html: undefined,
   });
 });

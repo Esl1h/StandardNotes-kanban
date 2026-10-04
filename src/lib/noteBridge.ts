@@ -1,4 +1,5 @@
 import ComponentRelay from '@standardnotes/component-relay';
+import { boardPreview } from './preview';
 
 /**
  * Plain-text note bridge to Standard Notes, doing what
@@ -80,7 +81,7 @@ export class NoteBridge {
     }
     this.relay.saveItemWithPresave(note, () => {
       note.content.text = text;
-      note.content.preview_plain = text;
+      note.content.preview_plain = boardPreview(text);
       note.content.preview_html = undefined;
     });
   }
