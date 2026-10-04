@@ -1,4 +1,5 @@
 import ComponentRelay from '@standardnotes/component-relay';
+import { EchoGuard } from './echoGuard';
 import { boardPreview } from './preview';
 
 /**
@@ -48,6 +49,9 @@ const createRelay = (): Relay => {
 
 export class NoteBridge {
   private note?: StreamedNote;
+  private echoGuard = new EchoGuard();
+  // What the editor last saved; the board the user is looking at.
+  private lastSaved?: string;
 
   constructor(
     private delegate: NoteBridgeDelegate,
@@ -59,7 +63,14 @@ export class NoteBridge {
       if (note.isMetadataUpdate) {
         return;
       }
-      this.delegate.setEditorRawText(note.content?.text || '', note.uuid);
+      const text = note.content?.text || '';
+      if (isNewNote) {
+        this.lastSaved = undefined;
+      }
+      if (this.echoGuard.isStaleEcho(note.uuid, text, this.lastSaved ?? text)) {
+        return;
+      }
+      this.delegate.setEditorRawText(text, note.uuid);
       if (isNewNote) {
         this.delegate.clearUndoHistory();
       }
@@ -79,6 +90,8 @@ export class NoteBridge {
     if (!note) {
       return;
     }
+    this.lastSaved = text;
+    this.echoGuard.recordSave(text);
     this.relay.saveItemWithPresave(note, () => {
       note.content.text = text;
       note.content.preview_plain = boardPreview(text);

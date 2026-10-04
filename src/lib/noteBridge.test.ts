@@ -114,6 +114,45 @@ test('saves the text and its plain preview into the current note', () => {
   });
 });
 
+test('ignores a late echo of an earlier save of the open note', () => {
+  const { relay, push } = fakeRelay();
+  const d = delegate();
+  const bridge = new NoteBridge(d, relay);
+  push(note('n1', 'a'));
+  bridge.onEditorValueChanged('ab');
+  bridge.onEditorValueChanged('abc');
+
+  push(note('n1', 'ab'));
+
+  expect(d.texts).toEqual(['a']);
+});
+
+test('still applies text that is not one of its own saves', () => {
+  const { relay, push } = fakeRelay();
+  const d = delegate();
+  const bridge = new NoteBridge(d, relay);
+  push(note('n1', 'a'));
+  bridge.onEditorValueChanged('ab');
+  bridge.onEditorValueChanged('abc');
+
+  push(note('n1', 'remote'));
+
+  expect(d.texts).toEqual(['a', 'remote']);
+});
+
+test('applies a note that merely equals a save of the previous note', () => {
+  const { relay, push } = fakeRelay();
+  const d = delegate();
+  const bridge = new NoteBridge(d, relay);
+  push(note('n1', 'a'));
+  bridge.onEditorValueChanged('ab');
+
+  push(note('n2', 'ab'));
+
+  expect(d.texts).toEqual(['a', 'ab']);
+  expect(d.ids).toEqual(['n1', 'n2']);
+});
+
 test('reports what the relay was told at registration', () => {
   const { relay } = fakeRelay();
   const bridge = new NoteBridge(delegate(), relay);
