@@ -8,6 +8,12 @@ import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { ParsingErrors } from '../../types/editor';
 import { moveCard } from '../lib/boardOps';
 import { DEFAULT_QUADRANT_NAMES, QuadrantNames } from '../lib/quadrants';
+import {
+  PreferenceStore,
+  readView,
+  View,
+  writeView,
+} from '../lib/viewPreference';
 
 const snComponentId = 'sn-component';
 
@@ -25,22 +31,9 @@ interface EditorInternalProps {
   noteId?: string;
   quadrantNames?: QuadrantNames;
   onQuadrantNamesChange?: (names: QuadrantNames) => void;
+  /** Where each note's view is remembered, apart from the note itself. */
+  preferences?: PreferenceStore;
 }
-
-type View = 'board' | 'matrix';
-
-// Per device on purpose: switching views should not save the note.
-const viewKey = (noteId: string) => `kbn-view:${noteId}`;
-
-const readView = (noteId?: string): View => {
-  try {
-    return noteId && localStorage.getItem(viewKey(noteId)) === 'matrix'
-      ? 'matrix'
-      : 'board';
-  } catch {
-    return 'board';
-  }
-};
 
 export const EditorInternal = ({
   boardData,
@@ -51,6 +44,7 @@ export const EditorInternal = ({
   noteId,
   quadrantNames = DEFAULT_QUADRANT_NAMES,
   onQuadrantNamesChange,
+  preferences,
 }: EditorInternalProps) => {
   const [modalTarget, setModalTarget] = useState<{
     laneId: string;
@@ -59,22 +53,16 @@ export const EditorInternal = ({
   const [query, setQuery] = useState('');
   const [errorsOpen, setErrorsOpen] = useState(true);
   const [showDone, setShowDone] = useState(false);
-  const [view, setView] = useState<View>(() => readView(noteId));
+  const [view, setView] = useState<View>(() => readView(preferences, noteId));
   const [viewNoteId, setViewNoteId] = useState(noteId);
   if (viewNoteId !== noteId) {
     // Another note was opened: show the view that note was left in.
     setViewNoteId(noteId);
-    setView(readView(noteId));
+    setView(readView(preferences, noteId));
   }
   const changeView = (next: View) => {
     setView(next);
-    try {
-      if (noteId) {
-        localStorage.setItem(viewKey(noteId), next);
-      }
-    } catch {
-      /* storage may be unavailable; the view just won't be remembered */
-    }
+    writeView(preferences, noteId, next);
   };
   const doneLanes = boardData.lanes.filter((lane) => lane.done);
   const doneCount = doneLanes.reduce((n, lane) => n + lane.cards.length, 0);
