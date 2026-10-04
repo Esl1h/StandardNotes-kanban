@@ -17,5 +17,4 @@ export const cardMatchesQuery = (card: KanbanCard, query: string): boolean => {
   );
 };
 
-export const isFiltering = (query: string): boolean =>
-  query.trim().length > 0;
+export const isFiltering = (query: string): boolean => query.trim().length > 0;
