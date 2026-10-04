@@ -24,6 +24,7 @@
   * Description: new screenshot with the current board
   * Due: 2026-10-15
   * Label: purple
+  * Quadrant: schedule
 * husky 4 to 9 [id:e5f6a7]
   * Description: hooks folder instead of package.json config
   * Label: orange
@@ -39,6 +40,7 @@
     > pages path moved to /StandardNotes-kanban/
   * Due: 2026-09-30
   * Label: urgent, red
+  * Quadrant: do
 * v1.0.0 release notes [id:1b2c3d]
   * Description: first standalone release
     > reinstall required once
@@ -85,3 +87,11 @@
   * Label: release
   * Comments:
     * pipeline published it automatically
+
+# ARCHIVE [done] [id:a7c1e0]
+* CRA to Vite [id:8e9f0a]
+  * Description: build moved off react-scripts
+  * Label: blue
+* v0.1.0 prototype [id:9f0a1b]
+  * Description: JSON board, drag and drop
+  * Label: release

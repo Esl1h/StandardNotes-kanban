@@ -13,8 +13,29 @@ test('examples/Kanban.txt parses cleanly and round-trips', async () => {
     'IN PROGRESS',
     'REVIEW',
     'DONE',
+    'ARCHIVE',
   ]);
-  expect(boardData.lanes.map((l) => l.cards.length)).toEqual([4, 3, 2, 2, 8]);
+  expect(boardData.lanes.map((l) => l.cards.length)).toEqual([
+    4, 3, 2, 2, 8, 2,
+  ]);
+  // Only the archive is the done lane: hidden from the board, counted in the
+  // toolbar.
+  expect(boardData.lanes.map((l) => !!l.done)).toEqual([
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+  ]);
+  const quadrants = boardData.lanes
+    .flatMap((l) => l.cards)
+    .filter((c) => c.quadrant)
+    .map((c) => `${c.title}: ${c.quadrant}`);
+  expect(quadrants).toEqual([
+    'replace demo.png: schedule',
+    'reinstall desktop extension: do',
+  ]);
   expect(boardData.lanes.every((l) => l.id)).toBe(true);
   expect(boardData.lanes.every((l) => l.cards.every((c) => c.id))).toBe(true);
 

@@ -1,9 +1,6 @@
-import fs from 'node:fs';
 import { test, expect } from '@playwright/test';
 import { openHost } from './snHost.js';
-
-const BOARD = fs.readFileSync('examples/Kanban.txt', 'utf8');
-const LANES = (BOARD.match(/^# /gm) ?? []).length;
+import { BOARD, VISIBLE_LANES } from './board.js';
 
 // The mobile app runs its web UI from a local file inside a WebView, so the
 // host origin is "null". An opaque-origin page may not load localhost, where
@@ -20,7 +17,7 @@ test('loads the note when the host origin is opaque, as in the mobile app', asyn
 
   const plugin = await openHost(page, { text: BOARD, opaqueOrigin: true });
 
-  await expect(plugin.locator('.kbn-lane')).toHaveCount(LANES);
+  await expect(plugin.locator('.kbn-lane')).toHaveCount(VISIBLE_LANES);
   expect(pageErrors).toEqual([]);
 });
 
@@ -36,7 +33,7 @@ test.describe('a slow (throttled) mobile CPU', () => {
 
       const plugin = await openHost(page, { text: BOARD, throttle: 30 });
 
-      await expect(plugin.locator('.kbn-lane')).toHaveCount(LANES);
+      await expect(plugin.locator('.kbn-lane')).toHaveCount(VISIBLE_LANES);
       expect(pageErrors).toEqual([]);
     });
   }
@@ -47,7 +44,7 @@ test('the Matrix view survives reopening without localStorage', async ({
 }) => {
   // The opaque origin also blocks localStorage, as in the app's sandbox.
   const plugin = await openHost(page, { text: BOARD, opaqueOrigin: true });
-  await expect(plugin.locator('.kbn-lane')).toHaveCount(LANES);
+  await expect(plugin.locator('.kbn-lane')).toHaveCount(VISIBLE_LANES);
   await plugin.getByRole('button', { name: 'Matrix' }).click();
   await expect(plugin.getByRole('button', { name: 'Matrix' })).toHaveAttribute(
     'aria-pressed',
