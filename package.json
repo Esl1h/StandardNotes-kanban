@@ -31,7 +31,7 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --port 3001",
     "lint": "eslint src",
-    "server-cors": "vite preview --port 3000 --cors",
+    "server-cors": "vite preview --port 3000",
     "prepare": "husky"
   },
   "dependencies": {
