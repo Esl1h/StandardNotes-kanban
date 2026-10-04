@@ -11,6 +11,7 @@
   ],
   "private": true,
   "license": "AGPL-3.0-or-later",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Esl1h/StandardNotes-kanban.git"
