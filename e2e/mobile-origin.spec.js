@@ -41,3 +41,27 @@ test.describe('a slow (throttled) mobile CPU', () => {
     });
   }
 });
+
+test('the Matrix view survives reopening without localStorage', async ({
+  page,
+}) => {
+  // The opaque origin also blocks localStorage, as in the app's sandbox.
+  const plugin = await openHost(page, { text: BOARD, opaqueOrigin: true });
+  await expect(plugin.locator('.kbn-lane')).toHaveCount(LANES);
+  await plugin.getByRole('button', { name: 'Matrix' }).click();
+  await expect(plugin.getByRole('button', { name: 'Matrix' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
+  const saved = await page.evaluate(() => window.componentData);
+
+  const reopened = await openHost(page, {
+    text: BOARD,
+    opaqueOrigin: true,
+    componentData: saved,
+  });
+
+  await expect(
+    reopened.getByRole('button', { name: 'Matrix' })
+  ).toHaveAttribute('aria-pressed', 'true');
+});
