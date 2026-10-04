@@ -240,6 +240,9 @@ export default class Editor extends React.Component<
   };
 
   saveNote = (text: string) => {
+    // What the crash fallback shows: the last text saved, not the last
+    // one received.
+    this.rawText = text;
     /** This will work in an SN context, but breaks the standalone editor,
      * so we need to catch the error
      */
@@ -270,7 +273,11 @@ export default class Editor extends React.Component<
     }
     return (
       <ModalProvider>
-        <ErrorBoundary rawText={this.rawText} resetKey={this.state.boardData}>
+        <ErrorBoundary
+          rawText={this.rawText}
+          onRawTextChange={this.saveNote}
+          resetKey={this.state.boardData}
+        >
           <EditorInternal
             boardData={this.state.boardData}
             handleDataChange={this.handleDataChange}

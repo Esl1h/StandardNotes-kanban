@@ -26,7 +26,7 @@ afterEach(() => {
 
 test('shows the error message instead of a blank screen', () => {
   render(
-    <ErrorBoundary rawText="" resetKey={0}>
+    <ErrorBoundary rawText="" onRawTextChange={() => {}} resetKey={0}>
       <Boom explode />
     </ErrorBoundary>
   );
@@ -36,7 +36,11 @@ test('shows the error message instead of a blank screen', () => {
 
 test('lets the user read the raw note text', () => {
   render(
-    <ErrorBoundary rawText={'# Lane\n* Card'} resetKey={0}>
+    <ErrorBoundary
+      rawText={'# Lane\n* Card'}
+      onRawTextChange={() => {}}
+      resetKey={0}
+    >
       <Boom explode />
     </ErrorBoundary>
   );
@@ -51,7 +55,7 @@ test('lets the user read the raw note text', () => {
 
 test('offers no raw text button when no note was received', () => {
   render(
-    <ErrorBoundary rawText="" resetKey={0}>
+    <ErrorBoundary rawText="" onRawTextChange={() => {}} resetKey={0}>
       <Boom explode />
     </ErrorBoundary>
   );
@@ -63,7 +67,7 @@ test('offers no raw text button when no note was received', () => {
 
 test('renders its children when nothing fails', () => {
   render(
-    <ErrorBoundary rawText="" resetKey={0}>
+    <ErrorBoundary rawText="" onRawTextChange={() => {}} resetKey={0}>
       <Boom explode={false} />
     </ErrorBoundary>
   );
@@ -73,17 +77,60 @@ test('renders its children when nothing fails', () => {
 
 test('tries again when the reset key changes', () => {
   const { rerender } = render(
-    <ErrorBoundary rawText="" resetKey={0}>
+    <ErrorBoundary rawText="" onRawTextChange={() => {}} resetKey={0}>
       <Boom explode />
     </ErrorBoundary>
   );
   expect(screen.getByRole('alert')).toBeInTheDocument();
 
   rerender(
-    <ErrorBoundary rawText="" resetKey={1}>
+    <ErrorBoundary rawText="" onRawTextChange={() => {}} resetKey={1}>
       <Boom explode={false} />
     </ErrorBoundary>
   );
 
   expect(screen.getByText('all good')).toBeInTheDocument();
+});
+
+test('saves what is typed in the raw text', () => {
+  const onRawTextChange = vi.fn();
+  render(
+    <ErrorBoundary
+      rawText={'# Lane\n* Card'}
+      onRawTextChange={onRawTextChange}
+      resetKey={0}
+    >
+      <Boom explode />
+    </ErrorBoundary>
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Show raw text' }));
+
+  fireEvent.change(screen.getByLabelText('Raw note text'), {
+    target: { value: '# Lane\n* Card\n* Another' },
+  });
+
+  expect(onRawTextChange).toHaveBeenCalledWith('# Lane\n* Card\n* Another');
+  expect(screen.getByLabelText('Raw note text')).toHaveValue(
+    '# Lane\n* Card\n* Another'
+  );
+});
+
+test('replaces the raw text with a newer one from the app', () => {
+  const { rerender } = render(
+    <ErrorBoundary rawText="# One" onRawTextChange={() => {}} resetKey={0}>
+      <Boom explode />
+    </ErrorBoundary>
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Show raw text' }));
+  fireEvent.change(screen.getByLabelText('Raw note text'), {
+    target: { value: '# One, edited' },
+  });
+
+  rerender(
+    <ErrorBoundary rawText="# Two" onRawTextChange={() => {}} resetKey={0}>
+      <Boom explode />
+    </ErrorBoundary>
+  );
+
+  expect(screen.getByLabelText('Raw note text')).toHaveValue('# Two');
 });

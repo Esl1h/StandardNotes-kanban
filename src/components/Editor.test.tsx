@@ -27,6 +27,16 @@ test('saves the note when the last lane is removed', () => {
   expect(saved).toEqual(['# Only lane [id:lane-1]\n\n', '']);
 });
 
+test('keeps the last saved text for the crash fallback', () => {
+  const editor = new Editor({} as EditorInterface);
+  editor.editorKit = { onEditorValueChanged: () => {} };
+  editor.receiveText('# Old [id:lane-1]\n\n', 'n1');
+
+  editor.saveNote('# Typed in the fallback');
+
+  expect(editor.rawText).toBe('# Typed in the fallback');
+});
+
 test('wraps legacy JSON notes so their data is not lost on save', () => {
   const editor = new Editor({} as EditorInterface);
   const legacyJson = JSON.stringify({
