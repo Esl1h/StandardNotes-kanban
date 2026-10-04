@@ -29,6 +29,8 @@ export interface NoteBridgeDelegate {
 interface Relay {
   streamContextItem(callback: (note: StreamedNote) => void): void;
   saveItemWithPresave(note: StreamedNote, presave: () => void): void;
+  getComponentDataValueForKey(key: string): unknown;
+  setComponentDataValueForKey(key: string, value: unknown): void;
   readonly environment?: string;
   readonly platform?: string;
 }
@@ -83,6 +85,15 @@ export class NoteBridge {
 
   get platform(): string | undefined {
     return this.relay.platform;
+  }
+
+  /** Reads a value the app keeps on the component item (not on the note). */
+  getPreference(key: string): unknown {
+    return this.relay.getComponentDataValueForKey(key);
+  }
+
+  setPreference(key: string, value: unknown): void {
+    this.relay.setComponentDataValueForKey(key, value);
   }
 
   onEditorValueChanged(text: string): void {
