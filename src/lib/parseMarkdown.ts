@@ -163,9 +163,9 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
       }
       const text = (continuation[1] ?? '').trimStart();
       const card = boardData.lanes[laneIndex].cards[cardIndex];
-      card.description = card.description
-        ? `${card.description}\n${text}`
-        : text;
+      // `!== undefined`, not truthiness: an empty first line still counts.
+      card.description =
+        card.description !== undefined ? `${card.description}\n${text}` : text;
     } else if (listMatch) {
       if (cardIndex < 0) {
         reject('Cannot add card fields before adding a card!');
