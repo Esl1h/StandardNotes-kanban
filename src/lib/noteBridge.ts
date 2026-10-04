@@ -44,7 +44,7 @@ const createRelay = (): Relay => {
     },
     handleRequestForContentHeight: () => undefined,
   });
-  return (relay as unknown) as Relay;
+  return relay as unknown as Relay;
 };
 
 export class NoteBridge {

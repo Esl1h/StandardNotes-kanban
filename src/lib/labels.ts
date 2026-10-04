@@ -46,9 +46,7 @@ export const dueBadge = (due?: string): DueBadge | null => {
   }
   const today = new Date();
   today.setHours(12, 0, 0, 0);
-  const dayDiff = Math.round(
-    (parsed.getTime() - today.getTime()) / 86400000
-  );
+  const dayDiff = Math.round((parsed.getTime() - today.getTime()) / 86400000);
   if (dayDiff < 0) {
     return { text: due, className: 'kbn-due-overdue' };
   }

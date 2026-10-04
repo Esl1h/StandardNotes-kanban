@@ -77,9 +77,11 @@ test('choosing a lane moves the card to the end of it', () => {
   expect(laneCards('Todo')).toEqual([]);
   expect(laneCards('Done')).toEqual(['Existing', 'Write docs']);
   expect(
-    (within(screen.getByRole('dialog')).getByLabelText(
-      'Move to'
-    ) as HTMLSelectElement).value
+    (
+      within(screen.getByRole('dialog')).getByLabelText(
+        'Move to'
+      ) as HTMLSelectElement
+    ).value
   ).toBe('laneB');
 });
 
