@@ -68,6 +68,31 @@ test('parses blockquoted lines as a multiline description', () => {
     'first line\nsecond line\nthird line'
   );
 });
+
+test('keeps a blank first line of a multiline description', () => {
+  const input = '# L\n* C\n  * Description: \n    > foo\n';
+  const { boardData } = parseMarkdown(input);
+
+  expect(boardData.lanes[0].cards[0].description).toBe('\nfoo');
+});
+
+test('writes and reads back a description that starts with a blank line', () => {
+  const board: KanbanBoard = {
+    lanes: [
+      {
+        id: 'l',
+        title: 'L',
+        cards: [{ id: 'c', title: 'C', description: '\nfoo' }],
+      },
+    ],
+  };
+
+  const parsed = parseMarkdown(
+    convertStateToMarkdown({ parsingErrors: [], boardData: board })
+  );
+
+  expect(parsed.boardData.lanes[0].cards[0].description).toBe('\nfoo');
+});
 test('reports the error and keeps parsing when a card appears before any lane', () => {
   const input = `* Stray card
 # Lane 1
