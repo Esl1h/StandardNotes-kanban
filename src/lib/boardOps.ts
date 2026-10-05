@@ -144,6 +144,21 @@ export const completeCard = (
   return moveCard(board, laneId, index, doneLane.id!, doneLane.cards.length);
 };
 
+/**
+ * Removes the cards of the done lane, which stays. The same board comes
+ * back when there is nothing to remove, so it counts as no change.
+ */
+export const clearDoneCards = (board: KanbanBoard): KanbanBoard => {
+  if (!board.lanes.some((lane) => lane.done && lane.cards.length > 0)) {
+    return board;
+  }
+  return {
+    lanes: board.lanes.map((lane) =>
+      lane.done ? { ...lane, cards: [] } : lane
+    ),
+  };
+};
+
 /** Places a card in an Eisenhower quadrant, or unclassifies it. */
 export const setCardQuadrant = (
   board: KanbanBoard,
