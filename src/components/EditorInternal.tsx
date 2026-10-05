@@ -8,6 +8,7 @@ import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { ParsingErrors } from '../../types/editor';
 import { moveCard } from '../lib/boardOps';
 import { DEFAULT_QUADRANT_NAMES, QuadrantNames } from '../lib/quadrants';
+import { readCollapsed, writeCollapsed } from '../lib/collapsedPreference';
 import {
   PreferenceStore,
   readView,
@@ -235,6 +236,8 @@ export const EditorInternal = ({
         />
       ) : (
         <Board
+          // Each note remembers its own collapsed lanes.
+          key={noteId ?? ''}
           data={boardData}
           filter={query}
           onDataChange={handleDataChange}
@@ -242,6 +245,10 @@ export const EditorInternal = ({
           onSearchRequest={setQuery}
           onUndo={onUndo}
           showDone={showDone}
+          loadCollapsed={() => readCollapsed(preferences, noteId)}
+          onCollapsedChange={(collapsed) =>
+            writeCollapsed(preferences, noteId, collapsed)
+          }
         />
       )}
     </div>

@@ -62,3 +62,31 @@ test('the Matrix view survives reopening without localStorage', async ({
     reopened.getByRole('button', { name: 'Matrix' })
   ).toHaveAttribute('aria-pressed', 'true');
 });
+
+test('a collapsed lane stays collapsed after reopening without localStorage', async ({
+  page,
+}) => {
+  // The opaque origin also blocks localStorage, as in the app's sandbox.
+  const plugin = await openHost(page, { text: BOARD, opaqueOrigin: true });
+  await expect(plugin.locator('.kbn-lane')).toHaveCount(VISIBLE_LANES);
+  await plugin
+    .getByRole('button', { name: 'Collapse lane BACKLOG', exact: true })
+    .click();
+  await expect(
+    plugin.getByRole('button', { name: 'Expand lane BACKLOG', exact: true })
+  ).toBeVisible();
+  const saved = await page.evaluate(() => window.componentData);
+
+  const reopened = await openHost(page, {
+    text: BOARD,
+    opaqueOrigin: true,
+    componentData: saved,
+  });
+
+  await expect(
+    reopened.getByRole('button', { name: 'Expand lane BACKLOG', exact: true })
+  ).toBeVisible();
+  await expect(
+    reopened.getByRole('button', { name: 'Collapse lane BACKLOG', exact: true })
+  ).toHaveCount(0);
+});
