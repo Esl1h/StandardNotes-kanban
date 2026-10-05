@@ -9,6 +9,7 @@ import {
   updateCard,
   setDoneLane,
   completeCard,
+  clearDoneCards,
   setCardQuadrant,
 } from './boardOps';
 import { KanbanBoard } from '../../types/kanban';
@@ -139,6 +140,36 @@ describe('done lane', () => {
     const plain = setDoneLane(board(), null);
 
     expect(completeCard(plain, 'a', 'c1')).toBe(plain);
+  });
+
+  test('clearing the done lane removes its cards and keeps the lane', () => {
+    const finished = completeCard(board(), 'a', 'c1');
+
+    const next = clearDoneCards(finished);
+
+    expect(next.lanes.map((l) => [l.id, l.cards.length])).toEqual([
+      ['a', 0],
+      ['b', 1],
+      ['c', 0],
+    ]);
+    expect(next.lanes[2].done).toBe(true);
+  });
+
+  test('clearing leaves the other lanes untouched', () => {
+    const finished = completeCard(board(), 'a', 'c1');
+
+    const next = clearDoneCards(finished);
+
+    expect(next.lanes[1]).toBe(finished.lanes[1]);
+  });
+
+  test('clearing with nothing finished returns the same board', () => {
+    const plain = board();
+
+    expect(clearDoneCards(plain)).toBe(plain);
+    expect(clearDoneCards(setDoneLane(plain, null))).toEqual(
+      setDoneLane(plain, null)
+    );
   });
 });
 

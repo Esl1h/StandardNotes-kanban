@@ -3,11 +3,12 @@ import { useModal } from 'react-modal-hook';
 import { IconX } from '@tabler/icons-react';
 import { Board } from './Board';
 import { ExportMenu } from './ExportMenu';
+import { useUndoToast } from './useUndoToast';
 import { Matrix } from './Matrix';
 import { KanbanCardModal } from './KanbanCardModal';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { ParsingErrors } from '../../types/editor';
-import { moveCard } from '../lib/boardOps';
+import { clearDoneCards, moveCard } from '../lib/boardOps';
 import { DUE_FILTERS, DueFilter, hasFilter, toggleFilter } from '../lib/filter';
 import { chipStyle, daysUntil, labelChips } from '../lib/labels';
 import { DEFAULT_QUADRANT_NAMES, QuadrantNames } from '../lib/quadrants';
@@ -89,6 +90,15 @@ export const EditorInternal = ({
   const hasDueDates = filterable.some((card) => daysUntil(card.due) !== null);
   const doneLanes = boardData.lanes.filter((lane) => lane.done);
   const doneCount = doneLanes.reduce((n, lane) => n + lane.cards.length, 0);
+  const { announce, toast } = useUndoToast(boardData, onUndo);
+  const clearDone = () => {
+    const board = clearDoneCards(boardData);
+    handleDataChange(board);
+    announce(
+      `${doneCount} finished card${doneCount === 1 ? '' : 's'} removed`,
+      board
+    );
+  };
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
   const searchRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -242,6 +252,16 @@ export const EditorInternal = ({
             Done ({doneCount})
           </button>
         )}
+        {showDone && doneCount > 0 && (
+          <button
+            type="button"
+            className="kbn-btn kbn-btn-ghost kbn-toolbar-btn"
+            title="Remove the finished cards from the board"
+            onClick={clearDone}
+          >
+            Clear done
+          </button>
+        )}
         <ExportMenu board={boardData} quadrantNames={quadrantNames} />
       </div>
       {(hasDueDates || filterLabels.length > 0) && (
@@ -303,6 +323,7 @@ export const EditorInternal = ({
           }
         />
       )}
+      {toast}
     </div>
   );
 };
