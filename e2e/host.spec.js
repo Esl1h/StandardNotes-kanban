@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { test, expect } from '@playwright/test';
 import { openHost, hostLogs } from './snHost.js';
 import { BOARD, VISIBLE_LANES } from './board.js';
@@ -107,4 +108,22 @@ test('a label filter keeps only the cards with that label', async ({
       card.locator('.kbn-card-chip', { hasText: 'green' })
     ).toHaveCount(1);
   }
+});
+
+test('the board can be downloaded as CSV', async ({ page }) => {
+  const plugin = await openHost(page, { text: BOARD });
+  await expect(plugin.locator('.kbn-lane').first()).toBeVisible();
+
+  await plugin.getByRole('button', { name: 'Export' }).click();
+  const downloading = page.waitForEvent('download');
+  await plugin.getByRole('menuitem', { name: 'Download CSV' }).click();
+  const download = await downloading;
+
+  expect(download.suggestedFilename()).toBe('kanban-board.csv');
+  const csv = fs.readFileSync(await download.path(), 'utf8');
+  const lines = csv.trimEnd().split('\n');
+  expect(lines[0]).toBe('lane,card,label,due,quadrant,checklist');
+  // One row per card of the example, the done lane included.
+  expect(lines.length - 1).toBe(BOARD.match(/^\* /gm).length);
+  expect(csv).toContain('BACKLOG,checklists on cards,green,,,2/3');
 });

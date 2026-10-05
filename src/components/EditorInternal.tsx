@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { IconX } from '@tabler/icons-react';
 import { Board } from './Board';
+import { ExportMenu } from './ExportMenu';
 import { Matrix } from './Matrix';
 import { KanbanCardModal } from './KanbanCardModal';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
@@ -241,6 +242,7 @@ export const EditorInternal = ({
             Done ({doneCount})
           </button>
         )}
+        <ExportMenu board={boardData} quadrantNames={quadrantNames} />
       </div>
       {(hasDueDates || filterLabels.length > 0) && (
         <div className="kbn-filters" role="group" aria-label="Filters">
