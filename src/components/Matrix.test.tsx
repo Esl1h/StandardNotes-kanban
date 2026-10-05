@@ -105,6 +105,53 @@ test('the matrix groups open cards by quadrant', () => {
   expect(titlesIn('Eliminate')).toEqual([]);
 });
 
+test('a section collapses and expands from its heading', () => {
+  render(<Harness />);
+  openMatrix();
+  const toggle = within(section('Do')).getByRole('button', {
+    name: 'Collapse Do',
+  });
+  expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+  fireEvent.click(toggle);
+
+  expect(section('Do')).toHaveClass('kbn-section-collapsed');
+  const expand = within(section('Do')).getByRole('button', {
+    name: 'Expand Do',
+  });
+  expect(expand).toHaveAttribute('aria-expanded', 'false');
+  fireEvent.click(expand);
+  expect(section('Do')).not.toHaveClass('kbn-section-collapsed');
+});
+
+test('the sections collapse independently, the unclassified list too', () => {
+  render(<Harness />);
+  openMatrix();
+
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Collapse Unclassified' })
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse Schedule' }));
+
+  expect(section('Unclassified')).toHaveClass('kbn-section-collapsed');
+  expect(section('Schedule')).toHaveClass('kbn-section-collapsed');
+  expect(section('Do')).not.toHaveClass('kbn-section-collapsed');
+  expect(section('Delegate')).not.toHaveClass('kbn-section-collapsed');
+});
+
+test('a collapsed section keeps its cards and its count', () => {
+  render(<Harness />);
+  openMatrix();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse Do' }));
+
+  // Only hidden by CSS on narrow screens, so drag and drop stays mounted.
+  expect(titlesIn('Do')).toEqual(['Pay taxes']);
+  expect(
+    within(section('Do')).getByText('1', { selector: '.kbn-lane-count' })
+  ).toBeInTheDocument();
+});
+
 test('each card shows the lane it is in', () => {
   render(<Harness />);
   openMatrix();
