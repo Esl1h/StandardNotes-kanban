@@ -12,6 +12,12 @@ test('renders add lane button', () => {
   expect(addLaneButton).toBeInTheDocument();
 });
 
+test('has an Export menu in the toolbar', () => {
+  render(<Editor />);
+
+  expect(screen.getByRole('button', { name: 'Export' })).toBeInTheDocument();
+});
+
 test('saves the note when the last lane is removed', () => {
   const editor = new Editor({} as EditorInterface);
   const saved: string[] = [];
