@@ -11,6 +11,26 @@
   max-width: 380px;
 }
 
+/* Filter shortcuts under the search: due dates and the labels in use. They
+   write the same label: and due: qualifiers one can type in the search. */
+.kbn-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px 0;
+}
+
+.kbn-filter-chip[aria-pressed='true'] {
+  box-shadow:
+    0 0 0 2px var(--sn-stylekit-background-color),
+    0 0 0 4px var(--sn-stylekit-info-color);
+}
+
+.kbn-filter-chip[aria-pressed='false'] {
+  opacity: 0.8;
+}
+
 /* Needs the extra class: .kbn-lane sets width later in the file with the
    same specificity and would otherwise win. */
 .kbn-lane.kbn-lane-collapsed {

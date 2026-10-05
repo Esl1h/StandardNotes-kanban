@@ -84,3 +84,27 @@ test('matrix sections have no fold button on a wide screen', async ({
     plugin.getByRole('button', { name: 'Collapse Do' })
   ).toBeHidden();
 });
+
+test('a label filter keeps only the cards with that label', async ({
+  page,
+}) => {
+  const plugin = await openHost(page, { text: BOARD });
+  const cards = plugin.locator('.kbn-card');
+  await expect(cards.first()).toBeVisible();
+  const all = await cards.count();
+
+  await plugin
+    .getByRole('group', { name: 'Filters' })
+    .getByRole('button', { name: 'green', exact: true })
+    .click();
+
+  await expect(plugin.getByLabel('Search cards')).toHaveValue('label:green');
+  const kept = await cards.count();
+  expect(kept).toBeGreaterThan(0);
+  expect(kept).toBeLessThan(all);
+  for (const card of await cards.all()) {
+    await expect(
+      card.locator('.kbn-card-chip', { hasText: 'green' })
+    ).toHaveCount(1);
+  }
+});

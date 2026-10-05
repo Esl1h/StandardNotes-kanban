@@ -143,7 +143,6 @@ export const Matrix = ({
   const sectionClass = (base: string, id: string) =>
     isCollapsed(id) ? `${base} kbn-section-collapsed` : base;
   const filtering = isFiltering(filter);
-  const query = filter.trim().toLowerCase();
   const hasDoneLane = data.lanes.some((lane) => lane.done);
 
   const groups: Record<string, Entry[]> = { [UNCLASSIFIED]: [] };
@@ -153,7 +152,7 @@ export const Matrix = ({
       return;
     }
     lane.cards.forEach((card) => {
-      if (filtering && !cardMatchesQuery(card, query)) {
+      if (filtering && !cardMatchesQuery(card, filter)) {
         return;
       }
       groups[card.quadrant ?? UNCLASSIFIED].push({ card, lane });
