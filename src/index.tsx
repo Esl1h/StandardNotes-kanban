@@ -4,6 +4,8 @@ import { flushSync } from 'react-dom';
 import './index.scss';
 import Editor from './components/Editor';
 import './stylesheets/main.scss';
+import './stylesheets/print.scss';
+import './stylesheets/dark.scss';
 
 const rootElement = document.getElementById('root') as HTMLElement;
 const root = ReactDOM.createRoot(rootElement);
