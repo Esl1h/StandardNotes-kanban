@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
 import { CardBody } from './Board';
@@ -112,6 +113,35 @@ export const Matrix = ({
   onRenameQuadrant,
 }: MatrixProps) => {
   const { announce, toast } = useUndoToast(data, onUndo);
+  // Sections folded away, which only takes effect on narrow screens, where
+  // the stacked list gets long. The cards stay mounted for drag and drop.
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
+  const isCollapsed = (id: string) => collapsed.has(id);
+  const collapseToggle = (id: string, name: string) => (
+    <button
+      type="button"
+      className="kbn-icon-btn kbn-section-toggle"
+      aria-expanded={!isCollapsed(id)}
+      aria-label={`${isCollapsed(id) ? 'Expand' : 'Collapse'} ${name}`}
+      onClick={() =>
+        setCollapsed((previous) => {
+          const next = new Set(previous);
+          if (!next.delete(id)) {
+            next.add(id);
+          }
+          return next;
+        })
+      }
+    >
+      {isCollapsed(id) ? (
+        <IconChevronRight size={14} stroke={1.5} />
+      ) : (
+        <IconChevronDown size={14} stroke={1.5} />
+      )}
+    </button>
+  );
+  const sectionClass = (base: string, id: string) =>
+    isCollapsed(id) ? `${base} kbn-section-collapsed` : base;
   const filtering = isFiltering(filter);
   const query = filter.trim().toLowerCase();
   const hasDoneLane = data.lanes.some((lane) => lane.done);
@@ -175,8 +205,12 @@ export const Matrix = ({
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="kbn-matrix">
-        <section className="kbn-unclassified" aria-label="Unclassified">
+        <section
+          className={sectionClass('kbn-unclassified', UNCLASSIFIED)}
+          aria-label="Unclassified"
+        >
           <h2 className="kbn-quadrant-heading">
+            {collapseToggle(UNCLASSIFIED, 'Unclassified')}
             Unclassified
             <span className="kbn-lane-count">
               {groups[UNCLASSIFIED].length}
@@ -201,10 +235,11 @@ export const Matrix = ({
           {QUADRANTS.map((q) => (
             <section
               key={q}
-              className={`kbn-quadrant kbn-quadrant-${q}`}
+              className={sectionClass(`kbn-quadrant kbn-quadrant-${q}`, q)}
               aria-label={quadrantNames[q]}
             >
               <div className="kbn-quadrant-heading">
+                {collapseToggle(q, quadrantNames[q])}
                 <QuadrantTitle
                   name={quadrantNames[q]}
                   onRename={(name) => onRenameQuadrant(q, name)}

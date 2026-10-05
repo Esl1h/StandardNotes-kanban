@@ -48,3 +48,39 @@ test('moving a card with Alt+ArrowRight saves once', async ({ page }) => {
   await page.waitForTimeout(800);
   expect(await hostLogs(page, 'save-items')).toHaveLength(1);
 });
+
+test.describe('matrix sections on a phone', () => {
+  test.use({ viewport: { width: 390, height: 800 }, isMobile: true });
+
+  test('a section folds away and opens again', async ({ page }) => {
+    const plugin = await openHost(page, { text: BOARD });
+    await plugin.getByRole('button', { name: 'Matrix' }).click();
+    const doSection = plugin.getByRole('region', { name: 'Do', exact: true });
+    const cards = doSection.locator('.kbn-cards');
+    await expect(cards).toBeVisible();
+
+    await doSection.getByRole('button', { name: 'Collapse Do' }).click();
+    await expect(cards).toBeHidden();
+    // The heading, with the count, stays.
+    await expect(doSection.locator('.kbn-lane-count')).toBeVisible();
+
+    await doSection.getByRole('button', { name: 'Expand Do' }).click();
+    await expect(cards).toBeVisible();
+  });
+});
+
+test('matrix sections have no fold button on a wide screen', async ({
+  page,
+}) => {
+  const plugin = await openHost(page, { text: BOARD });
+  await plugin.getByRole('button', { name: 'Matrix' }).click();
+
+  await expect(
+    plugin
+      .getByRole('region', { name: 'Do', exact: true })
+      .locator('.kbn-quadrant-heading')
+  ).toBeVisible();
+  await expect(
+    plugin.getByRole('button', { name: 'Collapse Do' })
+  ).toBeHidden();
+});

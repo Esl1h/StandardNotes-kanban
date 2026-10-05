@@ -670,6 +670,11 @@
   overflow-y: auto;
 }
 
+/* Folding a section away only makes sense where the sections are stacked. */
+.kbn-section-toggle {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .kbn-toolbar {
     flex-wrap: wrap;
@@ -695,5 +700,17 @@
   .kbn-unclassified,
   .kbn-quadrant {
     max-height: none;
+  }
+
+  .kbn-section-toggle {
+    display: inline-flex;
+  }
+
+  .kbn-section-collapsed {
+    min-height: 0;
+  }
+
+  .kbn-section-collapsed .kbn-cards {
+    display: none;
   }
 }
