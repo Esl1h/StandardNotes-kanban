@@ -27,8 +27,32 @@ export const labelChips = (label?: string): LabelChip[] =>
     .filter(Boolean)
     .map((name) => ({ name, color: LABEL_COLORS[name.toLowerCase()] }));
 
+// WCAG relative luminance of a "#rrggbb" color.
+const luminance = (hex: string): number => {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const channel = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return channel <= 0.03928
+      ? channel / 12.92
+      : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+/**
+ * Black or white, whichever reads better on `background`. Picking the
+ * better of the two always reaches a 4.58 contrast ratio, above the 4.5 of
+ * WCAG AA; white on the yellow, orange and green chips was between 2.2
+ * and 3.8.
+ */
+const readableText = (background: string): string => {
+  const lum = luminance(background);
+  const whiteContrast = 1.05 / (lum + 0.05);
+  const blackContrast = (lum + 0.05) / 0.05;
+  return whiteContrast >= blackContrast ? '#ffffff' : '#000000';
+};
+
 export const chipStyle = (color?: string): React.CSSProperties =>
-  color ? { backgroundColor: color, color: '#fff' } : {};
+  color ? { backgroundColor: color, color: readableText(color) } : {};
 
 export interface DueBadge {
   text: string;
