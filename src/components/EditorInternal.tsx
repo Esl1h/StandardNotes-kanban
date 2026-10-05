@@ -7,6 +7,8 @@ import { KanbanCardModal } from './KanbanCardModal';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { ParsingErrors } from '../../types/editor';
 import { moveCard } from '../lib/boardOps';
+import { DUE_FILTERS, DueFilter, hasFilter, toggleFilter } from '../lib/filter';
+import { chipStyle, daysUntil, labelChips } from '../lib/labels';
 import { DEFAULT_QUADRANT_NAMES, QuadrantNames } from '../lib/quadrants';
 import { readCollapsed, writeCollapsed } from '../lib/collapsedPreference';
 import {
@@ -17,6 +19,12 @@ import {
 } from '../lib/viewPreference';
 
 const snComponentId = 'sn-component';
+
+const DUE_LABELS: Record<DueFilter, string> = {
+  overdue: 'Overdue',
+  today: 'Today',
+  week: 'This week',
+};
 
 interface EditorInternalProps {
   boardData: KanbanBoard;
@@ -65,6 +73,19 @@ export const EditorInternal = ({
     setView(next);
     writeView(preferences, noteId, next);
   };
+  // What the filter bar offers: the labels of the cards on screen, and the
+  // due filters when any of them has a date.
+  const filterable = boardData.lanes
+    .filter((lane) => showDone || !lane.done)
+    .flatMap((lane) => lane.cards);
+  const filterLabels = Array.from(
+    new Map(
+      filterable
+        .flatMap((card) => labelChips(card.label))
+        .map((chip) => [chip.name.toLowerCase(), chip])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name));
+  const hasDueDates = filterable.some((card) => daysUntil(card.due) !== null);
   const doneLanes = boardData.lanes.filter((lane) => lane.done);
   const doneCount = doneLanes.reduce((n, lane) => n + lane.cards.length, 0);
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
@@ -181,6 +202,7 @@ export const EditorInternal = ({
           type="search"
           className="kbn-input kbn-search"
           placeholder="Search title, description or label"
+          title="Also label:name and due:overdue, due:today or due:week"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Search cards"
@@ -220,6 +242,34 @@ export const EditorInternal = ({
           </button>
         )}
       </div>
+      {(hasDueDates || filterLabels.length > 0) && (
+        <div className="kbn-filters" role="group" aria-label="Filters">
+          {hasDueDates &&
+            DUE_FILTERS.map((value) => (
+              <button
+                key={value}
+                type="button"
+                className="kbn-btn kbn-btn-ghost kbn-toolbar-btn"
+                aria-pressed={hasFilter(query, 'due', value)}
+                onClick={() => setQuery(toggleFilter(query, 'due', value))}
+              >
+                {DUE_LABELS[value]}
+              </button>
+            ))}
+          {filterLabels.map((chip) => (
+            <button
+              key={chip.name}
+              type="button"
+              className="kbn-card-chip kbn-filter-chip"
+              style={chipStyle(chip.color)}
+              aria-pressed={hasFilter(query, 'label', chip.name)}
+              onClick={() => setQuery(toggleFilter(query, 'label', chip.name))}
+            >
+              {chip.name}
+            </button>
+          ))}
+        </div>
+      )}
       {view === 'matrix' ? (
         <Matrix
           data={boardData}

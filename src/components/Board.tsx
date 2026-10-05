@@ -24,7 +24,12 @@ import {
   setDoneLane,
 } from '../lib/boardOps';
 import { chipStyle, dueBadge, labelChips } from '../lib/labels';
-import { cardMatchesQuery, isFiltering } from '../lib/filter';
+import {
+  cardMatchesQuery,
+  filterToken,
+  isFiltering,
+  laneMatches,
+} from '../lib/filter';
 import { useUndoToast } from './useUndoToast';
 
 interface BoardProps {
@@ -288,7 +293,7 @@ export const CardBody = ({
               title={`Filter by ${chip.name}`}
               onClick={(e) => {
                 e.stopPropagation();
-                onSearchRequest?.(chip.name);
+                onSearchRequest?.(filterToken('label', chip.name));
               }}
             >
               {chip.name}
@@ -357,7 +362,6 @@ export const Board = ({
 }: BoardProps) => {
   const filtering = isFiltering(filter);
   const isHidden = (lane: KanbanLane) => !!lane.done && !showDone;
-  const query = filter.trim().toLowerCase();
   const [openCardFormLaneId, setOpenCardFormLaneId] = useState<string | null>(
     null
   );
@@ -553,11 +557,7 @@ export const Board = ({
 
   let lanesToRender = data.lanes.filter((lane) => !isHidden(lane));
   if (filtering) {
-    lanesToRender = lanesToRender.filter(
-      (lane) =>
-        lane.title.toLowerCase().includes(query) ||
-        lane.cards.some((card) => cardMatchesQuery(card, query))
-    );
+    lanesToRender = lanesToRender.filter((lane) => laneMatches(lane, filter));
   }
 
   return (
@@ -581,11 +581,10 @@ export const Board = ({
               // While filtering, lanes with matches render their cards
               // even if collapsed, so chip clicks reveal results.
               const collapsed = !filtering && collapsedLaneIds.has(lane.id!);
-              const titleMatches = lane.title.toLowerCase().includes(query);
               const visibleCards = filtering
-                ? titleMatches
-                  ? lane.cards
-                  : lane.cards.filter((card) => cardMatchesQuery(card, query))
+                ? lane.cards.filter((card) =>
+                    cardMatchesQuery(card, filter, { laneTitle: lane.title })
+                  )
                 : lane.cards;
               return (
                 <Draggable

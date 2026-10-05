@@ -59,18 +59,36 @@ export interface DueBadge {
   className: string;
 }
 
-/** Classifies a due date for badge styling: overdue, today, soon or plain. */
-export const dueBadge = (due?: string): DueBadge | null => {
+/**
+ * Whole days from `now` to the due date (negative once it has passed), or
+ * null when there is no date or it is not a valid YYYY-MM-DD one. Both ends
+ * are taken at noon so a daylight saving change cannot shift the count.
+ */
+export const daysUntil = (
+  due?: string,
+  now: Date = new Date()
+): number | null => {
   if (!due) {
     return null;
   }
   const parsed = new Date(`${due}T12:00:00`);
   if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  const today = new Date(now);
+  today.setHours(12, 0, 0, 0);
+  return Math.round((parsed.getTime() - today.getTime()) / 86400000);
+};
+
+/** Classifies a due date for badge styling: overdue, today, soon or plain. */
+export const dueBadge = (due?: string): DueBadge | null => {
+  if (!due) {
+    return null;
+  }
+  const dayDiff = daysUntil(due);
+  if (dayDiff === null) {
     return { text: due, className: 'kbn-due-plain' };
   }
-  const today = new Date();
-  today.setHours(12, 0, 0, 0);
-  const dayDiff = Math.round((parsed.getTime() - today.getTime()) / 86400000);
   if (dayDiff < 0) {
     return { text: due, className: 'kbn-due-overdue' };
   }
