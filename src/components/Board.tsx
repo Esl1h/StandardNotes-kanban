@@ -36,6 +36,10 @@ interface BoardProps {
   onUndo?: () => void;
   /** Show the done lane, which is hidden by default. */
   showDone?: boolean;
+  /** The lanes that start collapsed, read once when the board mounts. */
+  loadCollapsed?: () => ReadonlySet<string>;
+  /** Called with the collapsed lanes after every collapse or expand. */
+  onCollapsedChange?: (collapsed: ReadonlySet<string>) => void;
 }
 
 /**
@@ -348,6 +352,8 @@ export const Board = ({
   onSearchRequest,
   onUndo,
   showDone = false,
+  loadCollapsed,
+  onCollapsedChange,
 }: BoardProps) => {
   const filtering = isFiltering(filter);
   const isHidden = (lane: KanbanLane) => !!lane.done && !showDone;
@@ -359,7 +365,7 @@ export const Board = ({
   const [dragging, setDragging] = useState(false);
   const { announce, toast } = useUndoToast(data, onUndo);
   const [collapsedLaneIds, setCollapsedLaneIds] = useState<ReadonlySet<string>>(
-    new Set()
+    () => loadCollapsed?.() ?? new Set()
   );
   // Last clicked card; Alt+Left/Right moves it between lanes.
   const [focusedCard, setFocusedCard] = useState<{
@@ -420,15 +426,16 @@ export const Board = ({
   };
 
   const toggleCollapse = (laneId: string) => {
-    setCollapsedLaneIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(laneId)) {
-        next.delete(laneId);
-      } else {
-        next.add(laneId);
-      }
-      return next;
-    });
+    const next = new Set(collapsedLaneIds);
+    if (next.has(laneId)) {
+      next.delete(laneId);
+    } else {
+      next.add(laneId);
+    }
+    setCollapsedLaneIds(next);
+    // Only lanes of this board are worth remembering.
+    const existing = new Set(data.lanes.map((lane) => lane.id));
+    onCollapsedChange?.(new Set([...next].filter((id) => existing.has(id))));
   };
 
   const handleDragEnd = (result: DropResult) => {
