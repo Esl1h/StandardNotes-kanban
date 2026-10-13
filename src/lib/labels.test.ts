@@ -1,4 +1,4 @@
-import { chipStyle, labelChips } from './labels';
+import { chipStyle, labelChips, LABEL_COLORS } from './labels';
 
 // WCAG relative luminance and contrast ratio, computed here on purpose and
 // not taken from the code under test.
@@ -35,6 +35,24 @@ test('a name outside the palette gets a neutral chip', () => {
 
   expect(chip).toEqual({ name: 'urgent', color: undefined });
   expect(chipStyle(chip.color)).toEqual({});
+});
+
+test('an assigned color wins over the name and the palette', () => {
+  const [chip] = labelChips('urgent', { urgent: 'purple' });
+
+  expect(chip).toEqual({ name: 'urgent', color: LABEL_COLORS.purple });
+});
+
+test('a label name still colors itself without an assignment', () => {
+  const [chip] = labelChips('Red', {});
+
+  expect(chip).toEqual({ name: 'Red', color: LABEL_COLORS.red });
+});
+
+test('an assignment with an unknown color renders neutral', () => {
+  const [chip] = labelChips('urgent', { urgent: 'chartreuse' });
+
+  expect(chip).toEqual({ name: 'urgent', color: undefined });
 });
 
 test('splits a comma separated label and trims the names', () => {

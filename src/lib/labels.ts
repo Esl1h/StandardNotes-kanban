@@ -2,10 +2,12 @@ import React from 'react';
 
 /**
  * Label chips: a card label is a comma separated free-text string.
- * Names matching this palette render as colored chips; anything else
- * renders as a neutral chip, so existing notes keep working.
+ * Colors come from the note's label color map first (see labelColors);
+ * names matching this palette still render as colored chips on their
+ * own, so existing notes keep working; anything else renders as a
+ * neutral chip.
  */
-const LABEL_COLORS: Record<string, string> = {
+export const LABEL_COLORS: Record<string, string> = {
   red: '#e05252',
   orange: '#e8871e',
   yellow: '#d9a800',
@@ -20,12 +22,21 @@ export interface LabelChip {
   color?: string;
 }
 
-export const labelChips = (label?: string): LabelChip[] =>
+/** Color per label name, palette key as value; lives in the note. */
+export type LabelColors = Record<string, string>;
+
+export const labelChips = (
+  label?: string,
+  labelColors?: LabelColors
+): LabelChip[] =>
   (label || '')
     .split(',')
     .map((name) => name.trim())
     .filter(Boolean)
-    .map((name) => ({ name, color: LABEL_COLORS[name.toLowerCase()] }));
+    .map((name) => ({
+      name,
+      color: LABEL_COLORS[(labelColors?.[name] ?? name).toLowerCase()],
+    }));
 
 // WCAG relative luminance of a "#rrggbb" color.
 const luminance = (hex: string): number => {

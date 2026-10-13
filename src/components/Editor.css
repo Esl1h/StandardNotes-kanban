@@ -239,6 +239,41 @@
   filter: brightness(1.08);
 }
 
+/* Label color swatches, below the Labels field in the card modal */
+.kbn-label-colors {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 0.75em;
+}
+
+.kbn-label-color-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.kbn-swatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--sn-stylekit-contrast-border-color);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.kbn-swatch[aria-pressed='true'] {
+  box-shadow:
+    0 0 0 2px var(--sn-stylekit-secondary-background-color),
+    0 0 0 4px var(--sn-stylekit-info-color);
+}
+
+.kbn-swatch-none {
+  border-style: dashed;
+  background: transparent;
+}
+
 .kbn-card-description {
   margin-top: 6px;
   font-size: 0.95em;

@@ -58,6 +58,7 @@ one `*` bullet per card, indented `*` bullets for card fields:
 
 ```
 Quadrants: Now | Plan | Hand off | Drop
+Labels: work=blue
 
 # To Do
 * Write the report [id:a3f9k2]
@@ -78,9 +79,15 @@ Quadrants: Now | Plan | Hand off | Drop
 ```
 
 - `Description` spans multiple lines: continue it with ` >` lines
-- `Label` takes a comma separated list; palette names (`red`, `orange`,
-  `yellow`, `green`, `blue`, `purple`, `pink`) render as colored chips,
-  any other text renders as a neutral chip
+- `Label` takes a comma separated list; any text works as a label. A
+  label gets its color from the `Labels:` line below, or from the
+  palette when the label is itself a palette name (`red`, `orange`,
+  `yellow`, `green`, `blue`, `purple`, `pink`); otherwise it renders as
+  a neutral chip
+- The optional `Labels:` line before the first lane assigns a palette
+  color per label name (`Labels: work=blue, urgent=red`); the card
+  modal offers the swatches, and the color applies to every card with
+  that label
 - `Due` takes a `YYYY-MM-DD` date; the card shows an overdue/today badge
 - `Checklist` is a header line followed by ` [x] item` (done) and
   ` [ ] item` (pending) sub-items; the card shows a `3/7` counter with

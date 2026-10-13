@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import ReactModal from 'react-modal';
 import { IconMessage, IconCircleX, IconX } from '@tabler/icons-react';
-import { chipStyle, dueBadge, labelChips } from '../lib/labels';
+import { chipStyle, dueBadge, labelChips, LabelColors } from '../lib/labels';
+import { LABEL_PALETTE } from '../lib/labelColors';
 import { QUADRANTS, QuadrantNames, toQuadrant } from '../lib/quadrants';
 import {
   KanbanCard,
@@ -132,6 +133,64 @@ const ChecklistSection = ({
   );
 };
 
+/**
+ * Swatches for each label typed in the Labels field. A color applies to
+ * the label name board-wide and is saved in the note's Labels: line.
+ */
+const LabelColorSection = ({
+  label,
+  labelColors,
+  onChange,
+}: {
+  label: string;
+  labelColors?: LabelColors;
+  onChange: (colors: LabelColors) => void;
+}) => {
+  const chips = labelChips(label, labelColors);
+  if (chips.length === 0) {
+    return null;
+  }
+  const assign = (name: string, color: string) => {
+    onChange({ ...(labelColors ?? {}), [name]: color });
+  };
+  const clear = (name: string) => {
+    const next = { ...(labelColors ?? {}) };
+    delete next[name];
+    onChange(next);
+  };
+  return (
+    <div className="kbn-label-colors">
+      {chips.map((chip) => (
+        <div key={chip.name} className="kbn-label-color-row">
+          <span className="kbn-card-chip" style={chipStyle(chip.color)}>
+            {chip.name}
+          </span>
+          {LABEL_PALETTE.map(({ name, hex }) => (
+            <button
+              key={name}
+              type="button"
+              className="kbn-swatch"
+              style={{ backgroundColor: hex }}
+              aria-label={`Set ${chip.name} to ${name}`}
+              title={name}
+              aria-pressed={labelColors?.[chip.name] === name}
+              onClick={() => assign(chip.name, name)}
+            />
+          ))}
+          <button
+            type="button"
+            className="kbn-swatch kbn-swatch-none"
+            aria-label={`Clear ${chip.name} color`}
+            title="No color"
+            aria-pressed={!labelColors?.[chip.name]}
+            onClick={() => clear(chip.name)}
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const customStyles = {
   content: {
     top: '50%',
@@ -156,6 +215,8 @@ interface KanbanCardModalProps {
   lanes: KanbanLane[];
   laneId: string;
   quadrantNames: QuadrantNames;
+  labelColors?: LabelColors;
+  onLabelColorsChange?: (colors: LabelColors) => void;
   hideModal: () => void;
   updateCard: (patch: Partial<KanbanCard>) => void;
   onMove: (laneId: string) => void;
@@ -168,6 +229,8 @@ export const KanbanCardModal = ({
   lanes,
   laneId,
   quadrantNames,
+  labelColors,
+  onLabelColorsChange,
   onMove,
 }: KanbanCardModalProps) => {
   const { title, description, label, due, checklist, comments } = card;
@@ -233,7 +296,7 @@ export const KanbanCardModal = ({
             {dueBadge(due)?.text}
           </span>
         )}
-        {labelChips(label).map((chip) => (
+        {labelChips(label, labelColors).map((chip) => (
           <span
             key={chip.name}
             className="kbn-card-chip"
@@ -353,6 +416,13 @@ export const KanbanCardModal = ({
             />
           </label>
         </div>
+        {onLabelColorsChange && (
+          <LabelColorSection
+            label={updatedLabel}
+            labelColors={labelColors}
+            onChange={onLabelColorsChange}
+          />
+        )}
       </div>
       <ChecklistSection
         checklist={updatedChecklist}

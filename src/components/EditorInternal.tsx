@@ -10,6 +10,7 @@ import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { ParsingErrors } from '../../types/editor';
 import { clearDoneCards, moveCard } from '../lib/boardOps';
 import { DUE_FILTERS, DueFilter, hasFilter, toggleFilter } from '../lib/filter';
+import { LabelColors } from '../lib/labels';
 import { chipStyle, daysUntil, labelChips } from '../lib/labels';
 import { DEFAULT_QUADRANT_NAMES, QuadrantNames } from '../lib/quadrants';
 import { readCollapsed, writeCollapsed } from '../lib/collapsedPreference';
@@ -42,6 +43,9 @@ interface EditorInternalProps {
   noteId?: string;
   quadrantNames?: QuadrantNames;
   onQuadrantNamesChange?: (names: QuadrantNames) => void;
+  /** Color per label name, from the note's Labels: line. */
+  labelColors?: LabelColors;
+  onLabelColorsChange?: (colors: LabelColors) => void;
   /** Where each note's view is remembered, apart from the note itself. */
   preferences?: PreferenceStore;
 }
@@ -55,6 +59,8 @@ export const EditorInternal = ({
   noteId,
   quadrantNames = DEFAULT_QUADRANT_NAMES,
   onQuadrantNamesChange,
+  labelColors,
+  onLabelColorsChange,
   preferences,
 }: EditorInternalProps) => {
   const [modalTarget, setModalTarget] = useState<{
@@ -83,7 +89,7 @@ export const EditorInternal = ({
   const filterLabels = Array.from(
     new Map(
       filterable
-        .flatMap((card) => labelChips(card.label))
+        .flatMap((card) => labelChips(card.label, labelColors))
         .map((chip) => [chip.name.toLowerCase(), chip])
     ).values()
   ).sort((a, b) => a.name.localeCompare(b.name));
@@ -164,6 +170,8 @@ export const EditorInternal = ({
         lanes={boardData.lanes}
         laneId={modalTarget.laneId}
         quadrantNames={quadrantNames}
+        labelColors={labelColors}
+        onLabelColorsChange={onLabelColorsChange}
         onMove={moveModalCard}
         hideModal={closeModal}
         updateCard={(patch) =>
@@ -171,7 +179,7 @@ export const EditorInternal = ({
         }
       />
     );
-  }, [modalTarget, boardData, quadrantNames]);
+  }, [modalTarget, boardData, quadrantNames, labelColors, onLabelColorsChange]);
 
   React.useEffect(() => {
     if (modalTarget) {
@@ -298,6 +306,7 @@ export const EditorInternal = ({
           filter={query}
           showDone={showDone}
           quadrantNames={quadrantNames}
+          labelColors={labelColors}
           onDataChange={handleDataChange}
           onUndo={onUndo}
           onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
@@ -312,6 +321,7 @@ export const EditorInternal = ({
           key={noteId ?? ''}
           data={boardData}
           filter={query}
+          labelColors={labelColors}
           onDataChange={handleDataChange}
           onCardClick={(laneId, cardId) => setModalTarget({ laneId, cardId })}
           onSearchRequest={setQuery}

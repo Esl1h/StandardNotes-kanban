@@ -23,7 +23,7 @@ import {
   renameLane,
   setDoneLane,
 } from '../lib/boardOps';
-import { chipStyle, dueBadge, labelChips } from '../lib/labels';
+import { chipStyle, dueBadge, labelChips, LabelColors } from '../lib/labels';
 import {
   cardMatchesQuery,
   filterToken,
@@ -35,6 +35,8 @@ import { useUndoToast } from './useUndoToast';
 interface BoardProps {
   data: KanbanBoard;
   filter?: string;
+  /** Color per label name, from the note's Labels: line. */
+  labelColors?: LabelColors;
   onDataChange: (board: KanbanBoard) => void;
   onCardClick: (laneId: string, cardId: string) => void;
   onSearchRequest?: (query: string) => void;
@@ -239,6 +241,8 @@ const AddLane = ({ open, onOpen, onClose, onAdd }: AddLaneProps) => {
 interface CardBodyProps {
   card: KanbanCard;
   laneId: string;
+  /** Color per label name, from the note's Labels: line. */
+  labelColors?: LabelColors;
   onCardClick: (laneId: string, cardId: string) => void;
   onSearchRequest?: (query: string) => void;
   onRemove: () => void;
@@ -255,6 +259,7 @@ interface CardBodyProps {
 export const CardBody = ({
   card,
   laneId,
+  labelColors,
   onCardClick,
   onSearchRequest,
   onRemove,
@@ -282,9 +287,9 @@ export const CardBody = ({
         <span className="kbn-card-title">{card.title}</span>
         {laneTitle && <span className="kbn-card-lane">{laneTitle}</span>}
       </div>
-      {labelChips(card.label).length > 0 && (
+      {labelChips(card.label, labelColors).length > 0 && (
         <div className="kbn-card-chips">
-          {labelChips(card.label).map((chip) => (
+          {labelChips(card.label, labelColors).map((chip) => (
             <button
               key={chip.name}
               type="button"
@@ -352,6 +357,7 @@ export const CardBody = ({
 export const Board = ({
   data,
   filter = '',
+  labelColors,
   onDataChange,
   onCardClick,
   onSearchRequest,
@@ -691,6 +697,7 @@ export const Board = ({
                                         card={card}
                                         laneId={lane.id!}
                                         finished={lane.done}
+                                        labelColors={labelColors}
                                         onCardClick={handleCardClick}
                                         onSearchRequest={onSearchRequest}
                                         focused={
@@ -711,6 +718,7 @@ export const Board = ({
                                             card={card}
                                             laneId={lane.id!}
                                             finished={lane.done}
+                                            labelColors={labelColors}
                                             onCardClick={handleCardClick}
                                             onSearchRequest={onSearchRequest}
                                             focused={

@@ -446,3 +446,49 @@ describe('quadrant names', () => {
     ).toBe('# Lane\n* Card\n');
   });
 });
+
+describe('label colors', () => {
+  test('reads label colors from the top of the note', () => {
+    const { labelColors, preamble, parsingErrors } = parseMarkdown(
+      'Labels: urgent=red, Home Work=blue\n\n# Lane\n'
+    );
+
+    expect(labelColors).toEqual({ urgent: 'red', 'Home Work': 'blue' });
+    expect(preamble).toEqual([]);
+    expect(parsingErrors).toEqual([]);
+  });
+
+  test('keeps a malformed colors line as an unread line', () => {
+    const { labelColors, preamble } = parseMarkdown(
+      'Labels: urgent, work=blue\n# Lane\n'
+    );
+
+    expect(labelColors).toBeUndefined();
+    expect(preamble).toEqual(['Labels: urgent, work=blue']);
+  });
+
+  test('is only read before the first lane', () => {
+    const { labelColors, boardData } = parseMarkdown(
+      '# Lane\nLabels: urgent=red\n'
+    );
+
+    expect(labelColors).toBeUndefined();
+    expect(boardData.lanes[0].extraLines).toEqual(['Labels: urgent=red']);
+  });
+
+  test('writes the colors line on top and leaves it out when empty', () => {
+    const custom = 'Labels: urgent=red\n\n# Lane\n* Card\n';
+
+    expect(convertStateToMarkdown(parseMarkdown(custom))).toBe(custom);
+    expect(convertStateToMarkdown(parseMarkdown(custom))).toContain(
+      'Labels: urgent=red'
+    );
+  });
+
+  test('round-trips beside the quadrant names line', () => {
+    const custom =
+      'Labels: urgent=red\nQuadrants: A | B | C | D\n\n# Lane\n* Card\n';
+
+    expect(convertStateToMarkdown(parseMarkdown(custom))).toBe(custom);
+  });
+});

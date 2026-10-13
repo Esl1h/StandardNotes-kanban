@@ -7,6 +7,8 @@ export interface EditorInterface {
   preamble?: string[];
   /** Display names of the Eisenhower quadrants, when renamed. */
   quadrantNames?: Record<Quadrant, string>;
+  /** Palette color per label name, from the note's Labels: line. */
+  labelColors?: Record<string, string>;
 }
 
 export interface ParsingErrors {

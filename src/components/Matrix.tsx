@@ -11,6 +11,7 @@ import {
 } from '../../types/kanban';
 import { completeCard, removeCard, setCardQuadrant } from '../lib/boardOps';
 import { cardMatchesQuery, isFiltering } from '../lib/filter';
+import { LabelColors } from '../lib/labels';
 import { QUADRANTS, QuadrantNames, toQuadrant } from '../lib/quadrants';
 import { useUndoToast } from './useUndoToast';
 
@@ -19,6 +20,8 @@ interface MatrixProps {
   filter?: string;
   showDone: boolean;
   quadrantNames: QuadrantNames;
+  /** Color per label name, from the note's Labels: line. */
+  labelColors?: LabelColors;
   onDataChange: (board: KanbanBoard) => void;
   /** Reverts the latest change; offered in a toast after a removal. */
   onUndo?: () => void;
@@ -106,6 +109,7 @@ export const Matrix = ({
   filter = '',
   showDone,
   quadrantNames,
+  labelColors,
   onDataChange,
   onUndo,
   onCardClick,
@@ -178,6 +182,7 @@ export const Matrix = ({
             laneId={lane.id!}
             laneTitle={lane.title}
             finished={lane.done}
+            labelColors={labelColors}
             onCardClick={onCardClick}
             onSearchRequest={onSearchRequest}
             onRemove={() => {

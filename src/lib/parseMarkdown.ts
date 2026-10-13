@@ -1,5 +1,6 @@
 import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
 import { stripIdMarker } from './ids';
+import { parseLabelColors } from './labelColors';
 import { QUADRANTS, QuadrantNames, toQuadrant } from './quadrants';
 import { EditorInterface, ParsingErrors } from '../../types/editor';
 
@@ -23,6 +24,8 @@ const CHECKLIST_ITEM = /^ +\[([xX ])\] ([\s\S]+)$/;
 const DONE_MARKER = /\s*\[done\]$/i;
 // Renamed quadrants, before the first lane: "Quadrants: A | B | C | D".
 const QUADRANT_NAMES = /^quadrants:\s*([\s\S]*)$/i;
+// Label colors, before the first lane: "Labels: urgent=red, work=blue".
+const LABEL_COLORS_LINE = /^labels?:\s*([\s\S]*)$/i;
 const COMMENT_ITEM = /^( +)[*+-] ([\s\S]*)$/;
 
 // One leading tab is one indentation level (2 spaces). Tabs further into
@@ -49,6 +52,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
   const parsingErrors: ParsingErrors[] = [];
   const preamble: string[] = [];
   let quadrantNames: QuadrantNames | undefined;
+  let labelColors: Record<string, string> | undefined;
 
   for (let i = 0; i < lines.length; ++i) {
     const line = lines[i];
@@ -87,6 +91,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
     const itemMatch =
       scope === Scope.Checklist ? CHECKLIST_ITEM.exec(norm) : null;
     const namesMatch = laneIndex < 0 ? QUADRANT_NAMES.exec(norm) : null;
+    const colorsMatch = laneIndex < 0 ? LABEL_COLORS_LINE.exec(norm) : null;
     const commentMatch =
       scope === Scope.Comments ? COMMENT_ITEM.exec(norm) : null;
 
@@ -99,6 +104,13 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
       quadrantNames = Object.fromEntries(
         QUADRANTS.map((q, i) => [q, names[i]])
       ) as QuadrantNames;
+    } else if (colorsMatch) {
+      const colors = parseLabelColors(colorsMatch[1]);
+      if (!colors) {
+        reject('Labels needs name=color pairs, as in urgent=red');
+        continue;
+      }
+      labelColors = colors;
     } else if (laneMatch) {
       laneIndex += 1;
       cardIndex = -1;
@@ -198,5 +210,6 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
     parsingErrors,
     preamble,
     quadrantNames,
+    labelColors,
   };
 };

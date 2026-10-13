@@ -1,10 +1,11 @@
 import { withIdMarker } from './ids';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { EditorInterface } from '../../types/editor';
+import { formatLabelColors } from './labelColors';
 import { DEFAULT_QUADRANT_NAMES, QUADRANTS } from './quadrants';
 
 export const convertStateToMarkdown = (state: EditorInterface): string => {
-  const { boardData, preamble = [], quadrantNames } = state;
+  const { boardData, preamble = [], quadrantNames, labelColors } = state;
 
   const boardText = convertBoardData(boardData);
   // Unrecognized lines that came before the first lane stay on top.
@@ -13,15 +14,25 @@ export const convertStateToMarkdown = (state: EditorInterface): string => {
       ? `${preamble.join('\n')}\n${boardText ? '\n' : ''}`
       : '';
   const rest = `${preambleText}${boardText}`;
+  // Board-level settings go before the first lane as "Key: value" lines;
+  // defaults are implied, so only set values are written.
+  const headers: string[] = [];
+  if (labelColors && Object.keys(labelColors).length > 0) {
+    headers.push(`Labels: ${formatLabelColors(labelColors)}`);
+  }
   // Default names are implied, so only renamed quadrants are written.
   const renamed =
     quadrantNames &&
     QUADRANTS.some((q) => quadrantNames[q] !== DEFAULT_QUADRANT_NAMES[q]);
-  if (!renamed) {
+  if (renamed) {
+    headers.push(
+      `Quadrants: ${QUADRANTS.map((q) => quadrantNames![q]).join(' | ')}`
+    );
+  }
+  if (headers.length === 0) {
     return rest;
   }
-  const names = QUADRANTS.map((q) => quadrantNames[q]).join(' | ');
-  return `Quadrants: ${names}\n${rest ? `\n${rest}` : ''}`;
+  return `${headers.join('\n')}\n${rest ? `\n${rest}` : ''}`;
 };
 
 // Lines are the unit of the format, so a line break inside a title, label

@@ -156,6 +156,11 @@ export default class Editor extends React.Component<
     this.saveNote(convertStateToMarkdown({ ...this.state, quadrantNames }));
   };
 
+  handleLabelColorsChange = (labelColors: Record<string, string>) => {
+    this.setState({ labelColors });
+    this.saveNote(convertStateToMarkdown({ ...this.state, labelColors }));
+  };
+
   stepHistory = (
     step: (h: History, board: KanbanBoard) => HistoryStep | null
   ) => {
@@ -289,6 +294,8 @@ export default class Editor extends React.Component<
             noteId={this.state.noteId}
             quadrantNames={this.state.quadrantNames}
             onQuadrantNamesChange={this.handleQuadrantNamesChange}
+            labelColors={this.state.labelColors}
+            onLabelColorsChange={this.handleLabelColorsChange}
             preferences={this.preferences}
           />
         </ErrorBoundary>
