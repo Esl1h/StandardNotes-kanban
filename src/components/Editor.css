@@ -751,7 +751,8 @@
   opacity: 0.6;
 }
 
-.kbn-card-finished .kbn-card-title {
+.kbn-card-finished .kbn-card-title,
+.kbn-card-finished .kbn-card-title-btn {
   text-decoration: line-through;
   color: var(--sn-stylekit-neutral-color);
 }

@@ -91,6 +91,19 @@ test('cards in the shown done lane render as finished on the board', () => {
   );
 });
 
+test('the finished strike rule still matches the rendered title', () => {
+  render(<Harness />);
+  markDone('Finished');
+  fireEvent.click(screen.getByRole('button', { name: 'Done (2)' }));
+
+  // Guards the CSS selector against markup drift: the title became a
+  // button with inline rename and the strike silently stopped matching.
+  const struck = document.querySelector(
+    '.kbn-card-finished .kbn-card-title, .kbn-card-finished .kbn-card-title-btn'
+  );
+  expect(struck).toBe(screen.getByText('Closed one'));
+});
+
 test('marking another lane moves the done flag to it', () => {
   render(<Harness />);
   markDone('Finished');
