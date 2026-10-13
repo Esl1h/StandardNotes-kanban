@@ -1,4 +1,4 @@
-import { chipStyle, labelChips, LABEL_COLORS } from './labels';
+import { chipStyle, isoDate, labelChips, LABEL_COLORS } from './labels';
 
 // WCAG relative luminance and contrast ratio, computed here on purpose and
 // not taken from the code under test.
@@ -61,4 +61,16 @@ test('splits a comma separated label and trims the names', () => {
     'urgent',
   ]);
   expect(labelChips(undefined)).toEqual([]);
+});
+
+describe('isoDate', () => {
+  test('formats the local day, offset from the given date', () => {
+    expect(isoDate(0, new Date(2026, 0, 31))).toBe('2026-01-31');
+    expect(isoDate(1, new Date(2026, 0, 31))).toBe('2026-02-01');
+    expect(isoDate(-1, new Date(2026, 2, 1))).toBe('2026-02-28');
+  });
+
+  test('pads month and day', () => {
+    expect(isoDate(0, new Date(2026, 10, 5))).toBe('2026-11-05');
+  });
 });

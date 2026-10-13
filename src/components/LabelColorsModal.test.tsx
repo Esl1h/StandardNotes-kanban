@@ -16,14 +16,80 @@ const boardWithOneCard = () => ({
 });
 
 const openCard = (title: string) => {
-  fireEvent.click(screen.getByText(title));
+  // The card title is the inline-rename button; the card body opens
+  // the modal.
+  fireEvent.click(screen.getByText(title).closest('.kbn-card')!);
   return screen.getByRole('dialog');
 };
 
-const typeLabel = (dialog: HTMLElement, label: string) =>
-  fireEvent.change(within(dialog).getByPlaceholderText('red, blue'), {
-    target: { value: label },
-  });
+const typeLabel = (dialog: HTMLElement, label: string) => {
+  const input = within(dialog).getByLabelText('Add label');
+  fireEvent.change(input, { target: { value: label } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+};
+
+const chipInput = (dialog: HTMLElement) =>
+  dialog.querySelector('.kbn-label-input-chips') as HTMLElement;
+
+test('Enter turns the typed label into a chip', () => {
+  const Harness = () => {
+    const [board] = useState(boardWithOneCard);
+    return (
+      <ModalProvider>
+        <EditorInternal
+          boardData={board}
+          handleDataChange={() => {}}
+          onCardUpdate={() => {}}
+        />
+      </ModalProvider>
+    );
+  };
+  render(<Harness />);
+  const dialog = openCard('Write docs');
+
+  typeLabel(dialog, 'urgent');
+
+  expect(within(dialog).getByText('urgent')).toBeInTheDocument();
+});
+
+test('the chip remove button takes the label off', () => {
+  const Harness = () => {
+    const [board] = useState(() => ({
+      lanes: [
+        {
+          id: 'laneA',
+          title: 'Todo',
+          cards: [
+            {
+              id: 'c1',
+              title: 'Write docs',
+              laneId: 'laneA',
+              label: 'urgent, later',
+            },
+          ],
+        },
+      ],
+    }));
+    return (
+      <ModalProvider>
+        <EditorInternal
+          boardData={board}
+          handleDataChange={() => {}}
+          onCardUpdate={() => {}}
+        />
+      </ModalProvider>
+    );
+  };
+  render(<Harness />);
+  const dialog = openCard('Write docs');
+
+  fireEvent.click(within(dialog).getByLabelText('Remove label urgent'));
+
+  expect(
+    within(chipInput(dialog)).queryByText('urgent')
+  ).not.toBeInTheDocument();
+  expect(within(chipInput(dialog)).getByText('later')).toBeInTheDocument();
+});
 
 test('typing a label offers swatches that assign its color live', () => {
   const Harness = () => {
@@ -45,16 +111,11 @@ test('typing a label offers swatches that assign its color live', () => {
   const dialog = openCard('Write docs');
   typeLabel(dialog, 'urgent');
 
+  fireEvent.click(within(dialog).getByLabelText('Set color of urgent'));
   fireEvent.click(within(dialog).getByLabelText('Set urgent to red'));
 
-  const swatches = dialog.querySelector('.kbn-label-colors') as HTMLElement;
-  expect(within(swatches).getByText('urgent').style.backgroundColor).toBe(
-    'rgb(224, 82, 82)'
-  );
-  expect(within(dialog).getByLabelText('Set urgent to red')).toHaveAttribute(
-    'aria-pressed',
-    'true'
-  );
+  const chip = within(chipInput(dialog)).getByText('urgent');
+  expect(chip.style.backgroundColor).toBe('rgb(224, 82, 82)');
 });
 
 test('clearing the color renders the chip neutral again', () => {
@@ -86,14 +147,11 @@ test('clearing the color renders the chip neutral again', () => {
   render(<Harness />);
   const dialog = openCard('Write docs');
 
+  fireEvent.click(within(dialog).getByLabelText('Set color of urgent'));
   fireEvent.click(within(dialog).getByLabelText('Clear urgent color'));
 
-  const swatches = dialog.querySelector('.kbn-label-colors') as HTMLElement;
-  expect(within(swatches).getByText('urgent').style.backgroundColor).toBe('');
-  expect(within(dialog).getByLabelText('Clear urgent color')).toHaveAttribute(
-    'aria-pressed',
-    'true'
-  );
+  const chip = within(chipInput(dialog)).getByText('urgent');
+  expect(chip.style.backgroundColor).toBe('');
 });
 
 test('a color picked in the modal is saved in the note', () => {
@@ -108,6 +166,7 @@ test('a color picked in the modal is saved in the note', () => {
 
   const dialog = openCard('Write docs');
   typeLabel(dialog, 'urgent');
+  fireEvent.click(within(dialog).getByLabelText('Set color of urgent'));
   fireEvent.click(within(dialog).getByLabelText('Set urgent to red'));
 
   expect(saved[0]).toContain('Labels: urgent=red');

@@ -239,14 +239,7 @@
   filter: brightness(1.08);
 }
 
-/* Label color swatches, below the Labels field in the card modal */
-.kbn-label-colors {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 0.75em;
-}
-
+/* Swatch popover of a label chip in the card modal */
 .kbn-label-color-row {
   display: flex;
   flex-wrap: wrap;
@@ -463,6 +456,114 @@
   font-family: var(--sn-stylekit-sans-serif-font);
   font-size: inherit;
   resize: vertical;
+}
+
+/* Due and Labels rows inside the modal edit box */
+.kbn-field-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75em;
+  margin-top: 0.75em;
+}
+
+.kbn-due-shortcuts {
+  display: flex;
+  gap: 4px;
+}
+
+.kbn-due-shortcut {
+  padding: 4px 8px;
+  font-size: 0.85em;
+}
+
+/* Label chip input: chips with a color dot and a remove button, plus
+   the field that adds the next one */
+.kbn-label-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 12em;
+}
+
+.kbn-label-input-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.kbn-label-input-field {
+  flex: 1;
+  min-width: 8em;
+  padding: 4px 8px;
+}
+
+.kbn-label-chip-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.kbn-chip-dot {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 1px dashed var(--sn-stylekit-secondary-border-color);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.kbn-chip-dot-set {
+  border-style: solid;
+}
+
+.kbn-chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sn-stylekit-neutral-color);
+  cursor: pointer;
+}
+
+.kbn-chip-x:hover {
+  color: var(--sn-stylekit-danger-color);
+}
+
+/* Collapsible modal sections */
+.kbn-modal-section {
+  margin-top: 1em;
+}
+
+.kbn-modal-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.kbn-modal-section-title {
+  font-weight: bold;
+}
+
+.kbn-modal-section-count {
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+.kbn-modal-section-body {
+  margin-top: 0.5em;
 }
 
 /* Modal action buttons */

@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import ReactModal from 'react-modal';
-import { IconMessage, IconCircleX, IconX } from '@tabler/icons-react';
-import { chipStyle, dueBadge, labelChips, LabelColors } from '../lib/labels';
+import {
+  IconChevronDown,
+  IconChevronRight,
+  IconMessage,
+  IconCircleX,
+  IconX,
+} from '@tabler/icons-react';
+import {
+  chipStyle,
+  dueBadge,
+  isoDate,
+  labelChips,
+  LabelColors,
+} from '../lib/labels';
 import { LABEL_PALETTE } from '../lib/labelColors';
 import { QUADRANTS, QuadrantNames, toQuadrant } from '../lib/quadrants';
 import {
@@ -46,6 +58,42 @@ const NoComments = () => (
   </div>
 );
 
+/** Collapsible modal section: chevron, title and an optional count. */
+const ModalSection = ({
+  title,
+  count,
+  defaultOpen = true,
+  children,
+}: {
+  title: string;
+  count?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) => {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="kbn-modal-section">
+      <button
+        type="button"
+        className="kbn-modal-section-header"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
+        {open ? (
+          <IconChevronDown size={14} stroke={1.5} />
+        ) : (
+          <IconChevronRight size={14} stroke={1.5} />
+        )}
+        <span className="kbn-modal-section-title">{title}</span>
+        {count !== undefined && (
+          <span className="kbn-modal-section-count">{count}</span>
+        )}
+      </button>
+      {open && <div className="kbn-modal-section-body">{children}</div>}
+    </div>
+  );
+};
+
 const ChecklistSection = ({
   checklist,
   onUpdate,
@@ -73,13 +121,11 @@ const ChecklistSection = ({
   };
   const done = checklist.filter((item) => item.done).length;
   return (
-    <div style={{ marginTop: '1em' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-        <span style={{ fontWeight: 'bold' }}>Checklist</span>
-        <span style={{ fontSize: '0.85em', opacity: 0.7 }}>
-          {done}/{checklist.length}
-        </span>
-      </div>
+    <ModalSection
+      title="Checklist"
+      count={`${done}/${checklist.length}`}
+      defaultOpen={checklist.length > 0}
+    >
       <ul style={{ listStyle: 'none', padding: 0, marginTop: '0.5em' }}>
         {checklist.map((item: KanbanChecklistItem, i: number) => (
           <li
@@ -129,64 +175,148 @@ const ChecklistSection = ({
         />
         <button onClick={addItem}>Add Item</button>
       </div>
-    </div>
+    </ModalSection>
   );
 };
 
 /**
- * Swatches for each label typed in the Labels field. A color applies to
- * the label name board-wide and is saved in the note's Labels: line.
+ * Chip editor for the comma separated label string: Enter or a comma
+ * turns the draft into a chip, Backspace on an empty draft removes the
+ * last one, and the dot on each chip opens its color swatches.
  */
-const LabelColorSection = ({
-  label,
-  labelColors,
+const LabelInput = ({
+  value,
   onChange,
+  labelColors,
+  onLabelColorsChange,
 }: {
-  label: string;
+  value: string;
+  onChange: (next: string) => void;
   labelColors?: LabelColors;
-  onChange: (colors: LabelColors) => void;
+  onLabelColorsChange?: (colors: LabelColors) => void;
 }) => {
-  const chips = labelChips(label, labelColors);
-  if (chips.length === 0) {
-    return null;
-  }
-  const assign = (name: string, color: string) => {
-    onChange({ ...(labelColors ?? {}), [name]: color });
+  const [draft, setDraft] = useState('');
+  const [colorTarget, setColorTarget] = useState<string | null>(null);
+  const chips = labelChips(value, labelColors);
+
+  const addDraft = () => {
+    const names = draft
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean);
+    if (names.length === 0) {
+      return;
+    }
+    const known = chips.map((chip) => chip.name);
+    onChange([...known, ...names.filter((n) => !known.includes(n))].join(', '));
+    setDraft('');
   };
+
+  const remove = (name: string) => {
+    onChange(
+      chips
+        .filter((chip) => chip.name !== name)
+        .map((chip) => chip.name)
+        .join(', ')
+    );
+  };
+
+  const assign = (name: string, color: string) => {
+    onLabelColorsChange?.({ ...(labelColors ?? {}), [name]: color });
+    setColorTarget(null);
+  };
+
   const clear = (name: string) => {
     const next = { ...(labelColors ?? {}) };
     delete next[name];
-    onChange(next);
+    onLabelColorsChange?.(next);
+    setColorTarget(null);
   };
+
   return (
-    <div className="kbn-label-colors">
-      {chips.map((chip) => (
-        <div key={chip.name} className="kbn-label-color-row">
-          <span className="kbn-card-chip" style={chipStyle(chip.color)}>
-            {chip.name}
+    <div className="kbn-label-input">
+      <div className="kbn-label-input-chips">
+        {chips.map((chip) => (
+          <span key={chip.name} className="kbn-label-chip-wrap">
+            <span className="kbn-card-chip" style={chipStyle(chip.color)}>
+              {chip.name}
+            </span>
+            {onLabelColorsChange && (
+              <button
+                type="button"
+                className={`kbn-chip-dot${
+                  chip.color ? ' kbn-chip-dot-set' : ''
+                }`}
+                style={chip.color ? { backgroundColor: chip.color } : undefined}
+                aria-label={`Set color of ${chip.name}`}
+                aria-expanded={colorTarget === chip.name}
+                title="Label color"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setColorTarget(colorTarget === chip.name ? null : chip.name);
+                }}
+              />
+            )}
+            <button
+              type="button"
+              className="kbn-chip-x"
+              aria-label={`Remove label ${chip.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                remove(chip.name);
+              }}
+            >
+              <IconX size={11} stroke={2} />
+            </button>
           </span>
+        ))}
+        <input
+          className="kbn-input kbn-label-input-field"
+          placeholder="Add label"
+          aria-label="Add label"
+          value={draft}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            // A comma commits what is typed, so pasting "a, b" works.
+            if (e.target.value.includes(',')) {
+              addDraft();
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              addDraft();
+              e.preventDefault();
+            }
+            if (e.key === 'Backspace' && !draft && chips.length > 0) {
+              remove(chips[chips.length - 1].name);
+            }
+          }}
+        />
+      </div>
+      {colorTarget && (
+        <div className="kbn-label-color-row">
           {LABEL_PALETTE.map(({ name, hex }) => (
             <button
               key={name}
               type="button"
               className="kbn-swatch"
               style={{ backgroundColor: hex }}
-              aria-label={`Set ${chip.name} to ${name}`}
+              aria-label={`Set ${colorTarget} to ${name}`}
               title={name}
-              aria-pressed={labelColors?.[chip.name] === name}
-              onClick={() => assign(chip.name, name)}
+              aria-pressed={labelColors?.[colorTarget] === name}
+              onClick={() => assign(colorTarget, name)}
             />
           ))}
           <button
             type="button"
             className="kbn-swatch kbn-swatch-none"
-            aria-label={`Clear ${chip.name} color`}
+            aria-label={`Clear ${colorTarget} color`}
             title="No color"
-            aria-pressed={!labelColors?.[chip.name]}
-            onClick={() => clear(chip.name)}
+            aria-pressed={!labelColors?.[colorTarget]}
+            onClick={() => clear(colorTarget)}
           />
         </div>
-      ))}
+      )}
     </div>
   );
 };
@@ -376,15 +506,7 @@ export const KanbanCardModal = ({
           rows={3}
           style={{ width: '100%', boxSizing: 'border-box' }}
         />
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.75em',
-            marginTop: '0.75em',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
+        <div className="kbn-field-row">
           <label
             style={{ display: 'flex', alignItems: 'center', gap: '0.35em' }}
           >
@@ -397,65 +519,78 @@ export const KanbanCardModal = ({
               onChange={(e) => setUpdatedDue(e.target.value)}
             />
           </label>
-          <label
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35em',
-              flex: 1,
-              minWidth: '12em',
-            }}
+          <div
+            className="kbn-due-shortcuts"
+            role="group"
+            aria-label="Due shortcuts"
           >
-            <span>Labels</span>
-            <input
-              className="kbn-input"
-              style={{ flex: 1 }}
-              placeholder="red, blue"
-              value={updatedLabel}
-              onChange={(e) => setUpdatedLabel(e.target.value)}
-            />
-          </label>
+            {(
+              [
+                ['Today', 0],
+                ['Tomorrow', 1],
+                ['Next week', 7],
+              ] as const
+            ).map(([label, offset]) => (
+              <button
+                key={label}
+                type="button"
+                className="kbn-btn kbn-btn-ghost kbn-due-shortcut"
+                aria-label={`Set due date to ${label.toLowerCase()}`}
+                onClick={() => setUpdatedDue(isoDate(offset))}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-        {onLabelColorsChange && (
-          <LabelColorSection
-            label={updatedLabel}
+        <div className="kbn-field-row">
+          <span>Labels</span>
+          <LabelInput
+            value={updatedLabel}
+            onChange={setUpdatedLabel}
             labelColors={labelColors}
-            onChange={onLabelColorsChange}
+            onLabelColorsChange={onLabelColorsChange}
           />
-        )}
+        </div>
       </div>
       <ChecklistSection
         checklist={updatedChecklist}
         onUpdate={setUpdatedChecklist}
       />
-      <div>
-        {updatedComments && updatedComments.length > 0 ? (
-          updatedComments.map((comment, i) => (
-            <CardComment
-              key={`${i}-${comment}`}
-              comment={comment}
-              deleteComment={() => deleteCommentByIndex(i)}
-            />
-          ))
-        ) : (
-          <NoComments />
-        )}
-      </div>
-      <div style={{ display: 'flex', gap: '0.5em', marginTop: '1em' }}>
-        <input
-          placeholder="New Comment"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              addComment();
-              e.preventDefault();
-            }
-          }}
-          style={{ flex: 1 }}
-        />
-        <button onClick={addComment}>Add Comment</button>
-      </div>
+      <ModalSection
+        title="Comments"
+        count={`${updatedComments.length}`}
+        defaultOpen={updatedComments.length > 0}
+      >
+        <div>
+          {updatedComments && updatedComments.length > 0 ? (
+            updatedComments.map((comment, i) => (
+              <CardComment
+                key={`${i}-${comment}`}
+                comment={comment}
+                deleteComment={() => deleteCommentByIndex(i)}
+              />
+            ))
+          ) : (
+            <NoComments />
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: '0.5em', marginTop: '1em' }}>
+          <input
+            placeholder="New Comment"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                addComment();
+                e.preventDefault();
+              }
+            }}
+            style={{ flex: 1 }}
+          />
+          <button onClick={addComment}>Add Comment</button>
+        </div>
+      </ModalSection>
     </ReactModal>
   );
 };

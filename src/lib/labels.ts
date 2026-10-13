@@ -65,6 +65,22 @@ const readableText = (background: string): string => {
 export const chipStyle = (color?: string): React.CSSProperties =>
   color ? { backgroundColor: color, color: readableText(color) } : {};
 
+/**
+ * Local-time YYYY-MM-DD `offsetDays` from today, the shape the Due
+ * field and `daysUntil` expect. Local, not UTC, so an evening in a
+ * negative-offset timezone does not land on yesterday.
+ */
+export const isoDate = (
+  offsetDays: number,
+  from: Date = new Date()
+): string => {
+  const date = new Date(from);
+  date.setDate(date.getDate() + offsetDays);
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+};
+
 export interface DueBadge {
   text: string;
   className: string;
