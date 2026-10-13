@@ -598,6 +598,7 @@
 
 .kbn-card-finished .kbn-card-title {
   text-decoration: line-through;
+  color: var(--sn-stylekit-neutral-color);
 }
 
 .kbn-card-complete {

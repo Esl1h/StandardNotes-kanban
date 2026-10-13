@@ -690,6 +690,7 @@ export const Board = ({
                                         key={card.id}
                                         card={card}
                                         laneId={lane.id!}
+                                        finished={lane.done}
                                         onCardClick={handleCardClick}
                                         onSearchRequest={onSearchRequest}
                                         focused={
@@ -709,6 +710,7 @@ export const Board = ({
                                           <CardBody
                                             card={card}
                                             laneId={lane.id!}
+                                            finished={lane.done}
                                             onCardClick={handleCardClick}
                                             onSearchRequest={onSearchRequest}
                                             focused={

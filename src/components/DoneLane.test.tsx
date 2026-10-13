@@ -76,6 +76,21 @@ test('the toolbar button shows and hides the done lane', () => {
   expect(laneTitles()).toEqual(['Todo', 'Later']);
 });
 
+test('cards in the shown done lane render as finished on the board', () => {
+  render(<Harness />);
+  markDone('Finished');
+  fireEvent.click(screen.getByRole('button', { name: 'Done (2)' }));
+
+  expect(screen.getByText('Closed one').closest('.kbn-card')).toHaveClass(
+    'kbn-card-finished'
+  );
+  // Gray, struck-through text comes with the class; see the
+  // .kbn-card-finished rules in Editor.css.
+  expect(screen.getByText('Open task').closest('.kbn-card')).not.toHaveClass(
+    'kbn-card-finished'
+  );
+});
+
 test('marking another lane moves the done flag to it', () => {
   render(<Harness />);
   markDone('Finished');
