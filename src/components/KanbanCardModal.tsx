@@ -174,6 +174,7 @@ export const KanbanCardModal = ({
   const [newComment, setNewComment] = useState('');
   const [updatedComments, setUpdatedComments] = useState(comments || []);
   const [updatedChecklist, setUpdatedChecklist] = useState(checklist || []);
+  const [updatedTitle, setUpdatedTitle] = useState(title);
   const [updatedDescription, setUpdatedDescription] = useState(
     description || ''
   );
@@ -192,6 +193,9 @@ export const KanbanCardModal = ({
   };
   const closeModal = () => {
     updateCard({
+      // A card with no text would be unreadable on the board; an emptied
+      // title keeps the previous one.
+      title: updatedTitle.trim() || title,
       description: updatedDescription,
       due: updatedDue,
       label: updatedLabel,
@@ -217,7 +221,13 @@ export const KanbanCardModal = ({
           flexWrap: 'wrap',
         }}
       >
-        <span style={{ fontWeight: 'bold' }}>{title}</span>
+        <input
+          className="kbn-input"
+          aria-label="Card title"
+          value={updatedTitle}
+          onChange={(e) => setUpdatedTitle(e.target.value)}
+          style={{ fontWeight: 'bold', flex: 1, minWidth: '8em' }}
+        />
         {due && (
           <span className={`kbn-due ${dueBadge(due)?.className}`}>
             {dueBadge(due)?.text}
