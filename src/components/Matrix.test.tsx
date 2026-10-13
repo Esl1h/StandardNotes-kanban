@@ -80,7 +80,7 @@ const section = (name: string) =>
 
 const titlesIn = (name: string) =>
   within(section(name))
-    .queryAllByText(/./, { selector: '.kbn-card-title' })
+    .queryAllByText(/./, { selector: '.kbn-card-title, .kbn-card-title-btn' })
     .map((el) => el.textContent);
 
 test('the board view is the default', () => {
@@ -194,7 +194,7 @@ test('completing a card moves it to the done lane', () => {
 test('the card modal sets the quadrant', () => {
   render(<Harness />);
   openMatrix();
-  fireEvent.click(screen.getByText('Read book'));
+  fireEvent.click(screen.getByText('Read book').closest('.kbn-card')!);
   const dialog = screen.getByRole('dialog');
 
   fireEvent.change(within(dialog).getByLabelText('Quadrant'), {

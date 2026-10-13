@@ -37,9 +37,9 @@ const filters = () => screen.getByRole('group', { name: 'Filters' });
 const search = () => screen.getByLabelText('Search cards') as HTMLInputElement;
 
 const shown = () =>
-  Array.from(document.querySelectorAll('.kbn-card-title')).map(
-    (el) => el.textContent
-  );
+  Array.from(
+    document.querySelectorAll('.kbn-card-title, .kbn-card-title-btn')
+  ).map((el) => el.textContent);
 
 test('offers the due filters and the labels of the cards', () => {
   openEditor();

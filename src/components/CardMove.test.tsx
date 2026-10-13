@@ -38,7 +38,9 @@ const Harness = ({
 };
 
 const openCard = (title: string) => {
-  fireEvent.click(screen.getByText(title));
+  // The card title is the inline-rename button; the card body opens
+  // the modal.
+  fireEvent.click(screen.getByText(title).closest('.kbn-card')!);
   return screen.getByRole('dialog');
 };
 
@@ -48,7 +50,7 @@ const laneCards = (laneTitle: string) =>
       .getByText(laneTitle, { selector: '.kbn-lane-title' })
       .closest('.kbn-lane') as HTMLElement
   )
-    .queryAllByText(/./, { selector: '.kbn-card-title' })
+    .queryAllByText(/./, { selector: '.kbn-card-title, .kbn-card-title-btn' })
     .map((el) => el.textContent);
 
 test('the card modal offers every lane and starts on the current one', () => {

@@ -172,3 +172,72 @@ describe('collapsible modal sections', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+test('Enter adds a card and keeps the form open for the next one', () => {
+  render(<Harness />);
+  fireEvent.click(screen.getByRole('button', { name: /Add card/ }));
+  const input = screen.getByLabelText('New card title in lane laneA');
+
+  fireEvent.change(input, { target: { value: 'One' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  fireEvent.change(input, { target: { value: 'Two' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+
+  expect(screen.getByText('One')).toBeInTheDocument();
+  expect(screen.getByText('Two')).toBeInTheDocument();
+  expect((input as HTMLInputElement).value).toBe('');
+  // Still open: the form actions are around.
+  expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+
+  fireEvent.keyDown(input, { key: 'Escape' });
+  expect(
+    screen.queryByLabelText('New card title in lane laneA')
+  ).not.toBeInTheDocument();
+});
+
+describe('inline rename on the board', () => {
+  test('clicking the title edits it in place', () => {
+    render(<Harness />);
+
+    fireEvent.click(screen.getByText('Write docs'));
+    const input = screen.getByLabelText('Card title') as HTMLInputElement;
+    expect(input.value).toBe('Write docs');
+
+    fireEvent.change(input, { target: { value: 'Docs v2' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(screen.getByText('Docs v2')).toBeInTheDocument();
+    expect(screen.queryByText('Write docs')).not.toBeInTheDocument();
+  });
+
+  test('Escape puts the previous title back', () => {
+    render(<Harness />);
+
+    fireEvent.click(screen.getByText('Write docs'));
+    const input = screen.getByLabelText('Card title');
+    fireEvent.change(input, { target: { value: 'Nope' } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+
+    expect(screen.getByText('Write docs')).toBeInTheDocument();
+    expect(screen.queryByText('Nope')).not.toBeInTheDocument();
+  });
+
+  test('an emptied title keeps the current one', () => {
+    render(<Harness />);
+
+    fireEvent.click(screen.getByText('Write docs'));
+    const input = screen.getByLabelText('Card title');
+    fireEvent.change(input, { target: { value: '   ' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(screen.getByText('Write docs')).toBeInTheDocument();
+  });
+
+  test('the card body still opens the modal', () => {
+    render(<Harness />);
+
+    fireEvent.click(screen.getByText('Write docs').closest('.kbn-card')!);
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+});

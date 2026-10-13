@@ -566,6 +566,25 @@
   margin-top: 0.5em;
 }
 
+/* Card title as a rename affordance on the board */
+.kbn-card-title-btn {
+  padding: 1px 3px;
+  margin-left: -3px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+
+.kbn-card-title-btn:hover {
+  background-color: var(--sn-stylekit-secondary-background-color);
+}
+
 /* Modal action buttons */
 .ReactModalPortal button {
   border-radius: 6px;

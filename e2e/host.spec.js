@@ -30,11 +30,12 @@ test('moving a card with Alt+ArrowRight saves once', async ({ page }) => {
   const firstLane = plugin.locator('.kbn-lane').first();
   const card = firstLane.locator('.kbn-card').first();
   await expect(card).toBeVisible();
-  const title = await card.locator('.kbn-card-title').innerText();
+  const title = await card.locator('.kbn-card-title-btn').innerText();
 
   // Clicking opens the detail modal, which suspends the shortcut; the card
-  // stays the focused one once the modal is closed.
-  await card.click();
+  // stays the focused one once the modal is closed. The click lands on the
+  // card padding: the title itself is now the inline-rename button.
+  await card.click({ position: { x: 6, y: 6 } });
   await expect(plugin.locator('.ReactModal__Content')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(plugin.locator('.ReactModal__Content')).toHaveCount(0);

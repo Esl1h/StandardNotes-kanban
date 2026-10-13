@@ -38,7 +38,7 @@ const boardWithCard = (titles: string[], cardLane = 0): KanbanBoard => {
 
 test('Alt+Right moves the clicked card to the next lane', () => {
   render(<Harness initial={boardWithCard(['A', 'B', 'C'])} />);
-  fireEvent.click(screen.getByText('Card'));
+  fireEvent.click(screen.getByText('Card').closest('.kbn-card')!);
 
   pressAlt('ArrowRight');
 
@@ -47,7 +47,7 @@ test('Alt+Right moves the clicked card to the next lane', () => {
 
 test('keeps moving the same card on consecutive presses', () => {
   render(<Harness initial={boardWithCard(['A', 'B', 'C', 'D'])} />);
-  fireEvent.click(screen.getByText('Card'));
+  fireEvent.click(screen.getByText('Card').closest('.kbn-card')!);
 
   pressAlt('ArrowRight');
   pressAlt('ArrowRight');
@@ -61,7 +61,7 @@ test('keeps moving the same card on consecutive presses', () => {
 test('skips a collapsed lane in the way', () => {
   render(<Harness initial={boardWithCard(['A', 'B', 'C'])} />);
   fireEvent.click(screen.getByLabelText('Collapse lane B'));
-  fireEvent.click(screen.getByText('Card'));
+  fireEvent.click(screen.getByText('Card').closest('.kbn-card')!);
 
   pressAlt('ArrowRight');
 
@@ -72,7 +72,7 @@ test('skips several collapsed lanes and moves back across them', () => {
   render(<Harness initial={boardWithCard(['A', 'B', 'C', 'D'])} />);
   fireEvent.click(screen.getByLabelText('Collapse lane B'));
   fireEvent.click(screen.getByLabelText('Collapse lane C'));
-  fireEvent.click(screen.getByText('Card'));
+  fireEvent.click(screen.getByText('Card').closest('.kbn-card')!);
 
   pressAlt('ArrowRight');
   expect(laneTitleOfCard()).toBe('D');
@@ -85,7 +85,7 @@ test('stays put when every lane ahead is collapsed or there is none', () => {
   render(<Harness initial={boardWithCard(['A', 'B', 'C'])} />);
   fireEvent.click(screen.getByLabelText('Collapse lane B'));
   fireEvent.click(screen.getByLabelText('Collapse lane C'));
-  fireEvent.click(screen.getByText('Card'));
+  fireEvent.click(screen.getByText('Card').closest('.kbn-card')!);
 
   pressAlt('ArrowRight');
   pressAlt('ArrowLeft');

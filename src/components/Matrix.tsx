@@ -9,7 +9,12 @@ import {
   KanbanLane,
   Quadrant,
 } from '../../types/kanban';
-import { completeCard, removeCard, setCardQuadrant } from '../lib/boardOps';
+import {
+  completeCard,
+  removeCard,
+  setCardQuadrant,
+  updateCard,
+} from '../lib/boardOps';
 import { cardMatchesQuery, isFiltering } from '../lib/filter';
 import { LabelColors } from '../lib/labels';
 import { QUADRANTS, QuadrantNames, toQuadrant } from '../lib/quadrants';
@@ -183,6 +188,9 @@ export const Matrix = ({
             laneTitle={lane.title}
             finished={lane.done}
             labelColors={labelColors}
+            onRename={(title) =>
+              onDataChange(updateCard(data, lane.id!, card.id!, { title }))
+            }
             onCardClick={onCardClick}
             onSearchRequest={onSearchRequest}
             onRemove={() => {

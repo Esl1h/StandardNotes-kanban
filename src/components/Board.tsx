@@ -22,6 +22,7 @@ import {
   removeLane,
   renameLane,
   setDoneLane,
+  updateCard,
 } from '../lib/boardOps';
 import { chipStyle, dueBadge, labelChips, LabelColors } from '../lib/labels';
 import {
@@ -113,11 +114,16 @@ interface AddCardProps {
 
 const AddCard = ({ laneId, open, onOpen, onClose, onAdd }: AddCardProps) => {
   const [value, setValue] = useState('');
+  // Adding keeps the form open for the next card, so a burst of ideas
+  // takes one Enter each; Escape or Cancel closes it.
   const commit = () => {
     const trimmed = value.trim();
     if (trimmed) {
       onAdd(trimmed);
     }
+    setValue('');
+  };
+  const close = () => {
     setValue('');
     onClose();
   };
@@ -142,8 +148,7 @@ const AddCard = ({ laneId, open, onOpen, onClose, onAdd }: AddCardProps) => {
             e.preventDefault();
           }
           if (e.key === 'Escape') {
-            setValue('');
-            onClose();
+            close();
           }
         }}
         aria-label={`New card title in lane ${laneId}`}
@@ -156,14 +161,7 @@ const AddCard = ({ laneId, open, onOpen, onClose, onAdd }: AddCardProps) => {
         >
           Add card
         </button>
-        <button
-          type="button"
-          className="kbn-btn kbn-btn-ghost"
-          onClick={() => {
-            setValue('');
-            onClose();
-          }}
-        >
+        <button type="button" className="kbn-btn kbn-btn-ghost" onClick={close}>
           Cancel
         </button>
       </div>
@@ -244,6 +242,8 @@ interface CardBodyProps {
   /** Color per label name, from the note's Labels: line. */
   labelColors?: LabelColors;
   onCardClick: (laneId: string, cardId: string) => void;
+  /** Clicking a card title edits it in place, like a lane title. */
+  onRename?: (title: string) => void;
   onSearchRequest?: (query: string) => void;
   onRemove: () => void;
   focused?: boolean;
@@ -256,11 +256,73 @@ interface CardBodyProps {
   finished?: boolean;
 }
 
+/** Card title: clicking it edits in place, Enter or blur commits. */
+const CardTitle = ({
+  card,
+  onRename,
+}: {
+  card: KanbanCard;
+  onRename?: (title: string) => void;
+}) => {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(card.title);
+  const commit = () => {
+    const trimmed = value.trim();
+    setEditing(false);
+    if (trimmed && trimmed !== card.title) {
+      onRename?.(trimmed);
+    } else {
+      setValue(card.title);
+    }
+  };
+  if (!onRename) {
+    return <span className="kbn-card-title">{card.title}</span>;
+  }
+  if (editing) {
+    return (
+      <input
+        className="kbn-lane-title-input"
+        aria-label="Card title"
+        autoFocus
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={commit}
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            commit();
+          }
+          if (e.key === 'Escape') {
+            setValue(card.title);
+            setEditing(false);
+          }
+        }}
+      />
+    );
+  }
+  return (
+    <button
+      type="button"
+      className="kbn-card-title-btn"
+      title="Rename card"
+      onClick={(e) => {
+        e.stopPropagation();
+        setValue(card.title);
+        setEditing(true);
+      }}
+    >
+      {card.title}
+    </button>
+  );
+};
+
 export const CardBody = ({
   card,
   laneId,
   labelColors,
   onCardClick,
+  onRename,
   onSearchRequest,
   onRemove,
   focused,
@@ -284,7 +346,7 @@ export const CardBody = ({
       onClick={() => onCardClick(laneId, card.id!)}
     >
       <div className="kbn-card-row">
-        <span className="kbn-card-title">{card.title}</span>
+        <CardTitle card={card} onRename={onRename} />
         {laneTitle && <span className="kbn-card-lane">{laneTitle}</span>}
       </div>
       {labelChips(card.label, labelColors).length > 0 && (
@@ -698,6 +760,18 @@ export const Board = ({
                                         laneId={lane.id!}
                                         finished={lane.done}
                                         labelColors={labelColors}
+                                        onRename={(title) =>
+                                          onDataChange(
+                                            updateCard(
+                                              data,
+                                              lane.id!,
+                                              card.id!,
+                                              {
+                                                title,
+                                              }
+                                            )
+                                          )
+                                        }
                                         onCardClick={handleCardClick}
                                         onSearchRequest={onSearchRequest}
                                         focused={
@@ -719,6 +793,18 @@ export const Board = ({
                                             laneId={lane.id!}
                                             finished={lane.done}
                                             labelColors={labelColors}
+                                            onRename={(title) =>
+                                              onDataChange(
+                                                updateCard(
+                                                  data,
+                                                  lane.id!,
+                                                  card.id!,
+                                                  {
+                                                    title,
+                                                  }
+                                                )
+                                              )
+                                            }
                                             onCardClick={handleCardClick}
                                             onSearchRequest={onSearchRequest}
                                             focused={
@@ -747,7 +833,6 @@ export const Board = ({
                               onDataChange(
                                 addCardToLane(data, lane.id!, title)
                               );
-                              setOpenCardFormLaneId(null);
                             }}
                           />
                         </>

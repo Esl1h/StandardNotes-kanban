@@ -33,7 +33,9 @@ const Harness = () => {
 };
 
 const openCard = (title: string) => {
-  fireEvent.click(screen.getByText(title));
+  // The card title is the inline-rename button; the card body opens
+  // the modal.
+  fireEvent.click(screen.getByText(title).closest('.kbn-card')!);
   return screen.getByRole('dialog');
 };
 
