@@ -136,6 +136,34 @@ describe('toCsv', () => {
     ]);
   });
 
+  // Spreadsheets in some locales split on ';' or tab, so what follows one
+  // of them starts a cell of its own.
+  test('also neutralizes a formula after a semicolon, a tab or spaces', () => {
+    const csv = toCsv(
+      {
+        lanes: [
+          {
+            title: 'L',
+            cards: [
+              { title: 'x;=1+1;' },
+              { title: 'a\tb\t=3+3' },
+              { title: '  =2+2' },
+              { title: 'a; @b' },
+            ],
+          },
+        ],
+      },
+      DEFAULT_QUADRANT_NAMES
+    );
+
+    expect(rows(csv).slice(1)).toEqual([
+      `L,"x;'=1+1;",,,,`,
+      `L,"a\tb\t'=3+3",,,,`,
+      "L,  '=2+2,,,,",
+      `L,"a; '@b",,,,`,
+    ]);
+  });
+
   test('an empty board is just the header', () => {
     expect(toCsv({ lanes: [] }, DEFAULT_QUADRANT_NAMES)).toBe(
       'lane,card,label,due,quadrant,checklist\n'

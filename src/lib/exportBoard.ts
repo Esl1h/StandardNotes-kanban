@@ -31,12 +31,13 @@ export const toJson = (board: KanbanBoard): string => {
   );
 };
 
-// A cell a spreadsheet would run as a formula is written as text instead.
-const FORMULA_START = /^[=+\-@]/;
+// A cell a spreadsheet would run as a formula is written as text instead,
+// also after the separators other locales split on (';', tab, line breaks).
+const FORMULA_START = /(^|[;\t\r\n])([ \t]*)(?=[=+\-@])/g;
 
 const cell = (value: string): string => {
-  const text = FORMULA_START.test(value) ? `'${value}` : value;
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  const text = value.replace(FORMULA_START, "$1$2'");
+  return /[",;\t\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
 /** One row per card: lane, card, label, due, quadrant and checklist x/y. */
