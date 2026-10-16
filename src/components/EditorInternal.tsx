@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useModal } from 'react-modal-hook';
-import { IconX } from '@tabler/icons-react';
+import { IconCalendar, IconX } from '@tabler/icons-react';
 import { Board } from './Board';
 import { ExportMenu } from './ExportMenu';
 import { useUndoToast } from './useUndoToast';
@@ -70,6 +70,7 @@ export const EditorInternal = ({
   const [query, setQuery] = useState('');
   const [errorsOpen, setErrorsOpen] = useState(true);
   const [showDone, setShowDone] = useState(false);
+  const [dueOpen, setDueOpen] = useState(false);
   const [view, setView] = useState<View>(() => readView(preferences, noteId));
   const [viewNoteId, setViewNoteId] = useState(noteId);
   if (viewNoteId !== noteId) {
@@ -94,6 +95,8 @@ export const EditorInternal = ({
     ).values()
   ).sort((a, b) => a.name.localeCompare(b.name));
   const hasDueDates = filterable.some((card) => daysUntil(card.due) !== null);
+  // Shown on the calendar button, so a due filter stays visible while folded.
+  const dueActive = DUE_FILTERS.some((value) => hasFilter(query, 'due', value));
   const doneLanes = boardData.lanes.filter((lane) => lane.done);
   const doneCount = doneLanes.reduce((n, lane) => n + lane.cards.length, 0);
   const { announce, toast } = useUndoToast(boardData, onUndo);
@@ -274,18 +277,39 @@ export const EditorInternal = ({
       </div>
       {(hasDueDates || filterLabels.length > 0) && (
         <div className="kbn-filters" role="group" aria-label="Filters">
-          {hasDueDates &&
-            DUE_FILTERS.map((value) => (
+          {hasDueDates && (
+            <div
+              className={`kbn-due-filter${dueOpen ? ' kbn-due-filter-open' : ''}`}
+            >
               <button
-                key={value}
                 type="button"
-                className="kbn-btn kbn-btn-ghost kbn-toolbar-btn"
-                aria-pressed={hasFilter(query, 'due', value)}
-                onClick={() => setQuery(toggleFilter(query, 'due', value))}
+                className={`kbn-btn kbn-btn-ghost kbn-toolbar-btn kbn-due-filter-toggle${
+                  dueActive ? ' kbn-due-filter-active' : ''
+                }`}
+                aria-label="Due date filters"
+                aria-expanded={dueOpen}
+                title={dueOpen ? 'Hide due date filters' : 'Due date filters'}
+                onClick={() => setDueOpen(!dueOpen)}
               >
-                {DUE_LABELS[value]}
+                <IconCalendar size={16} stroke={1.5} />
               </button>
-            ))}
+              {/* Kept mounted so folding back can animate too. */}
+              <div className="kbn-due-filter-options" aria-hidden={!dueOpen}>
+                {DUE_FILTERS.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className="kbn-btn kbn-btn-ghost kbn-toolbar-btn"
+                    tabIndex={dueOpen ? undefined : -1}
+                    aria-pressed={hasFilter(query, 'due', value)}
+                    onClick={() => setQuery(toggleFilter(query, 'due', value))}
+                  >
+                    {DUE_LABELS[value]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {filterLabels.map((chip) => (
             <button
               key={chip.name}

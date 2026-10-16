@@ -35,14 +35,48 @@ const openEditor = (data: KanbanBoard = board()) =>
 
 const filters = () => screen.getByRole('group', { name: 'Filters' });
 const search = () => screen.getByLabelText('Search cards') as HTMLInputElement;
+const calendar = () =>
+  within(filters()).getByRole('button', { name: 'Due date filters' });
+const openDue = () => fireEvent.click(calendar());
 
 const shown = () =>
   Array.from(
     document.querySelectorAll('.kbn-card-title, .kbn-card-title-btn')
   ).map((el) => el.textContent);
 
+test('the due filters stay folded in the calendar until it is pressed', () => {
+  openEditor();
+  expect(calendar()).toHaveAttribute('aria-expanded', 'false');
+  expect(
+    within(filters()).queryByRole('button', { name: 'Overdue' })
+  ).not.toBeInTheDocument();
+
+  openDue();
+  expect(calendar()).toHaveAttribute('aria-expanded', 'true');
+  expect(
+    within(filters()).getByRole('button', { name: 'Overdue' })
+  ).toBeInTheDocument();
+
+  openDue();
+  expect(calendar()).toHaveAttribute('aria-expanded', 'false');
+  expect(
+    within(filters()).queryByRole('button', { name: 'Today' })
+  ).not.toBeInTheDocument();
+});
+
+test('the folded calendar shows that a due filter is on', () => {
+  openEditor();
+  openDue();
+  fireEvent.click(within(filters()).getByRole('button', { name: 'Overdue' }));
+  openDue();
+
+  expect(calendar()).toHaveClass('kbn-due-filter-active');
+  expect(shown()).toEqual(['Late task']);
+});
+
 test('offers the due filters and the labels of the cards', () => {
   openEditor();
+  openDue();
 
   expect(
     within(filters()).getByRole('button', { name: 'Overdue' })
@@ -75,6 +109,7 @@ test('has no filter bar when no card has a label or a due date', () => {
 
 test('Overdue shows only the overdue cards and fills the search', () => {
   openEditor();
+  openDue();
 
   fireEvent.click(within(filters()).getByRole('button', { name: 'Overdue' }));
 
@@ -87,6 +122,7 @@ test('Overdue shows only the overdue cards and fills the search', () => {
 
 test('pressing a filter again takes it off', () => {
   openEditor();
+  openDue();
   const overdue = () =>
     within(filters()).getByRole('button', { name: 'Overdue' });
 
@@ -100,6 +136,7 @@ test('pressing a filter again takes it off', () => {
 
 test('This week is today and the days after it', () => {
   openEditor();
+  openDue();
 
   fireEvent.click(within(filters()).getByRole('button', { name: 'This week' }));
 
@@ -108,6 +145,7 @@ test('This week is today and the days after it', () => {
 
 test('a label and a due filter narrow the cards together', () => {
   openEditor();
+  openDue();
 
   fireEvent.click(within(filters()).getByRole('button', { name: 'red' }));
   expect(shown()).toEqual(['Late task', 'Soon task']);
@@ -143,6 +181,7 @@ test('clicking a label on a card filters by that whole label', () => {
 
 test('a lane without a matching card leaves the board', () => {
   openEditor();
+  openDue();
 
   fireEvent.click(within(filters()).getByRole('button', { name: 'Overdue' }));
 
@@ -153,6 +192,7 @@ test('a lane without a matching card leaves the board', () => {
 test('the matrix is filtered the same way', () => {
   openEditor();
   fireEvent.click(screen.getByRole('button', { name: 'Matrix' }));
+  openDue();
 
   fireEvent.click(within(filters()).getByRole('button', { name: 'Overdue' }));
 

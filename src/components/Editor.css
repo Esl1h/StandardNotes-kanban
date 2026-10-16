@@ -35,10 +35,64 @@
   position: relative;
 }
 
+.kbn-due-filter {
+  display: flex;
+  align-items: center;
+}
+
+.kbn-due-filter-toggle,
 .kbn-export > .kbn-toolbar-btn {
   display: inline-flex;
   align-items: center;
   padding: 6px 8px;
+}
+
+/* A due filter is still on while its buttons are folded away. */
+.kbn-due-filter:not(.kbn-due-filter-open) .kbn-due-filter-active {
+  background-color: var(--sn-stylekit-info-color);
+  color: var(--sn-stylekit-info-contrast-color);
+}
+
+/* The buttons slide out of the calendar and back into it. visibility waits
+   for the fold to end, then keeps them out of the tab order. */
+.kbn-due-filter-options {
+  display: flex;
+  gap: 6px;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-8px);
+  visibility: hidden;
+  transition:
+    max-width 0.2s ease,
+    margin 0.2s ease,
+    padding 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0s linear 0.2s;
+}
+
+.kbn-due-filter-open .kbn-due-filter-options {
+  max-width: 320px;
+  margin: -2px 0 -2px 6px;
+  /* Room for the focus ring, which overflow would clip. */
+  padding: 2px;
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition:
+    max-width 0.2s ease,
+    margin 0.2s ease,
+    padding 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kbn-due-filter-options,
+  .kbn-due-filter-open .kbn-due-filter-options {
+    transition: none;
+  }
 }
 
 .kbn-export-menu {
