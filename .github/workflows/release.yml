@@ -30,8 +30,10 @@ jobs:
             exit 1
           fi
 
+      # This job can write to the repository; no dependency needs its
+      # install scripts to build or test.
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Typecheck
         run: npm run typecheck
