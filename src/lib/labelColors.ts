@@ -1,4 +1,4 @@
-import { LABEL_COLORS, LabelColors } from './labels';
+import { LABEL_COLORS, LabelColors, paletteColor } from './labels';
 
 /** The palette in swatch order, name and hex per entry. */
 export const LABEL_PALETTE = Object.entries(LABEL_COLORS).map(
@@ -16,7 +16,7 @@ export const parseLabelColors = (text: string): LabelColors | null => {
   for (const pair of text.split(',')) {
     const match = /^([^=]+?)\s*=\s*(\S+)$/.exec(pair.trim());
     const color = match?.[2].toLowerCase();
-    if (!match?.[1].trim() || !color || !LABEL_COLORS[color]) {
+    if (!match?.[1].trim() || !color || !paletteColor(color)) {
       return null;
     }
     colors[match[1].trim()] = color;
@@ -32,7 +32,7 @@ export const parseLabelColors = (text: string): LabelColors | null => {
 export const formatLabelColors = (colors: LabelColors): string =>
   Object.entries(colors)
     .filter(
-      ([name, color]) => name && !name.includes('=') && !!LABEL_COLORS[color]
+      ([name, color]) => name && !name.includes('=') && !!paletteColor(color)
     )
     .map(([name, color]) => `${name}=${color}`)
     .join(', ');

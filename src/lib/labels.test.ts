@@ -37,6 +37,20 @@ test('a name outside the palette gets a neutral chip', () => {
   expect(chipStyle(chip.color)).toEqual({});
 });
 
+test.each(['constructor', 'toString', '__proto__'])(
+  'the label %s is a neutral chip, not an inherited property',
+  (name) => {
+    expect(labelChips(name)).toEqual([{ name, color: undefined }]);
+    expect(labelChips(name, {})).toEqual([{ name, color: undefined }]);
+  }
+);
+
+test('an assigned color that is no palette name is ignored', () => {
+  expect(labelChips('x', { x: 'constructor' })).toEqual([
+    { name: 'x', color: undefined },
+  ]);
+});
+
 test('an assigned color wins over the name and the palette', () => {
   const [chip] = labelChips('urgent', { urgent: 'purple' });
 

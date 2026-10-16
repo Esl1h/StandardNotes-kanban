@@ -50,3 +50,9 @@ test('format leaves out entries that would not parse back', () => {
   expect(formatLabelColors({ 'a=b': 'red', ok: 'blue' })).toBe('ok=blue');
   expect(formatLabelColors({ broken: 'chartreuse' })).toBe('');
 });
+
+test('names inherited by every object are not palette colors', () => {
+  expect(parseLabelColors('x=constructor')).toBeNull();
+  expect(parseLabelColors('x=__proto__')).toBeNull();
+  expect(formatLabelColors({ x: 'constructor', ok: 'blue' })).toBe('ok=blue');
+});

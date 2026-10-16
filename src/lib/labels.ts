@@ -17,6 +17,10 @@ export const LABEL_COLORS: Record<string, string> = {
   pink: '#e64980',
 };
 
+/** The palette hex for a color name; names every object inherits are none. */
+export const paletteColor = (name: string): string | undefined =>
+  Object.hasOwn(LABEL_COLORS, name) ? LABEL_COLORS[name] : undefined;
+
 export interface LabelChip {
   name: string;
   color?: string;
@@ -35,7 +39,12 @@ export const labelChips = (
     .filter(Boolean)
     .map((name) => ({
       name,
-      color: LABEL_COLORS[(labelColors?.[name] ?? name).toLowerCase()],
+      color: paletteColor(
+        (labelColors && Object.hasOwn(labelColors, name)
+          ? labelColors[name]
+          : name
+        ).toLowerCase()
+      ),
     }));
 
 // WCAG relative luminance of a "#rrggbb" color.
