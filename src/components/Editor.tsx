@@ -21,6 +21,24 @@ import { EditorInterface } from '../../types/editor';
 import { EditorInternal } from './EditorInternal';
 import { ErrorBoundary } from './ErrorBoundary';
 
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+// Legacy JSON comes from the note, so it may be any shape. A board built
+// from a wrong one throws on its way into the state, and the previous
+// note's board would then stay on screen and be saved into this note.
+const isLegacyLanes = (lanes: unknown): lanes is KanbanBoard['lanes'] =>
+  Array.isArray(lanes) &&
+  lanes.every(
+    (lane) =>
+      isObject(lane) &&
+      typeof lane.title === 'string' &&
+      Array.isArray(lane.cards) &&
+      lane.cards.every(
+        (card) => isObject(card) && typeof card.title === 'string'
+      )
+  );
+
 const initialState: EditorInterface = {
   boardData: {
     lanes: [],
@@ -85,7 +103,7 @@ export default class Editor extends React.Component<
     // This may be removed at some point in the future.
     try {
       const data = JSON.parse(text);
-      if (Object.hasOwn(data, 'lanes')) {
+      if (isObject(data) && isLegacyLanes(data.lanes)) {
         // Legacy JSON format stored lanes at the top level instead of
         // under boardData. Wrap it so the board renders and, most
         // importantly, is re-saved instead of being wiped on first edit.

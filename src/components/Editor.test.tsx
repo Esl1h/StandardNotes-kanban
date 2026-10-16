@@ -70,6 +70,24 @@ test('wraps legacy JSON notes so their data is not lost on save', () => {
   expect(markdown).toContain('* Legacy Card');
 });
 
+test.each(['{"lanes":5}', '{"lanes":[{}]}', '{"lanes":[{"cards":[7]}]}'])(
+  'a note of malformed JSON %s replaces the previous board',
+  (text) => {
+    const ref = React.createRef<Editor>();
+    render(<Editor ref={ref} />);
+    const editor = ref.current!;
+    act(() => editor.receiveText('# Lane A\n\n* Card of note A\n', 'a'));
+
+    act(() => editor.receiveText(text, 'b'));
+
+    // Edits made now are saved into note b, so the board must be b's own,
+    // and b's text must survive the next save.
+    expect(editor.state.noteId).toBe('b');
+    expect(screen.queryByText('Card of note A')).not.toBeInTheDocument();
+    expect(convertStateToMarkdown(editor.state)).toContain(text);
+  }
+);
+
 describe('undo and redo', () => {
   const boardWithTwoCards = (): KanbanBoard =>
     infuseBoardData({
