@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { IconDownload } from '@tabler/icons-react';
 import { KanbanBoard } from '../../types/kanban';
 import { toCsv, toJson } from '../lib/exportBoard';
 import { QuadrantNames } from '../lib/quadrants';
@@ -75,9 +76,11 @@ export const ExportMenu = ({ board, quadrantNames }: ExportMenuProps) => {
         className="kbn-btn kbn-btn-ghost kbn-toolbar-btn"
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-label="Export"
+        title="Export"
         onClick={() => setOpen(!open)}
       >
-        Export
+        <IconDownload size={16} stroke={1.5} />
       </button>
       {open && (
         <div className="kbn-export-menu" role="menu">

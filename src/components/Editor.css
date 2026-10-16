@@ -35,6 +35,12 @@
   position: relative;
 }
 
+.kbn-export > .kbn-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 8px;
+}
+
 .kbn-export-menu {
   position: absolute;
   right: 0;
