@@ -49,14 +49,14 @@ jobs:
 
       - name: Assemble extension package
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          export VERSION=${GITHUB_REF_NAME#v}
           mkdir -p dist-pkg
           cp -r build/* dist-pkg/
           node -e "
             const fs = require('fs');
             const pkg = {
               name: 'standardnotes-kanban',
-              version: '$VERSION',
+              version: process.env.VERSION,
               description: 'Kanban board editor for Standard Notes',
               private: true,
               license: 'AGPL-3.0-or-later',
