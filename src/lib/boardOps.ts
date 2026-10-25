@@ -118,17 +118,24 @@ export const moveCard = (
   };
 };
 
-/** At most one lane is the done lane; pass null to have none. */
+/** Marks or unmarks one done lane; a board can have several. */
 export const setDoneLane = (
   board: KanbanBoard,
-  laneId: string | null
+  laneId: string,
+  done: boolean
 ): KanbanBoard => ({
-  lanes: board.lanes.map(({ done: _done, ...lane }) =>
-    lane.id === laneId ? { ...lane, done: true } : lane
-  ),
+  lanes: board.lanes.map(({ done: wasDone, ...lane }) => {
+    if (lane.id === laneId) {
+      return done ? { ...lane, done: true } : lane;
+    }
+    return wasDone ? { ...lane, done: true } : lane;
+  }),
 });
 
-/** Moves a card to the end of the done lane, if there is one. */
+/**
+ * Moves a card to the end of the first done lane, the main one, if there
+ * is one. Reordering the lanes picks another main done lane.
+ */
 export const completeCard = (
   board: KanbanBoard,
   laneId: string,

@@ -104,15 +104,16 @@ test('the finished strike rule still matches the rendered title', () => {
   expect(struck).toBe(screen.getByText('Closed one'));
 });
 
-test('marking another lane moves the done flag to it', () => {
+test('several lanes can be done lanes at once', () => {
   render(<Harness />);
   markDone('Finished');
   fireEvent.click(screen.getByRole('button', { name: 'Done (2)' }));
 
   markDone('Later');
+  expect(screen.getByRole('button', { name: 'Done (2)' })).toBeInTheDocument();
 
-  expect(screen.getByRole('button', { name: 'Done (0)' })).toBeInTheDocument();
-  expect(laneTitles()).toEqual(['Todo', 'Finished', 'Later']);
+  fireEvent.click(screen.getByRole('button', { name: 'Done (2)' }));
+  expect(laneTitles()).toEqual(['Todo']);
 });
 
 test('a done lane can be unmarked', () => {

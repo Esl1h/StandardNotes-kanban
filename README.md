@@ -25,7 +25,7 @@ portable.
    other editor without breaking the board
 8. Works with the Standard Notes web and desktop apps; follows the theme
    selected in the app
-9. Mark one lane as the done lane: it is hidden from the board, and a `Done (N)` toolbar button shows or hides it. While it is shown, `Clear done` removes the finished cards, with an Undo
+9. Mark lanes as done lanes: they are hidden from the board, and a `Done (N)` toolbar button shows or hides them. Completing a card sends it to the first done lane. While it is shown, `Clear done` removes the finished cards, with an Undo
 10. Switch to an Eisenhower matrix with the `Board | Matrix` toggle: the
     same cards sorted into Do, Schedule, Delegate and Eliminate, plus an
     Unclassified list. Drag cards between quadrants or pick one in the
@@ -95,8 +95,8 @@ Labels: work=blue
 - `Quadrant` places the card in the Eisenhower matrix; it takes a fixed
   key (`do`, `schedule`, `delegate`, `eliminate`), so renaming a
   quadrant never rewrites cards
-- `[done]` after a lane title marks the done lane; at most one lane
-  carries it
+- `[done]` after a lane title marks a done lane; several lanes can
+  carry it, and the first one receives the completed cards
 - The optional `Quadrants:` line before the first lane holds renamed
   quadrant names, in the order Do | Schedule | Delegate | Eliminate; it
   is only written when a name differs from the default

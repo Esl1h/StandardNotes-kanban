@@ -111,20 +111,24 @@ describe('done lane', () => {
     ],
   });
 
-  test('marking a lane as done unmarks any other', () => {
-    const next = setDoneLane(board(), 'b');
+  test('marking a lane as done keeps the other done lanes', () => {
+    const next = setDoneLane(board(), 'b', true);
 
-    expect(next.lanes.map((l) => l.done ?? false)).toEqual([
-      false,
-      true,
-      false,
-    ]);
+    expect(next.lanes.map((l) => l.done ?? false)).toEqual([false, true, true]);
   });
 
-  test('can clear the done lane', () => {
-    expect(setDoneLane(board(), null).lanes.some((lane) => lane.done)).toBe(
-      false
-    );
+  test('unmarking a lane leaves no done flag on it', () => {
+    const next = setDoneLane(board(), 'c', false);
+
+    expect(next.lanes.some((lane) => lane.done)).toBe(false);
+    expect('done' in next.lanes[2]).toBe(false);
+  });
+
+  test('completing a card picks the first done lane', () => {
+    const next = completeCard(setDoneLane(board(), 'b', true), 'a', 'c1');
+
+    expect(next.lanes[1].cards.map((c) => c.id)).toEqual(['c2', 'c1']);
+    expect(next.lanes[2].cards).toEqual([]);
   });
 
   test('completing a card moves it to the end of the done lane', () => {
@@ -137,7 +141,7 @@ describe('done lane', () => {
   });
 
   test('completing does nothing without a done lane', () => {
-    const plain = setDoneLane(board(), null);
+    const plain = setDoneLane(board(), 'c', false);
 
     expect(completeCard(plain, 'a', 'c1')).toBe(plain);
   });
@@ -167,8 +171,8 @@ describe('done lane', () => {
     const plain = board();
 
     expect(clearDoneCards(plain)).toBe(plain);
-    expect(clearDoneCards(setDoneLane(plain, null))).toEqual(
-      setDoneLane(plain, null)
+    expect(clearDoneCards(setDoneLane(plain, 'c', false))).toEqual(
+      setDoneLane(plain, 'c', false)
     );
   });
 });

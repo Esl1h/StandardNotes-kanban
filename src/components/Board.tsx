@@ -716,11 +716,11 @@ export const Board = ({
                           title={
                             lane.done
                               ? 'Done lane: its cards count as finished'
-                              : 'Mark as the done lane'
+                              : 'Mark as a done lane'
                           }
                           onClick={() =>
                             onDataChange(
-                              setDoneLane(data, lane.done ? null : lane.id!)
+                              setDoneLane(data, lane.id!, !lane.done)
                             )
                           }
                         >
