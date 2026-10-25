@@ -1,7 +1,9 @@
 # StandardNotes Kanban
 
 [![CI](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/ci.yml/badge.svg)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/github-code-scanning/codeql)
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Esl1h/StandardNotes-kanban/badges/coverage.json)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/coverage.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Esl1h/StandardNotes-kanban/badge)](https://scorecard.dev/viewer/?uri=github.com/Esl1h/StandardNotes-kanban)
 [![Release](https://img.shields.io/github/v/release/Esl1h/StandardNotes-kanban)](https://github.com/Esl1h/StandardNotes-kanban/releases/latest)
 [![License](https://img.shields.io/github/license/Esl1h/StandardNotes-kanban)](LICENSE)
 
@@ -24,7 +26,7 @@ portable.
 6. Keyboard shortcuts: `N` adds a card, `Ctrl/Cmd+F` focuses search, `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z` undo and redo changes to the board, `Alt+Left/Right` moves the focused (last clicked) card to the adjacent lane. The card modal also has a "Move to" select to send the card to any lane
 7. Your board lives in the note as Markdown; read or tweak it with any
    other editor without breaking the board
-8. Works with the Standard Notes web and desktop apps; follows the theme
+8. Works with the Standard Notes web, desktop and mobile apps; follows the theme
    selected in the app
 9. Mark lanes as done lanes: they are hidden from the board, and a `Done (N)` toolbar button shows or hides them. Completing a card sends it to the first done lane. While it is shown, `Clear done` removes the finished cards, with an Undo
 10. Switch to an Eisenhower matrix with the `Board | Matrix` toggle: the
@@ -51,6 +53,21 @@ portable.
 5. Confirm the installation.
 6. Create a new note, open the **Editor** menu and pick **Kanban**.
 7. Add a lane, add some cards, and have fun!
+
+### Self-hosting
+
+The hosted build is plain static files, so it can be served from anywhere. Unzip `extension.zip` from a release (or run `npm run build` and take `build/`), serve the files over HTTPS with CORS enabled, and change `url`, `download_url` and `latest_url` in `ext.json` to your host. Install your `ext.json` URL as above. To keep both the hosted and your copy installed, also change `identifier`.
+
+## Verifying a release
+
+Releases published from November 2026 on attach a `SHA256SUMS` file and a build provenance attestation next to `extension.zip`, the package the desktop app installs. To check a downloaded zip, run in the folder that holds both files:
+
+```
+sha256sum -c SHA256SUMS
+gh attestation verify extension.zip -R Esl1h/StandardNotes-kanban
+```
+
+The second command confirms that the zip was built by this repository's release workflow from the tagged commit. Releases are immutable: once published, their tag and files cannot be changed.
 
 ## Note format
 
@@ -110,11 +127,15 @@ detected and converted to Markdown automatically the first time they are
 edited. Lines the parser cannot understand are kept as-is in the note and
 reported in a banner at the top of the board.
 
-## Privacy
+## Compatibility
 
-Everything is stored inside your Standard Notes note, so it is encrypted
-with the rest of your data. The editor itself does not send anything
-anywhere.
+- Standard Notes web app and desktop app (Windows, macOS, Linux)
+- Standard Notes mobile apps (iOS and Android): the board works on phone screens, and the e2e suite drives the editor through a host with the mobile app's opaque origin and a throttled CPU
+- Follows the theme selected in the app, light or dark
+
+## Privacy and network
+
+Everything is stored inside your Standard Notes note, so it is encrypted with the rest of your data. The editor has no telemetry and makes no network requests: once its own files are loaded, nothing leaves the app. Its Content Security Policy allows scripts and connections only from the plugin's own origin.
 
 ## Development and running locally
 
@@ -161,24 +182,35 @@ not clash with the hosted one.
 If you run into issues, please refer to the
 [Standard Notes instructions for local plugin setup](https://standardnotes.com/help/plugins/local-setup).
 
-### Deployment
+### Checks
 
-The extension is hosted on GitHub Pages from the `gh-pages` branch, served
-at `https://esli.cafe/StandardNotes-kanban/`. Releases are automated by
-the `Release` workflow:
-
-1. Bump the version in `package.json`, `public/ext.json` and
-   `public/ext.dev.json` (the `download_url` points at the release
-   asset).
-2. Commit, then push a tag:
+CI runs these on every push and pull request; run them before opening a PR:
 
 ```
-git tag v1.1.0 && git push origin v1.1.0
+npm run typecheck       # TypeScript
+npm run lint            # ESLint
+npm run format:check    # Prettier
+npm test                # unit tests (Vitest)
+npm run build           # production build
+npm run check:build     # no unreferenced file in build/
+npm run check:lockfile  # git dependencies only at the known commits
+npm run e2e             # end to end tests (Playwright)
 ```
 
-The workflow builds, runs the checks, attaches `extension.zip` to the
-GitHub release (that zip is what the desktop app installs) and
-publishes the hosted build to Pages.
+Run `npx playwright install chromium` once before the first `npm run e2e`. The e2e suite builds the plugin and drives it through a fake Standard Notes host (`e2e/snHost.js`), including the opaque origin and slow CPU of the mobile app.
+
+### Releases
+
+The extension is hosted on GitHub Pages from the `gh-pages` branch, served at `https://esli.cafe/StandardNotes-kanban/`. To cut a release:
+
+1. On a branch, run `npm run version:bump X.Y.Z`, which writes the version to `package.json`, `package-lock.json`, `public/package.json`, `public/ext.json` (with its `download_url`) and `public/ext.dev.json`, then `npm run changelog -- --tag vX.Y.Z`, which adds the section for the new version to `CHANGELOG.md` from the commits since the last tag. Commit both as `chore(release): vX.Y.Z` and merge the pull request.
+2. On `main`, push the tag:
+
+```
+git tag -a vX.Y.Z -m vX.Y.Z && git push origin vX.Y.Z
+```
+
+The `Release` workflow fails unless the tag matches every version file. It runs the checks, attaches `extension.zip` (the package the desktop app installs) with `SHA256SUMS` and a provenance attestation to the GitHub release, writes the release notes with git-cliff and publishes the hosted build to Pages. The app finds the update by comparing the version in the `ext.json` at `latest_url`.
 
 ## Credits and license
 
