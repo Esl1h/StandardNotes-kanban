@@ -9,22 +9,31 @@ on:
 permissions:
   contents: read
 
+# A newer push supersedes the run in progress on the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Use Node.js 22
+      - name: Use Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Check version sync
+        run: npm run version:check
 
       - name: Typecheck
         run: npm run typecheck
@@ -38,6 +47,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check build contents
+        run: npm run check:build
+
       # Advisory only: the CRA 5 toolchain carries known transitive
       # advisories that require a build-system migration to resolve.
       - name: Audit dependencies
@@ -46,19 +58,29 @@ jobs:
 
   e2e:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Use Node.js 22
+      - name: Use Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      # The Chromium download is ~150 MB on every run; key it on the lock
+      # (which pins the Playwright version) so only version bumps re-download.
+      - name: Cache Playwright browser
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: playwright-${{ runner.os }}-
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
