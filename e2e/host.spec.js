@@ -127,3 +127,17 @@ test('the board can be downloaded as CSV', async ({ page }) => {
   expect(lines.length - 1).toBe(BOARD.match(/^\* /gm).length);
   expect(csv).toContain('BACKLOG,checklists on cards,green,,,2/3');
 });
+
+test('the lane menu of a done lane opens above its cards', async ({ page }) => {
+  const plugin = await openHost(page, { text: BOARD });
+  await plugin.getByRole('button', { name: /^Done \(/ }).click();
+  await plugin.getByLabel('Lane actions ARCHIVE').click();
+
+  // A click lands on whatever is painted on top, so a card covering the
+  // menu would take it instead and the lane would stay.
+  await plugin.getByRole('menuitem', { name: 'Unmark as done' }).click({
+    timeout: 2000,
+  });
+
+  await expect(plugin.getByRole('button', { name: /^Done \(/ })).toHaveCount(0);
+});

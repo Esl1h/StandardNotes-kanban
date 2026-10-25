@@ -873,7 +873,11 @@
   left: 0;
 }
 
+/* The opacity makes the header a stacking context that traps the lane
+   menu's z-index, so the header itself has to sit above the cards. */
 .kbn-lane-done .kbn-lane-header {
+  position: relative;
+  z-index: 1;
   opacity: 0.75;
 }
 
