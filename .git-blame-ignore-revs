@@ -1,0 +1,5 @@
+# Formatting-only commits; git blame skips them when
+# blame.ignoreRevsFile points here (GitHub reads this file by default).
+
+# style: format with a 100 column print width
+3d0858a20556a879107debd156ec990bb8d1857e
