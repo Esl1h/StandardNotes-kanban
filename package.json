@@ -38,7 +38,8 @@
     "e2e": "playwright test",
     "prepare": "husky",
     "version:bump": "node scripts/version-bump.mjs",
-    "version:check": "node scripts/version-bump.mjs --check"
+    "version:check": "node scripts/version-bump.mjs --check",
+    "check:build": "node scripts/check-build.mjs"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
