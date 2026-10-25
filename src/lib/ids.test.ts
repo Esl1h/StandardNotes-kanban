@@ -24,8 +24,6 @@ test('keeps titles that merely contain brackets mid-string', () => {
 });
 
 test('joins a title with its id marker', () => {
-  expect(withIdMarker('Renew passport', 'a3f9k2')).toBe(
-    'Renew passport [id:a3f9k2]'
-  );
+  expect(withIdMarker('Renew passport', 'a3f9k2')).toBe('Renew passport [id:a3f9k2]');
   expect(withIdMarker('Renew passport')).toBe('Renew passport');
 });

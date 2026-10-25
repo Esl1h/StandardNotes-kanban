@@ -30,20 +30,15 @@ const openEditor = (data: KanbanBoard = board()) => {
   return saved;
 };
 
-const showFinished = () =>
-  fireEvent.click(screen.getByRole('button', { name: /^Done \(/ }));
+const showFinished = () => fireEvent.click(screen.getByRole('button', { name: /^Done \(/ }));
 
 test('Clear done shows up only while the finished cards are shown', () => {
   openEditor();
-  expect(
-    screen.queryByRole('button', { name: 'Clear done' })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Clear done' })).not.toBeInTheDocument();
 
   showFinished();
 
-  expect(
-    screen.getByRole('button', { name: 'Clear done' })
-  ).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Clear done' })).toBeInTheDocument();
 });
 
 test('there is nothing to clear when the done lane is empty', () => {
@@ -55,9 +50,7 @@ test('there is nothing to clear when the done lane is empty', () => {
 
   showFinished();
 
-  expect(
-    screen.queryByRole('button', { name: 'Clear done' })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Clear done' })).not.toBeInTheDocument();
 });
 
 test('clearing removes the finished cards, saves and offers Undo', () => {
@@ -70,9 +63,7 @@ test('clearing removes the finished cards, saves and offers Undo', () => {
   expect(screen.queryByText('Done one')).not.toBeInTheDocument();
   expect(screen.queryByText('Done two')).not.toBeInTheDocument();
   expect(screen.getByText('Open card')).toBeInTheDocument();
-  expect(screen.getByRole('status')).toHaveTextContent(
-    '2 finished cards removed'
-  );
+  expect(screen.getByRole('status')).toHaveTextContent('2 finished cards removed');
   expect(saved).toHaveLength(1);
   expect(saved[0]).not.toContain('Done one');
   // The lane itself stays, and so does its marker.
@@ -110,7 +101,5 @@ test('a single card is announced in the singular', () => {
 
   fireEvent.click(screen.getByRole('button', { name: 'Clear done' }));
 
-  expect(screen.getByRole('status')).toHaveTextContent(
-    '1 finished card removed'
-  );
+  expect(screen.getByRole('status')).toHaveTextContent('1 finished card removed');
 });

@@ -38,10 +38,7 @@ describe('toJson', () => {
   test('holds every lane, card and field of the board', () => {
     const parsed = JSON.parse(toJson(board()));
 
-    expect(parsed.lanes.map((l: { title: string }) => l.title)).toEqual([
-      'To do',
-      'Archive',
-    ]);
+    expect(parsed.lanes.map((l: { title: string }) => l.title)).toEqual(['To do', 'Archive']);
     expect(parsed.lanes[1].done).toBe(true);
     expect(parsed.lanes[0].done).toBe(false);
     expect(parsed.lanes[0].cards[0]).toEqual({
@@ -79,9 +76,7 @@ describe('toCsv', () => {
 
     expect(lines[0]).toBe('lane,card,label,due,quadrant,checklist');
     expect(lines).toHaveLength(4);
-    expect(lines[1]).toBe(
-      'To do,Renew passport,"red, urgent",2026-10-15,Do,2/3'
-    );
+    expect(lines[1]).toBe('To do,Renew passport,"red, urgent",2026-10-15,Do,2/3');
     expect(lines[2]).toBe('To do,Buy milk,,,,');
     expect(lines[3]).toBe('Archive,Old chore,,,Eliminate,');
   });
@@ -105,9 +100,7 @@ describe('toCsv', () => {
       DEFAULT_QUADRANT_NAMES
     );
 
-    expect(csv).toBe(
-      'lane,card,label,due,quadrant,checklist\n"A, B","say ""hi""\nthere",,,,\n'
-    );
+    expect(csv).toBe('lane,card,label,due,quadrant,checklist\n"A, B","say ""hi""\nthere",,,,\n');
   });
 
   test('keeps a spreadsheet from running a title as a formula', () => {
@@ -116,12 +109,7 @@ describe('toCsv', () => {
         lanes: [
           {
             title: 'L',
-            cards: [
-              { title: '=SUM(A1)' },
-              { title: '+1' },
-              { title: '@cmd' },
-              { title: '-5' },
-            ],
+            cards: [{ title: '=SUM(A1)' }, { title: '+1' }, { title: '@cmd' }, { title: '-5' }],
           },
         ],
       },

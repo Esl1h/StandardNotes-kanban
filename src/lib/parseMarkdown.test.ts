@@ -8,9 +8,7 @@ test('reports the error and keeps parsing when a card appears before any lane', 
 * Card 1`;
   const { boardData, parsingErrors } = parseMarkdown(input);
 
-  expect(
-    parsingErrors.some((e) => /before adding lanes/i.test(e.message))
-  ).toBe(true);
+  expect(parsingErrors.some((e) => /before adding lanes/i.test(e.message))).toBe(true);
   // The lane after the bad line must still be parsed out.
   expect(boardData.lanes).toHaveLength(1);
   expect(boardData.lanes[0].cards[0].title).toBe('Card 1');
@@ -23,9 +21,7 @@ test('reports the error and keeps parsing when a field appears before any card',
   * Description: desc`;
   const { boardData, parsingErrors } = parseMarkdown(input);
 
-  expect(
-    parsingErrors.some((e) => /before adding a card/i.test(e.message))
-  ).toBe(true);
+  expect(parsingErrors.some((e) => /before adding a card/i.test(e.message))).toBe(true);
   expect(boardData.lanes).toHaveLength(1);
   expect(boardData.lanes[0].cards[0].description).toBe('desc');
 });
@@ -64,9 +60,7 @@ test('parses blockquoted lines as a multiline description', () => {
     > third line`;
   const { boardData } = parseMarkdown(input);
 
-  expect(boardData.lanes[0].cards[0].description).toBe(
-    'first line\nsecond line\nthird line'
-  );
+  expect(boardData.lanes[0].cards[0].description).toBe('first line\nsecond line\nthird line');
 });
 
 test('keeps a blank first line of a multiline description', () => {
@@ -87,9 +81,7 @@ test('writes and reads back a description that starts with a blank line', () => 
     ],
   };
 
-  const parsed = parseMarkdown(
-    convertStateToMarkdown({ parsingErrors: [], boardData: board })
-  );
+  const parsed = parseMarkdown(convertStateToMarkdown({ parsingErrors: [], boardData: board }));
 
   expect(parsed.boardData.lanes[0].cards[0].description).toBe('\nfoo');
 });
@@ -99,9 +91,7 @@ test('reports the error and keeps parsing when a card appears before any lane', 
 * Card 1`;
   const { boardData, parsingErrors } = parseMarkdown(input);
 
-  expect(
-    parsingErrors.some((e) => /before adding lanes/i.test(e.message))
-  ).toBe(true);
+  expect(parsingErrors.some((e) => /before adding lanes/i.test(e.message))).toBe(true);
   // The lane after the bad line must still be parsed out.
   expect(boardData.lanes).toHaveLength(1);
   expect(boardData.lanes[0].cards[0].title).toBe('Card 1');
@@ -114,9 +104,7 @@ test('reports the error and keeps parsing when a field appears before any card',
   * Description: desc`;
   const { boardData, parsingErrors } = parseMarkdown(input);
 
-  expect(
-    parsingErrors.some((e) => /before adding a card/i.test(e.message))
-  ).toBe(true);
+  expect(parsingErrors.some((e) => /before adding a card/i.test(e.message))).toBe(true);
   expect(boardData.lanes).toHaveLength(1);
   expect(boardData.lanes[0].cards[0].description).toBe('desc');
 });
@@ -216,8 +204,7 @@ describe('tolerant input', () => {
     parseMarkdown(markdown).parsingErrors.filter((e) => e.message);
 
   test('reads tab-indented fields', () => {
-    const input =
-      '# Lane\n* Card\n\t* Description: desc\n\t* Due: 2026-01-01\n\t* Label: red';
+    const input = '# Lane\n* Card\n\t* Description: desc\n\t* Due: 2026-01-01\n\t* Label: red';
     const { boardData } = parseMarkdown(input);
 
     expect(unreadable(input)).toEqual([]);
@@ -229,9 +216,7 @@ describe('tolerant input', () => {
   });
 
   test('keeps tabs inside field values', () => {
-    const { boardData } = parseMarkdown(
-      '# Lane\n* Card\n  * Description: a\tb'
-    );
+    const { boardData } = parseMarkdown('# Lane\n* Card\n  * Description: a\tb');
 
     expect(boardData.lanes[0].cards[0].description).toBe('a\tb');
   });
@@ -241,10 +226,7 @@ describe('tolerant input', () => {
     const { boardData } = parseMarkdown(input);
 
     expect(unreadable(input)).toEqual([]);
-    expect(boardData.lanes[0].cards.map((c) => c.title)).toEqual([
-      'first',
-      'second',
-    ]);
+    expect(boardData.lanes[0].cards.map((c) => c.title)).toEqual(['first', 'second']);
     expect(boardData.lanes[0].cards[1].label).toBe('red');
   });
 
@@ -302,9 +284,7 @@ describe('tolerant input', () => {
   test('keeps text after a Comments header instead of dropping it', () => {
     const { boardData } = parseMarkdown('# Lane\n* Card\n  * Comments: hello');
 
-    expect(boardData.lanes[0].cards[0].extraLines).toEqual([
-      '  * Comments: hello',
-    ]);
+    expect(boardData.lanes[0].cards[0].extraLines).toEqual(['  * Comments: hello']);
   });
 
   test('reads a bare blockquote line as an empty continuation', () => {
@@ -345,21 +325,14 @@ describe('quadrant field', () => {
     const { boardData, parsingErrors } = parseMarkdown(input);
 
     expect(parsingErrors).toEqual([]);
-    expect(boardData.lanes[0].cards.map((c) => c.quadrant)).toEqual([
-      'do',
-      'eliminate',
-    ]);
+    expect(boardData.lanes[0].cards.map((c) => c.quadrant)).toEqual(['do', 'eliminate']);
   });
 
   test('keeps an unknown quadrant as an unread line', () => {
-    const { boardData, parsingErrors } = parseMarkdown(
-      '# Lane\n* A\n  * Quadrant: someday'
-    );
+    const { boardData, parsingErrors } = parseMarkdown('# Lane\n* A\n  * Quadrant: someday');
 
     expect(boardData.lanes[0].cards[0].quadrant).toBeUndefined();
-    expect(boardData.lanes[0].cards[0].extraLines).toEqual([
-      '  * Quadrant: someday',
-    ]);
+    expect(boardData.lanes[0].cards[0].extraLines).toEqual(['  * Quadrant: someday']);
     expect(parsingErrors).toHaveLength(1);
   });
 
@@ -382,9 +355,7 @@ describe('done lane marker', () => {
       '# Doing [id:aaa111]\n# Finished [done] [id:bbb222]\n# Shipped [DONE]'
     );
 
-    expect(
-      boardData.lanes.map((l) => [l.title, l.id, l.done ?? false])
-    ).toEqual([
+    expect(boardData.lanes.map((l) => [l.title, l.id, l.done ?? false])).toEqual([
       ['Doing', 'aaa111', false],
       ['Finished', 'bbb222', true],
       ['Shipped', undefined, true],
@@ -415,33 +386,26 @@ describe('quadrant names', () => {
   });
 
   test('keeps a malformed names line as an unread line', () => {
-    const { quadrantNames, preamble } = parseMarkdown(
-      'Quadrants: Fazer | Agendar\n# Lane\n'
-    );
+    const { quadrantNames, preamble } = parseMarkdown('Quadrants: Fazer | Agendar\n# Lane\n');
 
     expect(quadrantNames).toBeUndefined();
     expect(preamble).toEqual(['Quadrants: Fazer | Agendar']);
   });
 
   test('is only read before the first lane', () => {
-    const { quadrantNames, boardData } = parseMarkdown(
-      '# Lane\nQuadrants: A | B | C | D\n'
-    );
+    const { quadrantNames, boardData } = parseMarkdown('# Lane\nQuadrants: A | B | C | D\n');
 
     expect(quadrantNames).toBeUndefined();
     expect(boardData.lanes[0].extraLines).toEqual(['Quadrants: A | B | C | D']);
   });
 
   test('writes custom names on top and leaves default names out', () => {
-    const custom =
-      'Quadrants: Fazer | Agendar | Delegar | Eliminar\n\n# Lane\n* Card\n';
+    const custom = 'Quadrants: Fazer | Agendar | Delegar | Eliminar\n\n# Lane\n* Card\n';
 
     expect(convertStateToMarkdown(parseMarkdown(custom))).toBe(custom);
     expect(
       convertStateToMarkdown(
-        parseMarkdown(
-          'Quadrants: Do | Schedule | Delegate | Eliminate\n# Lane\n* Card\n'
-        )
+        parseMarkdown('Quadrants: Do | Schedule | Delegate | Eliminate\n# Lane\n* Card\n')
       )
     ).toBe('# Lane\n* Card\n');
   });
@@ -459,18 +423,14 @@ describe('label colors', () => {
   });
 
   test('keeps a malformed colors line as an unread line', () => {
-    const { labelColors, preamble } = parseMarkdown(
-      'Labels: urgent, work=blue\n# Lane\n'
-    );
+    const { labelColors, preamble } = parseMarkdown('Labels: urgent, work=blue\n# Lane\n');
 
     expect(labelColors).toBeUndefined();
     expect(preamble).toEqual(['Labels: urgent, work=blue']);
   });
 
   test('is only read before the first lane', () => {
-    const { labelColors, boardData } = parseMarkdown(
-      '# Lane\nLabels: urgent=red\n'
-    );
+    const { labelColors, boardData } = parseMarkdown('# Lane\nLabels: urgent=red\n');
 
     expect(labelColors).toBeUndefined();
     expect(boardData.lanes[0].extraLines).toEqual(['Labels: urgent=red']);
@@ -480,14 +440,11 @@ describe('label colors', () => {
     const custom = 'Labels: urgent=red\n\n# Lane\n* Card\n';
 
     expect(convertStateToMarkdown(parseMarkdown(custom))).toBe(custom);
-    expect(convertStateToMarkdown(parseMarkdown(custom))).toContain(
-      'Labels: urgent=red'
-    );
+    expect(convertStateToMarkdown(parseMarkdown(custom))).toContain('Labels: urgent=red');
   });
 
   test('round-trips beside the quadrant names line', () => {
-    const custom =
-      'Labels: urgent=red\nQuadrants: A | B | C | D\n\n# Lane\n* Card\n';
+    const custom = 'Labels: urgent=red\nQuadrants: A | B | C | D\n\n# Lane\n* Card\n';
 
     expect(convertStateToMarkdown(parseMarkdown(custom))).toBe(custom);
   });

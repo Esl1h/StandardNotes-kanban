@@ -137,9 +137,7 @@ describe('done lane', () => {
     const next = completeCard(board(), 'a', 'c1');
 
     expect(next.lanes[0].cards).toEqual([]);
-    expect(next.lanes[2].cards.map((c) => [c.id, c.laneId])).toEqual([
-      ['c1', 'c'],
-    ]);
+    expect(next.lanes[2].cards.map((c) => [c.id, c.laneId])).toEqual([['c1', 'c']]);
   });
 
   test('completing does nothing without a done lane', () => {
@@ -173,9 +171,7 @@ describe('done lane', () => {
     const plain = board();
 
     expect(clearDoneCards(plain)).toBe(plain);
-    expect(clearDoneCards(setDoneLane(plain, 'c', false))).toEqual(
-      setDoneLane(plain, 'c', false)
-    );
+    expect(clearDoneCards(setDoneLane(plain, 'c', false))).toEqual(setDoneLane(plain, 'c', false));
   });
 });
 

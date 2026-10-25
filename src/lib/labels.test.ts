@@ -7,9 +7,7 @@ const luminance = (color: string): number => {
   const hex = color.length === 4 ? color.replace(/\w/g, '$&$&') : color;
   const [r, g, b] = [1, 3, 5].map((i) => {
     const channel = parseInt(hex.slice(i, i + 2), 16) / 255;
-    return channel <= 0.03928
-      ? channel / 12.92
-      : ((channel + 0.055) / 1.055) ** 2.4;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
@@ -25,9 +23,9 @@ test.each(palette)('the %s chip text meets WCAG AA', (name) => {
   const [chip] = labelChips(name);
   const style = chipStyle(chip.color);
 
-  expect(
-    contrast(style.backgroundColor as string, style.color as string)
-  ).toBeGreaterThanOrEqual(4.5);
+  expect(contrast(style.backgroundColor as string, style.color as string)).toBeGreaterThanOrEqual(
+    4.5
+  );
 });
 
 test('a name outside the palette gets a neutral chip', () => {
@@ -46,9 +44,7 @@ test.each(['constructor', 'toString', '__proto__'])(
 );
 
 test('an assigned color that is no palette name is ignored', () => {
-  expect(labelChips('x', { x: 'constructor' })).toEqual([
-    { name: 'x', color: undefined },
-  ]);
+  expect(labelChips('x', { x: 'constructor' })).toEqual([{ name: 'x', color: undefined }]);
 });
 
 test('an assigned color wins over the name and the palette', () => {
@@ -70,10 +66,7 @@ test('an assignment with an unknown color renders neutral', () => {
 });
 
 test('splits a comma separated label and trims the names', () => {
-  expect(labelChips(' red , urgent ,').map((chip) => chip.name)).toEqual([
-    'red',
-    'urgent',
-  ]);
+  expect(labelChips(' red , urgent ,').map((chip) => chip.name)).toEqual(['red', 'urgent']);
   expect(labelChips(undefined)).toEqual([]);
 });
 

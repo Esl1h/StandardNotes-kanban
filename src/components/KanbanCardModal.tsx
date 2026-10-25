@@ -7,20 +7,10 @@ import {
   IconCircleX,
   IconX,
 } from '@tabler/icons-react';
-import {
-  chipStyle,
-  dueBadge,
-  isoDate,
-  labelChips,
-  LabelColors,
-} from '../lib/labels';
+import { chipStyle, dueBadge, isoDate, labelChips, LabelColors } from '../lib/labels';
 import { LABEL_PALETTE } from '../lib/labelColors';
 import { QUADRANTS, QuadrantNames, toQuadrant } from '../lib/quadrants';
-import {
-  KanbanCard,
-  KanbanChecklistItem,
-  KanbanLane,
-} from '../../types/kanban';
+import { KanbanCard, KanbanChecklistItem, KanbanLane } from '../../types/kanban';
 
 const CardComment = ({
   comment,
@@ -85,9 +75,7 @@ const ModalSection = ({
           <IconChevronRight size={14} stroke={1.5} />
         )}
         <span className="kbn-modal-section-title">{title}</span>
-        {count !== undefined && (
-          <span className="kbn-modal-section-count">{count}</span>
-        )}
+        {count !== undefined && <span className="kbn-modal-section-count">{count}</span>}
       </button>
       {open && <div className="kbn-modal-section-body">{children}</div>}
     </div>
@@ -110,11 +98,7 @@ const ChecklistSection = ({
     setNewItem('');
   };
   const toggleItem = (index) => {
-    onUpdate(
-      checklist.map((item, i) =>
-        i === index ? { ...item, done: !item.done } : item
-      )
-    );
+    onUpdate(checklist.map((item, i) => (i === index ? { ...item, done: !item.done } : item)));
   };
   const removeItem = (index) => {
     onUpdate(checklist.filter((_, i) => index !== i));
@@ -143,9 +127,7 @@ const ChecklistSection = ({
               type="checkbox"
               checked={item.done}
               onChange={() => toggleItem(i)}
-              aria-label={`Mark ${item.text} as ${
-                item.done ? 'undone' : 'done'
-              }`}
+              aria-label={`Mark ${item.text} as ${item.done ? 'undone' : 'done'}`}
             />
             <span style={{ flex: 1 }}>{item.text}</span>
             <button
@@ -244,9 +226,7 @@ const LabelInput = ({
             {onLabelColorsChange && (
               <button
                 type="button"
-                className={`kbn-chip-dot${
-                  chip.color ? ' kbn-chip-dot-set' : ''
-                }`}
+                className={`kbn-chip-dot${chip.color ? ' kbn-chip-dot-set' : ''}`}
                 style={chip.color ? { backgroundColor: chip.color } : undefined}
                 aria-label={`Set color of ${chip.name}`}
                 aria-expanded={colorTarget === chip.name}
@@ -368,9 +348,7 @@ export const KanbanCardModal = ({
   const [updatedComments, setUpdatedComments] = useState(comments || []);
   const [updatedChecklist, setUpdatedChecklist] = useState(checklist || []);
   const [updatedTitle, setUpdatedTitle] = useState(title);
-  const [updatedDescription, setUpdatedDescription] = useState(
-    description || ''
-  );
+  const [updatedDescription, setUpdatedDescription] = useState(description || '');
   const [updatedDue, setUpdatedDue] = useState(due || '');
   const [updatedLabel, setUpdatedLabel] = useState(label || '');
   const [updatedQuadrant, setUpdatedQuadrant] = useState(card.quadrant ?? '');
@@ -422,16 +400,10 @@ export const KanbanCardModal = ({
           style={{ fontWeight: 'bold', flex: 1, minWidth: '8em' }}
         />
         {due && (
-          <span className={`kbn-due ${dueBadge(due)?.className}`}>
-            {dueBadge(due)?.text}
-          </span>
+          <span className={`kbn-due ${dueBadge(due)?.className}`}>{dueBadge(due)?.text}</span>
         )}
         {labelChips(label, labelColors).map((chip) => (
-          <span
-            key={chip.name}
-            className="kbn-card-chip"
-            style={chipStyle(chip.color)}
-          >
+          <span key={chip.name} className="kbn-card-chip" style={chipStyle(chip.color)}>
             {chip.name}
           </span>
         ))}
@@ -507,9 +479,7 @@ export const KanbanCardModal = ({
           style={{ width: '100%', boxSizing: 'border-box' }}
         />
         <div className="kbn-field-row">
-          <label
-            style={{ display: 'flex', alignItems: 'center', gap: '0.35em' }}
-          >
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35em' }}>
             <span>Due</span>
             <input
               type="date"
@@ -519,11 +489,7 @@ export const KanbanCardModal = ({
               onChange={(e) => setUpdatedDue(e.target.value)}
             />
           </label>
-          <div
-            className="kbn-due-shortcuts"
-            role="group"
-            aria-label="Due shortcuts"
-          >
+          <div className="kbn-due-shortcuts" role="group" aria-label="Due shortcuts">
             {(
               [
                 ['Today', 0],
@@ -553,10 +519,7 @@ export const KanbanCardModal = ({
           />
         </div>
       </div>
-      <ChecklistSection
-        checklist={updatedChecklist}
-        onUpdate={setUpdatedChecklist}
-      />
+      <ChecklistSection checklist={updatedChecklist} onUpdate={setUpdatedChecklist} />
       <ModalSection
         title="Comments"
         count={`${updatedComments.length}`}

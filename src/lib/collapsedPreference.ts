@@ -11,9 +11,7 @@ const MAX_NOTES = 200;
 const collapsedKey = (noteId: string) => `kbn-collapsed:${noteId}`;
 
 const idsOf = (value: unknown): string[] =>
-  Array.isArray(value)
-    ? value.filter((id): id is string => typeof id === 'string')
-    : [];
+  Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string') : [];
 
 const entriesOf = (store?: PreferenceStore): Record<string, unknown> => {
   try {
@@ -64,10 +62,7 @@ export const writeCollapsed = (
       if (ids.length > 0) {
         entries[noteId] = ids;
       }
-      store.set(
-        STORE_KEY,
-        Object.fromEntries(Object.entries(entries).slice(-MAX_NOTES))
-      );
+      store.set(STORE_KEY, Object.fromEntries(Object.entries(entries).slice(-MAX_NOTES)));
     }
   } catch {
     // Not registered yet; localStorage below still keeps it.

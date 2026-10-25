@@ -3,18 +3,8 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
 import { CardBody } from './Board';
-import {
-  KanbanBoard,
-  KanbanCard,
-  KanbanLane,
-  Quadrant,
-} from '../../types/kanban';
-import {
-  completeCard,
-  removeCard,
-  setCardQuadrant,
-  updateCard,
-} from '../lib/boardOps';
+import { KanbanBoard, KanbanCard, KanbanLane, Quadrant } from '../../types/kanban';
+import { completeCard, removeCard, setCardQuadrant, updateCard } from '../lib/boardOps';
 import { cardMatchesQuery, isFiltering } from '../lib/filter';
 import { LabelColors } from '../lib/labels';
 import { QUADRANTS, QuadrantNames, toQuadrant } from '../lib/quadrants';
@@ -49,13 +39,7 @@ interface Entry {
   lane: KanbanLane;
 }
 
-const QuadrantTitle = ({
-  name,
-  onRename,
-}: {
-  name: string;
-  onRename: (name: string) => void;
-}) => {
+const QuadrantTitle = ({ name, onRename }: { name: string; onRename: (name: string) => void }) => {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(name);
   const commit = () => {
@@ -173,9 +157,7 @@ export const Matrix = ({
     if (!destination || destination === result.source.droppableId) {
       return;
     }
-    onDataChange(
-      setCardQuadrant(data, result.draggableId, toQuadrant(destination))
-    );
+    onDataChange(setCardQuadrant(data, result.draggableId, toQuadrant(destination)));
   };
 
   const renderCards = (entries: Entry[]) =>
@@ -188,9 +170,7 @@ export const Matrix = ({
             laneTitle={lane.title}
             finished={lane.done}
             labelColors={labelColors}
-            onRename={(title) =>
-              onDataChange(updateCard(data, lane.id!, card.id!, { title }))
-            }
+            onRename={(title) => onDataChange(updateCard(data, lane.id!, card.id!, { title }))}
             onCardClick={onCardClick}
             onSearchRequest={onSearchRequest}
             onRemove={() => {
@@ -224,16 +204,12 @@ export const Matrix = ({
           <h2 className="kbn-quadrant-heading">
             {collapseToggle(UNCLASSIFIED, 'Unclassified')}
             Unclassified
-            <span className="kbn-lane-count">
-              {groups[UNCLASSIFIED].length}
-            </span>
+            <span className="kbn-lane-count">{groups[UNCLASSIFIED].length}</span>
           </h2>
           <Droppable droppableId={UNCLASSIFIED}>
             {(provided, snapshot) => (
               <div
-                className={`kbn-cards${
-                  snapshot.isDraggingOver ? ' kbn-dragging-over' : ''
-                }`}
+                className={`kbn-cards${snapshot.isDraggingOver ? ' kbn-dragging-over' : ''}`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
@@ -262,9 +238,7 @@ export const Matrix = ({
               <Droppable droppableId={q}>
                 {(provided, snapshot) => (
                   <div
-                    className={`kbn-cards${
-                      snapshot.isDraggingOver ? ' kbn-dragging-over' : ''
-                    }`}
+                    className={`kbn-cards${snapshot.isDraggingOver ? ' kbn-dragging-over' : ''}`}
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                   >

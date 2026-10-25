@@ -18,8 +18,7 @@ const board = (): KanbanBoard => ({
 const renderMenu = () =>
   render(<ExportMenu board={board()} quadrantNames={DEFAULT_QUADRANT_NAMES} />);
 
-const openMenu = () =>
-  fireEvent.click(screen.getByRole('button', { name: 'Export' }));
+const openMenu = () => fireEvent.click(screen.getByRole('button', { name: 'Export' }));
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -34,9 +33,12 @@ test('the menu opens from the button and lists the four actions', () => {
   openMenu();
 
   expect(button).toHaveAttribute('aria-expanded', 'true');
-  expect(
-    screen.getAllByRole('menuitem').map((item) => item.textContent)
-  ).toEqual(['Copy JSON', 'Copy CSV', 'Download JSON', 'Download CSV']);
+  expect(screen.getAllByRole('menuitem').map((item) => item.textContent)).toEqual([
+    'Copy JSON',
+    'Copy CSV',
+    'Download JSON',
+    'Download CSV',
+  ]);
 });
 
 test.each([
@@ -64,9 +66,7 @@ test.each([
     return 'blob:export';
   });
   URL.revokeObjectURL = vi.fn();
-  const click = vi
-    .spyOn(HTMLAnchorElement.prototype, 'click')
-    .mockImplementation(() => {});
+  const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
   renderMenu();
   openMenu();
 
@@ -78,13 +78,9 @@ test.each([
   expect(link.href).toBe('blob:export');
   expect(created[0].type).toBe(type);
   expect(await created[0].text()).toBe(
-    name.endsWith('JSON')
-      ? toJson(board())
-      : toCsv(board(), DEFAULT_QUADRANT_NAMES)
+    name.endsWith('JSON') ? toJson(board()) : toCsv(board(), DEFAULT_QUADRANT_NAMES)
   );
-  await vi.waitFor(() =>
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:export')
-  );
+  await vi.waitFor(() => expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:export'));
   expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
 });
 

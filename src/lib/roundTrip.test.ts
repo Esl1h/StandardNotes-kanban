@@ -113,9 +113,7 @@ test('an unrecognized line under a lane without cards stays in that lane', () =>
 });
 
 test('a plain text note without lanes is preserved', () => {
-  expect(rt('just some text\nsecond line')).toBe(
-    'just some text\nsecond line\n'
-  );
+  expect(rt('just some text\nsecond line')).toBe('just some text\nsecond line\n');
 });
 
 test('examples/Kanban.txt round-trips byte for byte', async () => {

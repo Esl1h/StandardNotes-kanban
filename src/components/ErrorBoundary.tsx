@@ -50,10 +50,7 @@ const RawText = ({ rawText, onRawTextChange }: RawTextProps) => {
  * Without this, any render error leaves a blank iframe, which looks the
  * same as a note that never loaded.
  */
-export class ErrorBoundary extends React.Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null, showRaw: false };
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
@@ -88,9 +85,7 @@ export class ErrorBoundary extends React.Component<
             {showRaw ? 'Hide raw text' : 'Show raw text'}
           </button>
         )}
-        {showRaw && (
-          <RawText rawText={rawText} onRawTextChange={onRawTextChange} />
-        )}
+        {showRaw && <RawText rawText={rawText} onRawTextChange={onRawTextChange} />}
       </div>
     );
   }

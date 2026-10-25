@@ -18,10 +18,7 @@ const Harness = ({ initial }: { initial: KanbanBoard }) => {
 };
 
 const laneTitleOfCard = () =>
-  screen
-    .getByText('Card')
-    .closest('.kbn-lane')!
-    .querySelector('.kbn-lane-title')!.textContent;
+  screen.getByText('Card').closest('.kbn-lane')!.querySelector('.kbn-lane-title')!.textContent;
 
 const pressAlt = (key: 'ArrowLeft' | 'ArrowRight') =>
   fireEvent.keyDown(document, { key, altKey: true });

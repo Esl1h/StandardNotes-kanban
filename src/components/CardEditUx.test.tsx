@@ -58,9 +58,7 @@ describe('due shortcuts', () => {
 
     fireEvent.click(within(dialog).getByLabelText('Set due date to tomorrow'));
 
-    expect(
-      (within(dialog).getByLabelText('Due') as HTMLInputElement).value
-    ).toBe(isoDate(1));
+    expect((within(dialog).getByLabelText('Due') as HTMLInputElement).value).toBe(isoDate(1));
   });
 
   test('today and next week work the same way', () => {
@@ -68,14 +66,10 @@ describe('due shortcuts', () => {
     const dialog = openCard('Write docs');
 
     fireEvent.click(within(dialog).getByLabelText('Set due date to today'));
-    expect(
-      (within(dialog).getByLabelText('Due') as HTMLInputElement).value
-    ).toBe(isoDate(0));
+    expect((within(dialog).getByLabelText('Due') as HTMLInputElement).value).toBe(isoDate(0));
 
     fireEvent.click(within(dialog).getByLabelText('Set due date to next week'));
-    expect(
-      (within(dialog).getByLabelText('Due') as HTMLInputElement).value
-    ).toBe(isoDate(7));
+    expect((within(dialog).getByLabelText('Due') as HTMLInputElement).value).toBe(isoDate(7));
   });
 });
 
@@ -87,9 +81,7 @@ describe('collapsible modal sections', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: /Checklist/ }));
 
     expect(within(dialog).queryByText('outline')).not.toBeInTheDocument();
-    expect(
-      within(dialog).getByRole('button', { name: /Checklist/ })
-    ).toHaveTextContent('1/2');
+    expect(within(dialog).getByRole('button', { name: /Checklist/ })).toHaveTextContent('1/2');
   });
 
   test('an empty checklist starts collapsed', () => {
@@ -117,12 +109,8 @@ describe('collapsible modal sections', () => {
     const dialog = openCard('Bare card');
 
     // The section header is there, the add-item row is not.
-    expect(
-      within(dialog).getByRole('button', { name: /Checklist/ })
-    ).toBeInTheDocument();
-    expect(
-      within(dialog).queryByPlaceholderText('New checklist item')
-    ).not.toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /Checklist/ })).toBeInTheDocument();
+    expect(within(dialog).queryByPlaceholderText('New checklist item')).not.toBeInTheDocument();
   });
 
   test('comments start collapsed when there are none', () => {
@@ -149,12 +137,8 @@ describe('collapsible modal sections', () => {
     render(<EmptyComments />);
     const dialog = openCard('Bare card');
 
-    expect(
-      within(dialog).queryByText('No Comments yet...')
-    ).not.toBeInTheDocument();
-    expect(
-      within(dialog).queryByPlaceholderText('New Comment')
-    ).not.toBeInTheDocument();
+    expect(within(dialog).queryByText('No Comments yet...')).not.toBeInTheDocument();
+    expect(within(dialog).queryByPlaceholderText('New Comment')).not.toBeInTheDocument();
 
     fireEvent.click(within(dialog).getByRole('button', { name: /Comments/ }));
     expect(within(dialog).getByText('No Comments yet...')).toBeInTheDocument();
@@ -167,9 +151,7 @@ describe('collapsible modal sections', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: /Comments/ }));
 
     expect(within(dialog).queryByText('first note')).not.toBeInTheDocument();
-    expect(
-      within(dialog).queryByPlaceholderText('New Comment')
-    ).not.toBeInTheDocument();
+    expect(within(dialog).queryByPlaceholderText('New Comment')).not.toBeInTheDocument();
   });
 });
 
@@ -190,9 +172,7 @@ test('Enter adds a card and keeps the form open for the next one', () => {
   expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
 
   fireEvent.keyDown(input, { key: 'Escape' });
-  expect(
-    screen.queryByLabelText('New card title in lane laneA')
-  ).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('New card title in lane laneA')).not.toBeInTheDocument();
 });
 
 describe('inline rename on the board', () => {

@@ -68,9 +68,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         lineText: line,
       });
       const owner =
-        cardIndex >= 0
-          ? boardData.lanes[laneIndex].cards[cardIndex]
-          : boardData.lanes[laneIndex];
+        cardIndex >= 0 ? boardData.lanes[laneIndex].cards[cardIndex] : boardData.lanes[laneIndex];
       if (owner) {
         owner.extraLines = [...(owner.extraLines ?? []), line];
       } else {
@@ -88,12 +86,10 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
     const fieldMatch = FIELD.exec(norm);
     const listMatch = LIST_HEADER.exec(norm);
     const continuation = CONTINUATION.exec(norm);
-    const itemMatch =
-      scope === Scope.Checklist ? CHECKLIST_ITEM.exec(norm) : null;
+    const itemMatch = scope === Scope.Checklist ? CHECKLIST_ITEM.exec(norm) : null;
     const namesMatch = laneIndex < 0 ? QUADRANT_NAMES.exec(norm) : null;
     const colorsMatch = laneIndex < 0 ? LABEL_COLORS_LINE.exec(norm) : null;
-    const commentMatch =
-      scope === Scope.Comments ? COMMENT_ITEM.exec(norm) : null;
+    const commentMatch = scope === Scope.Comments ? COMMENT_ITEM.exec(norm) : null;
 
     if (namesMatch) {
       const names = namesMatch[1].split('|').map((name) => name.trim());
@@ -101,9 +97,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         reject('Quadrants needs four names separated by |');
         continue;
       }
-      quadrantNames = Object.fromEntries(
-        QUADRANTS.map((q, i) => [q, names[i]])
-      ) as QuadrantNames;
+      quadrantNames = Object.fromEntries(QUADRANTS.map((q, i) => [q, names[i]])) as QuadrantNames;
     } else if (colorsMatch) {
       const colors = parseLabelColors(colorsMatch[1]);
       if (!colors) {
@@ -145,9 +139,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         reject('Cannot add comments before adding a card!');
         continue;
       }
-      boardData.lanes[laneIndex].cards[cardIndex].comments.push(
-        commentMatch[2]
-      );
+      boardData.lanes[laneIndex].cards[cardIndex].comments.push(commentMatch[2]);
     } else if (fieldMatch) {
       if (cardIndex < 0) {
         reject('Cannot add card fields before adding a card!');
@@ -176,8 +168,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
       const text = (continuation[1] ?? '').trimStart();
       const card = boardData.lanes[laneIndex].cards[cardIndex];
       // `!== undefined`, not truthiness: an empty first line still counts.
-      card.description =
-        card.description !== undefined ? `${card.description}\n${text}` : text;
+      card.description = card.description !== undefined ? `${card.description}\n${text}` : text;
     } else if (listMatch) {
       if (cardIndex < 0) {
         reject('Cannot add card fields before adding a card!');

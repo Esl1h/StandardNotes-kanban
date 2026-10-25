@@ -65,9 +65,7 @@ test('says the note was not received and what the relay reported', () => {
   expect(screen.getByRole('alert')).toHaveTextContent(
     'Note not received from Standard Notes. Reopen the note.'
   );
-  expect(screen.getByRole('alert')).toHaveTextContent(
-    'Environment: mobile, platform: android'
-  );
+  expect(screen.getByRole('alert')).toHaveTextContent('Environment: mobile, platform: android');
 });
 
 test('says so when the relay never registered', () => {

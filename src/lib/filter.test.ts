@@ -47,12 +47,9 @@ describe('qualifiers', () => {
     expect(cardMatchesQuery(card, 'label:red')).toBe(true);
     expect(cardMatchesQuery(card, 'label:BLUE')).toBe(true);
     expect(cardMatchesQuery(card, 'label:re')).toBe(false);
-    expect(
-      cardMatchesQuery(
-        { ...card, label: undefined, title: 'red car' },
-        'label:red'
-      )
-    ).toBe(false);
+    expect(cardMatchesQuery({ ...card, label: undefined, title: 'red car' }, 'label:red')).toBe(
+      false
+    );
   });
 
   test('a quoted label can hold spaces', () => {
@@ -78,8 +75,7 @@ describe('qualifiers', () => {
   });
 
   test('due: classifies the date against today', () => {
-    const at = (due: string, filter: string) =>
-      cardMatchesQuery(dueCard(due), filter, { today });
+    const at = (due: string, filter: string) => cardMatchesQuery(dueCard(due), filter, { today });
 
     expect(at('2026-10-06', 'due:overdue')).toBe(true);
     expect(at('2026-10-07', 'due:overdue')).toBe(false);
@@ -93,12 +89,8 @@ describe('qualifiers', () => {
   });
 
   test('a card without a usable due date never matches a due filter', () => {
-    expect(cardMatchesQuery(dueCard(undefined), 'due:overdue', { today })).toBe(
-      false
-    );
-    expect(cardMatchesQuery(dueCard('someday'), 'due:week', { today })).toBe(
-      false
-    );
+    expect(cardMatchesQuery(dueCard(undefined), 'due:overdue', { today })).toBe(false);
+    expect(cardMatchesQuery(dueCard('someday'), 'due:week', { today })).toBe(false);
   });
 
   test('an unknown or empty value is ignored while it is being typed', () => {
@@ -112,12 +104,8 @@ describe('qualifiers', () => {
 
   test('the lane title only helps the free text, never a qualifier', () => {
     expect(cardMatchesQuery(card, 'doing', { laneTitle: 'Doing' })).toBe(true);
-    expect(
-      cardMatchesQuery(card, 'doing label:green', { laneTitle: 'Doing' })
-    ).toBe(false);
-    expect(
-      cardMatchesQuery(card, 'doing label:red', { laneTitle: 'Doing' })
-    ).toBe(true);
+    expect(cardMatchesQuery(card, 'doing label:green', { laneTitle: 'Doing' })).toBe(false);
+    expect(cardMatchesQuery(card, 'doing label:red', { laneTitle: 'Doing' })).toBe(true);
   });
 });
 

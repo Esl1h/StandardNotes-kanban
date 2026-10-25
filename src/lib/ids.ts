@@ -13,9 +13,7 @@ export const shortId = (): string =>
   ).join('');
 
 /** Splits a raw title into the display title and its persisted id, if any. */
-export const stripIdMarker = (
-  title: string
-): { title: string; id?: string } => {
+export const stripIdMarker = (title: string): { title: string; id?: string } => {
   const match = title.match(MARKER_PATTERN);
   if (!match) {
     return { title: title.trim() };

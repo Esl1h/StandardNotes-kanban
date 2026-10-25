@@ -30,41 +30,32 @@ const board = (): KanbanBoard =>
     ],
   });
 
-const openEditor = (data: KanbanBoard = board()) =>
-  render(<Editor boardData={data} />);
+const openEditor = (data: KanbanBoard = board()) => render(<Editor boardData={data} />);
 
 const filters = () => screen.getByRole('group', { name: 'Filters' });
 const search = () => screen.getByLabelText('Search cards') as HTMLInputElement;
-const calendar = () =>
-  within(filters()).getByRole('button', { name: 'Due date filters' });
+const calendar = () => within(filters()).getByRole('button', { name: 'Due date filters' });
 const openDue = () => fireEvent.click(calendar());
-const tag = () =>
-  within(filters()).getByRole('button', { name: 'Label filters' });
+const tag = () => within(filters()).getByRole('button', { name: 'Label filters' });
 const openLabels = () => fireEvent.click(tag());
 
 const shown = () =>
-  Array.from(
-    document.querySelectorAll('.kbn-card-title, .kbn-card-title-btn')
-  ).map((el) => el.textContent);
+  Array.from(document.querySelectorAll('.kbn-card-title, .kbn-card-title-btn')).map(
+    (el) => el.textContent
+  );
 
 test('the due filters stay folded in the calendar until it is pressed', () => {
   openEditor();
   expect(calendar()).toHaveAttribute('aria-expanded', 'false');
-  expect(
-    within(filters()).queryByRole('button', { name: 'Overdue' })
-  ).not.toBeInTheDocument();
+  expect(within(filters()).queryByRole('button', { name: 'Overdue' })).not.toBeInTheDocument();
 
   openDue();
   expect(calendar()).toHaveAttribute('aria-expanded', 'true');
-  expect(
-    within(filters()).getByRole('button', { name: 'Overdue' })
-  ).toBeInTheDocument();
+  expect(within(filters()).getByRole('button', { name: 'Overdue' })).toBeInTheDocument();
 
   openDue();
   expect(calendar()).toHaveAttribute('aria-expanded', 'false');
-  expect(
-    within(filters()).queryByRole('button', { name: 'Today' })
-  ).not.toBeInTheDocument();
+  expect(within(filters()).queryByRole('button', { name: 'Today' })).not.toBeInTheDocument();
 });
 
 test('the folded calendar shows that a due filter is on', () => {
@@ -80,20 +71,14 @@ test('the folded calendar shows that a due filter is on', () => {
 test('the label filters stay folded in the tag until it is pressed', () => {
   openEditor();
   expect(tag()).toHaveAttribute('aria-expanded', 'false');
-  expect(
-    within(filters()).queryByRole('button', { name: 'red' })
-  ).not.toBeInTheDocument();
+  expect(within(filters()).queryByRole('button', { name: 'red' })).not.toBeInTheDocument();
 
   openLabels();
   expect(tag()).toHaveAttribute('aria-expanded', 'true');
-  expect(
-    within(filters()).getByRole('button', { name: 'red' })
-  ).toBeInTheDocument();
+  expect(within(filters()).getByRole('button', { name: 'red' })).toBeInTheDocument();
 
   openLabels();
-  expect(
-    within(filters()).queryByRole('button', { name: 'blue' })
-  ).not.toBeInTheDocument();
+  expect(within(filters()).queryByRole('button', { name: 'blue' })).not.toBeInTheDocument();
 });
 
 test('the folded tag counts the label filters that are on', () => {
@@ -130,21 +115,11 @@ test('offers the due filters and the labels of the cards', () => {
   openDue();
   openLabels();
 
-  expect(
-    within(filters()).getByRole('button', { name: 'Overdue' })
-  ).toBeInTheDocument();
-  expect(
-    within(filters()).getByRole('button', { name: 'Today' })
-  ).toBeInTheDocument();
-  expect(
-    within(filters()).getByRole('button', { name: 'This week' })
-  ).toBeInTheDocument();
-  expect(
-    within(filters()).getByRole('button', { name: 'red' })
-  ).toBeInTheDocument();
-  expect(
-    within(filters()).getByRole('button', { name: 'blue' })
-  ).toBeInTheDocument();
+  expect(within(filters()).getByRole('button', { name: 'Overdue' })).toBeInTheDocument();
+  expect(within(filters()).getByRole('button', { name: 'Today' })).toBeInTheDocument();
+  expect(within(filters()).getByRole('button', { name: 'This week' })).toBeInTheDocument();
+  expect(within(filters()).getByRole('button', { name: 'red' })).toBeInTheDocument();
+  expect(within(filters()).getByRole('button', { name: 'blue' })).toBeInTheDocument();
 });
 
 test('has no filter bar when no card has a label or a due date', () => {
@@ -154,9 +129,7 @@ test('has no filter bar when no card has a label or a due date', () => {
     })
   );
 
-  expect(
-    screen.queryByRole('group', { name: 'Filters' })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('group', { name: 'Filters' })).not.toBeInTheDocument();
 });
 
 test('Overdue shows only the overdue cards and fills the search', () => {
@@ -167,16 +140,16 @@ test('Overdue shows only the overdue cards and fills the search', () => {
 
   expect(shown()).toEqual(['Late task']);
   expect(search().value).toBe('due:overdue');
-  expect(
-    within(filters()).getByRole('button', { name: 'Overdue' })
-  ).toHaveAttribute('aria-pressed', 'true');
+  expect(within(filters()).getByRole('button', { name: 'Overdue' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
 });
 
 test('pressing a filter again takes it off', () => {
   openEditor();
   openDue();
-  const overdue = () =>
-    within(filters()).getByRole('button', { name: 'Overdue' });
+  const overdue = () => within(filters()).getByRole('button', { name: 'Overdue' });
 
   fireEvent.click(overdue());
   fireEvent.click(overdue());
@@ -215,18 +188,19 @@ test('typing the qualifiers by hand gives the same result', () => {
 
   expect(shown()).toEqual(['Today task']);
   openLabels();
-  expect(
-    within(filters()).getByRole('button', { name: 'blue' })
-  ).toHaveAttribute('aria-pressed', 'true');
+  expect(within(filters()).getByRole('button', { name: 'blue' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
 });
 
 test('clicking a label on a card filters by that whole label', () => {
   openEditor();
 
   fireEvent.click(
-    within(
-      screen.getByText('Late task').closest('.kbn-card') as HTMLElement
-    ).getByTitle('Filter by red')
+    within(screen.getByText('Late task').closest('.kbn-card') as HTMLElement).getByTitle(
+      'Filter by red'
+    )
   );
 
   expect(search().value).toBe('label:red');

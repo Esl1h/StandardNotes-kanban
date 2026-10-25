@@ -14,12 +14,7 @@ import { LabelColors } from '../lib/labels';
 import { chipStyle, daysUntil, labelChips } from '../lib/labels';
 import { DEFAULT_QUADRANT_NAMES, QuadrantNames } from '../lib/quadrants';
 import { readCollapsed, writeCollapsed } from '../lib/collapsedPreference';
-import {
-  PreferenceStore,
-  readView,
-  View,
-  writeView,
-} from '../lib/viewPreference';
+import { PreferenceStore, readView, View, writeView } from '../lib/viewPreference';
 
 const snComponentId = 'sn-component';
 
@@ -32,11 +27,7 @@ const DUE_LABELS: Record<DueFilter, string> = {
 interface EditorInternalProps {
   boardData: KanbanBoard;
   handleDataChange: (board: KanbanBoard | string) => void;
-  onCardUpdate: (
-    laneId: string,
-    cardId: string,
-    patch: Partial<KanbanCard>
-  ) => void;
+  onCardUpdate: (laneId: string, cardId: string, patch: Partial<KanbanCard>) => void;
   parsingErrors?: ParsingErrors[];
   onUndo?: () => void;
   /** Identifies the note so each one remembers its own view. */
@@ -99,19 +90,14 @@ export const EditorInternal = ({
   // Shown on the calendar button, so a due filter stays visible while folded.
   const dueActive = DUE_FILTERS.some((value) => hasFilter(query, 'due', value));
   // Counted on the tag button for the same reason.
-  const labelsActive = filterLabels.filter((chip) =>
-    hasFilter(query, 'label', chip.name)
-  ).length;
+  const labelsActive = filterLabels.filter((chip) => hasFilter(query, 'label', chip.name)).length;
   const doneLanes = boardData.lanes.filter((lane) => lane.done);
   const doneCount = doneLanes.reduce((n, lane) => n + lane.cards.length, 0);
   const { announce, toast } = useUndoToast(boardData, onUndo);
   const clearDone = () => {
     const board = clearDoneCards(boardData);
     handleDataChange(board);
-    announce(
-      `${doneCount} finished card${doneCount === 1 ? '' : 's'} removed`,
-      board
-    );
+    announce(`${doneCount} finished card${doneCount === 1 ? '' : 's'} removed`, board);
   };
   const errorCount = parsingErrors.filter((e) => e.lineText).length;
   const searchRef = React.useRef<HTMLInputElement | null>(null);
@@ -121,10 +107,7 @@ export const EditorInternal = ({
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
         const target = e.target as HTMLElement | null;
-        if (
-          target &&
-          (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
-        ) {
+        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
           return;
         }
         e.preventDefault();
@@ -147,20 +130,11 @@ export const EditorInternal = ({
     }
     const fromLane = boardData.lanes.find((l) => l.id === modalTarget.laneId);
     const toLane = boardData.lanes.find((l) => l.id === toLaneId);
-    const index =
-      fromLane?.cards.findIndex((c) => c.id === modalTarget.cardId) ?? -1;
+    const index = fromLane?.cards.findIndex((c) => c.id === modalTarget.cardId) ?? -1;
     if (!toLane || index < 0 || toLane === fromLane) {
       return;
     }
-    handleDataChange(
-      moveCard(
-        boardData,
-        modalTarget.laneId,
-        index,
-        toLaneId,
-        toLane.cards.length
-      )
-    );
+    handleDataChange(moveCard(boardData, modalTarget.laneId, index, toLaneId, toLane.cards.length));
     // Edits still pending in the modal are saved against this lane when it
     // closes, so it has to follow the card.
     setModalTarget({ laneId: toLaneId, cardId: modalTarget.cardId });
@@ -182,9 +156,7 @@ export const EditorInternal = ({
         onLabelColorsChange={onLabelColorsChange}
         onMove={moveModalCard}
         hideModal={closeModal}
-        updateCard={(patch) =>
-          onCardUpdate(modalTarget.laneId, modalTarget.cardId, patch)
-        }
+        updateCard={(patch) => onCardUpdate(modalTarget.laneId, modalTarget.cardId, patch)}
       />
     );
   }, [modalTarget, boardData, quadrantNames, labelColors, onLabelColorsChange]);
@@ -283,9 +255,7 @@ export const EditorInternal = ({
       {(hasDueDates || filterLabels.length > 0) && (
         <div className="kbn-filters" role="group" aria-label="Filters">
           {hasDueDates && (
-            <div
-              className={`kbn-due-filter${dueOpen ? ' kbn-due-filter-open' : ''}`}
-            >
+            <div className={`kbn-due-filter${dueOpen ? ' kbn-due-filter-open' : ''}`}>
               <button
                 type="button"
                 className={`kbn-btn kbn-btn-ghost kbn-toolbar-btn kbn-due-filter-toggle${
@@ -328,16 +298,12 @@ export const EditorInternal = ({
                 onClick={() => setLabelsOpen(!labelsOpen)}
               >
                 <IconTag size={16} stroke={1.5} />
-                {labelsActive > 0 && (
-                  <span className="kbn-label-filter-count">{labelsActive}</span>
-                )}
+                {labelsActive > 0 && <span className="kbn-label-filter-count">{labelsActive}</span>}
               </button>
               {/* A row of its own, since a board can have many labels. Kept
                   mounted so folding back can animate too. */}
               <div
-                className={`kbn-label-filter-options${
-                  labelsOpen ? ' kbn-label-filter-open' : ''
-                }`}
+                className={`kbn-label-filter-options${labelsOpen ? ' kbn-label-filter-open' : ''}`}
                 aria-hidden={!labelsOpen}
               >
                 <div className="kbn-label-filter-chips">
@@ -349,9 +315,7 @@ export const EditorInternal = ({
                       style={chipStyle(chip.color)}
                       tabIndex={labelsOpen ? undefined : -1}
                       aria-pressed={hasFilter(query, 'label', chip.name)}
-                      onClick={() =>
-                        setQuery(toggleFilter(query, 'label', chip.name))
-                      }
+                      onClick={() => setQuery(toggleFilter(query, 'label', chip.name))}
                     >
                       {chip.name}
                     </button>
@@ -390,9 +354,7 @@ export const EditorInternal = ({
           onUndo={onUndo}
           showDone={showDone}
           loadCollapsed={() => readCollapsed(preferences, noteId)}
-          onCollapsedChange={(collapsed) =>
-            writeCollapsed(preferences, noteId, collapsed)
-          }
+          onCollapsedChange={(collapsed) => writeCollapsed(preferences, noteId, collapsed)}
         />
       )}
       {toast}

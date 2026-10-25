@@ -38,20 +38,17 @@ const parseQuery = (query: string): ParsedQuery => {
   const labels: string[] = [];
   const due: DueFilter[] = [];
   const text = query
-    .replace(
-      QUALIFIER,
-      (_match, _lead, key: string, raw: string, quoted?: string) => {
-        const value = (quoted ?? raw).trim().toLowerCase();
-        if (key.toLowerCase() === 'label') {
-          if (value) {
-            labels.push(value);
-          }
-        } else if (isDueFilter(value)) {
-          due.push(value);
+    .replace(QUALIFIER, (_match, _lead, key: string, raw: string, quoted?: string) => {
+      const value = (quoted ?? raw).trim().toLowerCase();
+      if (key.toLowerCase() === 'label') {
+        if (value) {
+          labels.push(value);
         }
-        return ' ';
+      } else if (isDueFilter(value)) {
+        due.push(value);
       }
-    )
+      return ' ';
+    })
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
@@ -112,11 +109,7 @@ export const laneMatches = (
   if (!text && labels.length === 0 && due.length === 0) {
     return true;
   }
-  if (
-    labels.length === 0 &&
-    due.length === 0 &&
-    lane.title.toLowerCase().includes(text)
-  ) {
+  if (labels.length === 0 && due.length === 0 && lane.title.toLowerCase().includes(text)) {
     return true;
   }
   return lane.cards.some((card) =>
@@ -143,36 +136,23 @@ const sameQualifier = (
   matchedKey.toLowerCase() === key &&
   (quoted ?? raw).trim().toLowerCase() === value.trim().toLowerCase();
 
-export const hasFilter = (
-  query: string,
-  key: FilterKey,
-  value: string
-): boolean => {
+export const hasFilter = (query: string, key: FilterKey, value: string): boolean => {
   let found = false;
-  query.replace(
-    QUALIFIER,
-    (match, _lead, k: string, raw: string, quoted?: string) => {
-      found = found || sameQualifier(key, value, k, raw, quoted);
-      return match;
-    }
-  );
+  query.replace(QUALIFIER, (match, _lead, k: string, raw: string, quoted?: string) => {
+    found = found || sameQualifier(key, value, k, raw, quoted);
+    return match;
+  });
   return found;
 };
 
 /** Adds the qualifier to the query, or takes it out when it is there. */
-export const toggleFilter = (
-  query: string,
-  key: FilterKey,
-  value: string
-): string => {
+export const toggleFilter = (query: string, key: FilterKey, value: string): string => {
   if (!hasFilter(query, key, value)) {
     return `${query.trim()} ${filterToken(key, value)}`.trim();
   }
   return query
-    .replace(
-      QUALIFIER,
-      (match, lead: string, k: string, raw: string, quoted?: string) =>
-        sameQualifier(key, value, k, raw, quoted) ? lead : match
+    .replace(QUALIFIER, (match, lead: string, k: string, raw: string, quoted?: string) =>
+      sameQualifier(key, value, k, raw, quoted) ? lead : match
     )
     .replace(/\s{2,}/g, ' ')
     .trim();

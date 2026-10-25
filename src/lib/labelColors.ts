@@ -1,9 +1,7 @@
 import { LABEL_COLORS, LabelColors, paletteColor } from './labels';
 
 /** The palette in swatch order, name and hex per entry. */
-export const LABEL_PALETTE = Object.entries(LABEL_COLORS).map(
-  ([name, hex]) => ({ name, hex })
-);
+export const LABEL_PALETTE = Object.entries(LABEL_COLORS).map(([name, hex]) => ({ name, hex }));
 
 /**
  * Parses the note's "Labels:" value, "urgent=red, work=blue". Every
@@ -31,8 +29,6 @@ export const parseLabelColors = (text: string): LabelColors | null => {
  */
 export const formatLabelColors = (colors: LabelColors): string =>
   Object.entries(colors)
-    .filter(
-      ([name, color]) => name && !name.includes('=') && !!paletteColor(color)
-    )
+    .filter(([name, color]) => name && !name.includes('=') && !!paletteColor(color))
     .map(([name, color]) => `${name}=${color}`)
     .join(', ');

@@ -36,11 +36,7 @@ test('shows the error message instead of a blank screen', () => {
 
 test('lets the user read the raw note text', () => {
   render(
-    <ErrorBoundary
-      rawText={'# Lane\n* Card'}
-      onRawTextChange={() => {}}
-      resetKey={0}
-    >
+    <ErrorBoundary rawText={'# Lane\n* Card'} onRawTextChange={() => {}} resetKey={0}>
       <Boom explode />
     </ErrorBoundary>
   );
@@ -60,9 +56,7 @@ test('offers no raw text button when no note was received', () => {
     </ErrorBoundary>
   );
 
-  expect(
-    screen.queryByRole('button', { name: 'Show raw text' })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Show raw text' })).not.toBeInTheDocument();
 });
 
 test('renders its children when nothing fails', () => {
@@ -95,11 +89,7 @@ test('tries again when the reset key changes', () => {
 test('saves what is typed in the raw text', () => {
   const onRawTextChange = vi.fn();
   render(
-    <ErrorBoundary
-      rawText={'# Lane\n* Card'}
-      onRawTextChange={onRawTextChange}
-      resetKey={0}
-    >
+    <ErrorBoundary rawText={'# Lane\n* Card'} onRawTextChange={onRawTextChange} resetKey={0}>
       <Boom explode />
     </ErrorBoundary>
   );
@@ -110,9 +100,7 @@ test('saves what is typed in the raw text', () => {
   });
 
   expect(onRawTextChange).toHaveBeenCalledWith('# Lane\n* Card\n* Another');
-  expect(screen.getByLabelText('Raw note text')).toHaveValue(
-    '# Lane\n* Card\n* Another'
-  );
+  expect(screen.getByLabelText('Raw note text')).toHaveValue('# Lane\n* Card\n* Another');
 });
 
 test('replaces the raw text with a newer one from the app', () => {

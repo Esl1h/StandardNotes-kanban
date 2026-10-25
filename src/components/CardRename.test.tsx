@@ -43,18 +43,16 @@ const renameAndSave = (dialog: HTMLElement, title: string) => {
   fireEvent.change(within(dialog).getByLabelText('Card title'), {
     target: { value: title },
   });
-  fireEvent.click(
-    within(dialog).getByRole('button', { name: 'Save and close' })
-  );
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Save and close' }));
 };
 
 test('the modal opens with the title ready to edit', () => {
   render(<Harness />);
   const dialog = openCard('Write docs');
 
-  expect(
-    (within(dialog).getByLabelText('Card title') as HTMLInputElement).value
-  ).toBe('Write docs');
+  expect((within(dialog).getByLabelText('Card title') as HTMLInputElement).value).toBe(
+    'Write docs'
+  );
 });
 
 test('renaming the card updates it on the board', () => {

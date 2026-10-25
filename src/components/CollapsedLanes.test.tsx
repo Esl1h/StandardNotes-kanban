@@ -11,14 +11,7 @@ const board = (): KanbanBoard => ({
 });
 
 const renderBoard = (props: Partial<React.ComponentProps<typeof Board>> = {}) =>
-  render(
-    <Board
-      data={board()}
-      onDataChange={() => {}}
-      onCardClick={() => {}}
-      {...props}
-    />
-  );
+  render(<Board data={board()} onDataChange={() => {}} onCardClick={() => {}} {...props} />);
 
 test('starts with the lanes the loader reports as collapsed', () => {
   renderBoard({ loadCollapsed: () => new Set(['laneB']) });
@@ -35,9 +28,7 @@ test('reports every change in the collapsed lanes', () => {
   expect(onCollapsedChange).toHaveBeenLastCalledWith(new Set(['laneB']));
 
   fireEvent.click(screen.getByLabelText('Collapse lane A'));
-  expect(onCollapsedChange).toHaveBeenLastCalledWith(
-    new Set(['laneB', 'laneA'])
-  );
+  expect(onCollapsedChange).toHaveBeenLastCalledWith(new Set(['laneB', 'laneA']));
 
   fireEvent.click(screen.getByLabelText('Expand lane B'));
   expect(onCollapsedChange).toHaveBeenLastCalledWith(new Set(['laneA']));
@@ -52,7 +43,5 @@ test('does not report lanes that no longer exist', () => {
 
   fireEvent.click(screen.getByLabelText('Collapse lane B'));
 
-  expect(onCollapsedChange).toHaveBeenLastCalledWith(
-    new Set(['laneA', 'laneB'])
-  );
+  expect(onCollapsedChange).toHaveBeenLastCalledWith(new Set(['laneA', 'laneB']));
 });

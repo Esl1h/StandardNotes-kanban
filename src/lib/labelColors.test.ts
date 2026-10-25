@@ -1,14 +1,8 @@
-import {
-  formatLabelColors,
-  LABEL_PALETTE,
-  parseLabelColors,
-} from './labelColors';
+import { formatLabelColors, LABEL_PALETTE, parseLabelColors } from './labelColors';
 import { LABEL_COLORS } from './labels';
 
 test('the palette mirrors the color table', () => {
-  expect(Object.fromEntries(LABEL_PALETTE.map((e) => [e.name, e.hex]))).toEqual(
-    LABEL_COLORS
-  );
+  expect(Object.fromEntries(LABEL_PALETTE.map((e) => [e.name, e.hex]))).toEqual(LABEL_COLORS);
 });
 
 test('parses name=color pairs, trimming around them', () => {

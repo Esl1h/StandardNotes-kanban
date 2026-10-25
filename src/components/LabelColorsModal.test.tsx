@@ -36,11 +36,7 @@ test('Enter turns the typed label into a chip', () => {
     const [board] = useState(boardWithOneCard);
     return (
       <ModalProvider>
-        <EditorInternal
-          boardData={board}
-          handleDataChange={() => {}}
-          onCardUpdate={() => {}}
-        />
+        <EditorInternal boardData={board} handleDataChange={() => {}} onCardUpdate={() => {}} />
       </ModalProvider>
     );
   };
@@ -72,11 +68,7 @@ test('the chip remove button takes the label off', () => {
     }));
     return (
       <ModalProvider>
-        <EditorInternal
-          boardData={board}
-          handleDataChange={() => {}}
-          onCardUpdate={() => {}}
-        />
+        <EditorInternal boardData={board} handleDataChange={() => {}} onCardUpdate={() => {}} />
       </ModalProvider>
     );
   };
@@ -85,9 +77,7 @@ test('the chip remove button takes the label off', () => {
 
   fireEvent.click(within(dialog).getByLabelText('Remove label urgent'));
 
-  expect(
-    within(chipInput(dialog)).queryByText('urgent')
-  ).not.toBeInTheDocument();
+  expect(within(chipInput(dialog)).queryByText('urgent')).not.toBeInTheDocument();
   expect(within(chipInput(dialog)).getByText('later')).toBeInTheDocument();
 });
 
@@ -157,9 +147,7 @@ test('clearing the color renders the chip neutral again', () => {
 test('a color picked in the modal is saved in the note', () => {
   const ref = React.createRef<Editor>();
   const saved: string[] = [];
-  render(
-    <Editor ref={ref} boardData={boardWithOneCard()} parsingErrors={[]} />
-  );
+  render(<Editor ref={ref} boardData={boardWithOneCard()} parsingErrors={[]} />);
   ref.current!.editorKit = {
     onEditorValueChanged: (text: string) => saved.push(text),
   };

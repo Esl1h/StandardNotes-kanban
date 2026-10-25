@@ -46,9 +46,7 @@ const openCard = (title: string) => {
 
 const laneCards = (laneTitle: string) =>
   within(
-    screen
-      .getByText(laneTitle, { selector: '.kbn-lane-title' })
-      .closest('.kbn-lane') as HTMLElement
+    screen.getByText(laneTitle, { selector: '.kbn-lane-title' }).closest('.kbn-lane') as HTMLElement
   )
     .queryAllByText(/./, { selector: '.kbn-card-title, .kbn-card-title-btn' })
     .map((el) => el.textContent);
@@ -60,9 +58,7 @@ test('the card modal offers every lane and starts on the current one', () => {
   const select = within(dialog).getByLabelText('Move to') as HTMLSelectElement;
 
   expect(select.value).toBe('laneA');
-  expect(
-    Array.from(select.options).map((o) => [o.value, o.textContent])
-  ).toEqual([
+  expect(Array.from(select.options).map((o) => [o.value, o.textContent])).toEqual([
     ['laneA', 'Todo'],
     ['laneB', 'Done'],
   ]);
@@ -79,11 +75,7 @@ test('choosing a lane moves the card to the end of it', () => {
   expect(laneCards('Todo')).toEqual([]);
   expect(laneCards('Done')).toEqual(['Existing', 'Write docs']);
   expect(
-    (
-      within(screen.getByRole('dialog')).getByLabelText(
-        'Move to'
-      ) as HTMLSelectElement
-    ).value
+    (within(screen.getByRole('dialog')).getByLabelText('Move to') as HTMLSelectElement).value
   ).toBe('laneB');
 });
 
@@ -120,9 +112,7 @@ test('the modal has a button that saves and closes it', () => {
     target: { value: 'kept' },
   });
 
-  fireEvent.click(
-    within(dialog).getByRole('button', { name: 'Save and close' })
-  );
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Save and close' }));
 
   expect(onCardUpdate).toHaveBeenCalledWith(
     'laneA',

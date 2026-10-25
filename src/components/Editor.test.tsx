@@ -102,9 +102,7 @@ describe('undo and redo', () => {
   const mountEditor = () => {
     const ref = React.createRef<Editor>();
     const saved: string[] = [];
-    render(
-      <Editor ref={ref} boardData={boardWithTwoCards()} parsingErrors={[]} />
-    );
+    render(<Editor ref={ref} boardData={boardWithTwoCards()} parsingErrors={[]} />);
     ref.current!.editorKit = {
       onEditorValueChanged: (text: string) => saved.push(text),
     };
@@ -170,9 +168,7 @@ describe('undo and redo', () => {
     const { editor, saved } = mountEditor();
     const lane = editor.state.boardData.lanes[0];
 
-    act(() =>
-      editor.handleCardUpdate(lane.id!, lane.cards[0].id!, { label: 'red' })
-    );
+    act(() => editor.handleCardUpdate(lane.id!, lane.cards[0].id!, { label: 'red' }));
     expect(saved[0]).toContain('Label: red');
 
     fireEvent.keyDown(document, { key: 'z', ctrlKey: true });
