@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useModal } from 'react-modal-hook';
-import { IconCalendar, IconX } from '@tabler/icons-react';
+import { IconCalendar, IconTag, IconX } from '@tabler/icons-react';
 import { Board } from './Board';
 import { ExportMenu } from './ExportMenu';
 import { useUndoToast } from './useUndoToast';
@@ -71,6 +71,7 @@ export const EditorInternal = ({
   const [errorsOpen, setErrorsOpen] = useState(true);
   const [showDone, setShowDone] = useState(false);
   const [dueOpen, setDueOpen] = useState(false);
+  const [labelsOpen, setLabelsOpen] = useState(false);
   const [view, setView] = useState<View>(() => readView(preferences, noteId));
   const [viewNoteId, setViewNoteId] = useState(noteId);
   if (viewNoteId !== noteId) {
@@ -97,6 +98,10 @@ export const EditorInternal = ({
   const hasDueDates = filterable.some((card) => daysUntil(card.due) !== null);
   // Shown on the calendar button, so a due filter stays visible while folded.
   const dueActive = DUE_FILTERS.some((value) => hasFilter(query, 'due', value));
+  // Counted on the tag button for the same reason.
+  const labelsActive = filterLabels.filter((chip) =>
+    hasFilter(query, 'label', chip.name)
+  ).length;
   const doneLanes = boardData.lanes.filter((lane) => lane.done);
   const doneCount = doneLanes.reduce((n, lane) => n + lane.cards.length, 0);
   const { announce, toast } = useUndoToast(boardData, onUndo);
@@ -310,18 +315,51 @@ export const EditorInternal = ({
               </div>
             </div>
           )}
-          {filterLabels.map((chip) => (
-            <button
-              key={chip.name}
-              type="button"
-              className="kbn-card-chip kbn-filter-chip"
-              style={chipStyle(chip.color)}
-              aria-pressed={hasFilter(query, 'label', chip.name)}
-              onClick={() => setQuery(toggleFilter(query, 'label', chip.name))}
-            >
-              {chip.name}
-            </button>
-          ))}
+          {filterLabels.length > 0 && (
+            <>
+              <button
+                type="button"
+                className={`kbn-btn kbn-btn-ghost kbn-toolbar-btn kbn-label-filter-toggle${
+                  labelsActive > 0 ? ' kbn-label-filter-active' : ''
+                }`}
+                aria-label="Label filters"
+                aria-expanded={labelsOpen}
+                title={labelsOpen ? 'Hide label filters' : 'Label filters'}
+                onClick={() => setLabelsOpen(!labelsOpen)}
+              >
+                <IconTag size={16} stroke={1.5} />
+                {labelsActive > 0 && (
+                  <span className="kbn-label-filter-count">{labelsActive}</span>
+                )}
+              </button>
+              {/* A row of its own, since a board can have many labels. Kept
+                  mounted so folding back can animate too. */}
+              <div
+                className={`kbn-label-filter-options${
+                  labelsOpen ? ' kbn-label-filter-open' : ''
+                }`}
+                aria-hidden={!labelsOpen}
+              >
+                <div className="kbn-label-filter-chips">
+                  {filterLabels.map((chip) => (
+                    <button
+                      key={chip.name}
+                      type="button"
+                      className="kbn-card-chip kbn-filter-chip"
+                      style={chipStyle(chip.color)}
+                      tabIndex={labelsOpen ? undefined : -1}
+                      aria-pressed={hasFilter(query, 'label', chip.name)}
+                      onClick={() =>
+                        setQuery(toggleFilter(query, 'label', chip.name))
+                      }
+                    >
+                      {chip.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
       {view === 'matrix' ? (

@@ -95,10 +95,9 @@ test('a label filter keeps only the cards with that label', async ({
   await expect(cards.first()).toBeVisible();
   const all = await cards.count();
 
-  await plugin
-    .getByRole('group', { name: 'Filters' })
-    .getByRole('button', { name: 'green', exact: true })
-    .click();
+  const filters = plugin.getByRole('group', { name: 'Filters' });
+  await filters.getByRole('button', { name: 'Label filters' }).click();
+  await filters.getByRole('button', { name: 'green', exact: true }).click();
 
   await expect(plugin.getByLabel('Search cards')).toHaveValue('label:green');
   const kept = await cards.count();

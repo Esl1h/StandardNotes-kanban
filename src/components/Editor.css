@@ -88,9 +88,72 @@
     transform 0.2s ease;
 }
 
+.kbn-label-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+}
+
+/* A label filter is still on while the chips are folded away. */
+.kbn-label-filter-toggle[aria-expanded='false'].kbn-label-filter-active {
+  background-color: var(--sn-stylekit-info-color);
+  color: var(--sn-stylekit-info-contrast-color);
+}
+
+.kbn-label-filter-count {
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+/* The chips take a row of their own and wrap, so many labels fit. The
+   0fr to 1fr row animates the height without a fixed maximum. */
+.kbn-label-filter-options {
+  display: grid;
+  grid-template-rows: 0fr;
+  flex-basis: 100%;
+  margin: -6px 0 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.2s ease,
+    margin 0.2s ease,
+    opacity 0.2s ease,
+    visibility 0s linear 0.2s;
+}
+
+.kbn-label-filter-options.kbn-label-filter-open {
+  grid-template-rows: 1fr;
+  margin: 0 -4px;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows 0.2s ease,
+    margin 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.kbn-label-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+  transition: padding 0.2s ease;
+}
+
+/* Room for the pressed ring, which overflow would clip. Folded, the
+   padding goes too, or it would keep the row open. */
+.kbn-label-filter-open .kbn-label-filter-chips {
+  padding: 4px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kbn-due-filter-options,
-  .kbn-due-filter-open .kbn-due-filter-options {
+  .kbn-due-filter-open .kbn-due-filter-options,
+  .kbn-label-filter-options,
+  .kbn-label-filter-options.kbn-label-filter-open,
+  .kbn-label-filter-chips {
     transition: none;
   }
 }
