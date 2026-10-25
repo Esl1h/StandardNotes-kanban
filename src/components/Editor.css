@@ -172,6 +172,14 @@
   color: var(--sn-stylekit-contrast-foreground-color);
 }
 
+/* A phone shows one lane at a time, so it gets nearly the whole width;
+   the next lane still peeks in to show the board scrolls sideways. */
+@media (max-width: 640px) {
+  .kbn-lane:not(.kbn-lane-collapsed) {
+    width: calc(100vw - 40px);
+  }
+}
+
 .kbn-lane-header {
   display: flex;
   align-items: center;
