@@ -14,10 +14,7 @@ export const HISTORY_LIMIT = 50;
 export const emptyHistory: History = { past: [], future: [] };
 
 /** Call with the board as it was before a user edit. */
-export const recordChange = (
-  history: History,
-  before: KanbanBoard
-): History => ({
+export const recordChange = (history: History, before: KanbanBoard): History => ({
   past: [...history.past, before].slice(-HISTORY_LIMIT),
   future: [],
 });
@@ -27,10 +24,7 @@ export interface HistoryStep {
   history: History;
 }
 
-export const undoStep = (
-  history: History,
-  current: KanbanBoard
-): HistoryStep | null => {
+export const undoStep = (history: History, current: KanbanBoard): HistoryStep | null => {
   if (history.past.length === 0) {
     return null;
   }
@@ -43,10 +37,7 @@ export const undoStep = (
   };
 };
 
-export const redoStep = (
-  history: History,
-  current: KanbanBoard
-): HistoryStep | null => {
+export const redoStep = (history: History, current: KanbanBoard): HistoryStep | null => {
   if (history.future.length === 0) {
     return null;
   }

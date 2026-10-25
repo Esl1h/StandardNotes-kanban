@@ -44,8 +44,7 @@ export const useUndoToast = (data: KanbanBoard, onUndo?: () => void) => {
     ) : null;
 
   return {
-    announce: (message: string, board: KanbanBoard) =>
-      setLast({ message, board }),
+    announce: (message: string, board: KanbanBoard) => setLast({ message, board }),
     toast,
   };
 };

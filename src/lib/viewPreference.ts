@@ -27,10 +27,7 @@ const viewsOf = (store?: PreferenceStore): Record<string, string> => {
   return {};
 };
 
-export const readView = (
-  store: PreferenceStore | undefined,
-  noteId?: string
-): View => {
+export const readView = (store: PreferenceStore | undefined, noteId?: string): View => {
   if (!noteId) {
     return 'board';
   }
@@ -38,9 +35,7 @@ export const readView = (
     return 'matrix';
   }
   try {
-    return localStorage.getItem(viewKey(noteId)) === 'matrix'
-      ? 'matrix'
-      : 'board';
+    return localStorage.getItem(viewKey(noteId)) === 'matrix' ? 'matrix' : 'board';
   } catch {
     return 'board';
   }

@@ -32,9 +32,7 @@ const initialBoard = (): KanbanBoard => ({
       id: 'laneC',
       title: 'Finished',
       done: true,
-      cards: [
-        { id: 'c4', title: 'Old chore', laneId: 'laneC', quadrant: 'do' },
-      ],
+      cards: [{ id: 'c4', title: 'Old chore', laneId: 'laneC', quadrant: 'do' }],
     },
   ],
 });
@@ -72,11 +70,9 @@ beforeEach(() => {
   }
 });
 
-const openMatrix = () =>
-  fireEvent.click(screen.getByRole('button', { name: 'Matrix' }));
+const openMatrix = () => fireEvent.click(screen.getByRole('button', { name: 'Matrix' }));
 
-const section = (name: string) =>
-  screen.getByRole('region', { name }) as HTMLElement;
+const section = (name: string) => screen.getByRole('region', { name }) as HTMLElement;
 
 const titlesIn = (name: string) =>
   within(section(name))
@@ -86,10 +82,7 @@ const titlesIn = (name: string) =>
 test('the board view is the default', () => {
   render(<Harness />);
 
-  expect(screen.getByRole('button', { name: 'Board' })).toHaveAttribute(
-    'aria-pressed',
-    'true'
-  );
+  expect(screen.getByRole('button', { name: 'Board' })).toHaveAttribute('aria-pressed', 'true');
   expect(screen.queryByRole('region', { name: 'Do' })).not.toBeInTheDocument();
 });
 
@@ -128,9 +121,7 @@ test('the sections collapse independently, the unclassified list too', () => {
   render(<Harness />);
   openMatrix();
 
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Collapse Unclassified' })
-  );
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse Unclassified' }));
   fireEvent.click(screen.getByRole('button', { name: 'Collapse Schedule' }));
 
   expect(section('Unclassified')).toHaveClass('kbn-section-collapsed');
@@ -147,9 +138,7 @@ test('a collapsed section keeps its cards and its count', () => {
 
   // Only hidden by CSS on narrow screens, so drag and drop stays mounted.
   expect(titlesIn('Do')).toEqual(['Pay taxes']);
-  expect(
-    within(section('Do')).getByText('1', { selector: '.kbn-lane-count' })
-  ).toBeInTheDocument();
+  expect(within(section('Do')).getByText('1', { selector: '.kbn-lane-count' })).toBeInTheDocument();
 });
 
 test('each card shows the lane it is in', () => {
@@ -171,9 +160,9 @@ test('finished cards appear only with the Done toggle on', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Done (1)' }));
 
   expect(titlesIn('Do')).toEqual(['Pay taxes', 'Old chore']);
-  expect(
-    within(section('Do')).getByText('Old chore').closest('.kbn-card')
-  ).toHaveClass('kbn-card-finished');
+  expect(within(section('Do')).getByText('Old chore').closest('.kbn-card')).toHaveClass(
+    'kbn-card-finished'
+  );
 });
 
 test('completing a card moves it to the done lane', () => {
@@ -184,9 +173,7 @@ test('completing a card moves it to the done lane', () => {
 
   expect(titlesIn('Do')).toEqual([]);
   fireEvent.click(screen.getByRole('button', { name: 'Done (2)' }));
-  const card = within(section('Do'))
-    .getByText('Pay taxes')
-    .closest('.kbn-card') as HTMLElement;
+  const card = within(section('Do')).getByText('Pay taxes').closest('.kbn-card') as HTMLElement;
   expect(card).toHaveClass('kbn-card-finished');
   expect(within(card).getByText('Finished')).toHaveClass('kbn-card-lane');
 });
@@ -200,9 +187,7 @@ test('the card modal sets the quadrant', () => {
   fireEvent.change(within(dialog).getByLabelText('Quadrant'), {
     target: { value: 'delegate' },
   });
-  fireEvent.click(
-    within(dialog).getByRole('button', { name: 'Save and close' })
-  );
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Save and close' }));
 
   expect(titlesIn('Delegate')).toEqual(['Read book']);
   expect(titlesIn('Unclassified')).toEqual([]);

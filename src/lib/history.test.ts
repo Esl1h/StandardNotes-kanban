@@ -1,11 +1,5 @@
 import { KanbanBoard } from '../../types/kanban';
-import {
-  emptyHistory,
-  HISTORY_LIMIT,
-  recordChange,
-  redoStep,
-  undoStep,
-} from './history';
+import { emptyHistory, HISTORY_LIMIT, recordChange, redoStep, undoStep } from './history';
 
 const board = (title: string): KanbanBoard => ({
   lanes: [{ id: 'l1', title, cards: [] }],
@@ -52,9 +46,7 @@ test('keeps only the most recent changes', () => {
 
   expect(history.past).toHaveLength(HISTORY_LIMIT);
   expect(history.past[0]).toEqual(board('10'));
-  expect(history.past[HISTORY_LIMIT - 1]).toEqual(
-    board(String(HISTORY_LIMIT + 9))
-  );
+  expect(history.past[HISTORY_LIMIT - 1]).toEqual(board(String(HISTORY_LIMIT + 9)));
 });
 
 test('stepping never mutates the previous history', () => {

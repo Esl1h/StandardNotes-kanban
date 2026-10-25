@@ -54,9 +54,7 @@ export const LaneMenu = ({
     // With several done lanes, the menu asks which one.
     doneLanes.forEach((doneLane) =>
       items.push([
-        doneLanes.length === 1
-          ? 'Complete all cards'
-          : `Complete all cards in ${doneLane.title}`,
+        doneLanes.length === 1 ? 'Complete all cards' : `Complete all cards in ${doneLane.title}`,
         () => onCompleteAll(doneLane.id!),
       ])
     );

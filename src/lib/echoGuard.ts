@@ -21,11 +21,7 @@ export class EchoGuard {
    * True when `text` streamed for `noteId` is an earlier save of ours,
    * not `current`.
    */
-  isStaleEcho(
-    noteId: string | undefined,
-    text: string,
-    current: string
-  ): boolean {
+  isStaleEcho(noteId: string | undefined, text: string, current: string): boolean {
     if (noteId !== this.noteId) {
       this.noteId = noteId;
       this.saves = [];

@@ -10,9 +10,7 @@ export const convertStateToMarkdown = (state: EditorInterface): string => {
   const boardText = convertBoardData(boardData);
   // Unrecognized lines that came before the first lane stay on top.
   const preambleText =
-    preamble.length > 0
-      ? `${preamble.join('\n')}\n${boardText ? '\n' : ''}`
-      : '';
+    preamble.length > 0 ? `${preamble.join('\n')}\n${boardText ? '\n' : ''}` : '';
   const rest = `${preambleText}${boardText}`;
   // Board-level settings go before the first lane as "Key: value" lines;
   // defaults are implied, so only set values are written.
@@ -22,12 +20,9 @@ export const convertStateToMarkdown = (state: EditorInterface): string => {
   }
   // Default names are implied, so only renamed quadrants are written.
   const renamed =
-    quadrantNames &&
-    QUADRANTS.some((q) => quadrantNames[q] !== DEFAULT_QUADRANT_NAMES[q]);
+    quadrantNames && QUADRANTS.some((q) => quadrantNames[q] !== DEFAULT_QUADRANT_NAMES[q]);
   if (renamed) {
-    headers.push(
-      `Quadrants: ${QUADRANTS.map((q) => quadrantNames![q]).join(' | ')}`
-    );
+    headers.push(`Quadrants: ${QUADRANTS.map((q) => quadrantNames![q]).join(' | ')}`);
   }
   if (headers.length === 0) {
     return rest;
@@ -84,9 +79,7 @@ const convertCards = (cards: Array<KanbanCard>): string =>
       }
       if (card.comments && card.comments.length > 0) {
         lines.push('  * Comments:');
-        card.comments.forEach((comment) =>
-          lines.push(`    * ${oneLine(comment)}`)
-        );
+        card.comments.forEach((comment) => lines.push(`    * ${oneLine(comment)}`));
       }
       return `* ${withIdMarker(oneLine(card.title), card.id)}${
         lines.length > 0 ? `\n${lines.join('\n')}` : ''

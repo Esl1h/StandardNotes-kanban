@@ -4,12 +4,7 @@ import { Quadrant } from '../../types/kanban';
  * Eisenhower quadrants in grid order: the top row is important, the left
  * column urgent.
  */
-export const QUADRANTS: Quadrant[] = [
-  'do',
-  'schedule',
-  'delegate',
-  'eliminate',
-];
+export const QUADRANTS: Quadrant[] = ['do', 'schedule', 'delegate', 'eliminate'];
 
 export type QuadrantNames = Record<Quadrant, string>;
 

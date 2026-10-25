@@ -34,9 +34,7 @@ const isLegacyLanes = (lanes: unknown): lanes is KanbanBoard['lanes'] =>
       isObject(lane) &&
       typeof lane.title === 'string' &&
       Array.isArray(lane.cards) &&
-      lane.cards.every(
-        (card) => isObject(card) && typeof card.title === 'string'
-      )
+      lane.cards.every((card) => isObject(card) && typeof card.title === 'string')
   );
 
 const initialState: EditorInterface = {
@@ -71,10 +69,7 @@ const NOTE_WAIT_MS = 5000;
 // (npm start) it has no host to wait for.
 const isEmbedded = () => window.parent !== window;
 
-export default class Editor extends React.Component<
-  Partial<EditorInterface>,
-  EditorState
-> {
+export default class Editor extends React.Component<Partial<EditorInterface>, EditorState> {
   editorKit: SaveNoteBridge;
   rawText = '';
   waitTimer: ReturnType<typeof setTimeout> | undefined;
@@ -133,10 +128,7 @@ export default class Editor extends React.Component<
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
     if (!this.state.noteReceived) {
-      this.waitTimer = setTimeout(
-        () => this.setState({ waitTimedOut: true }),
-        NOTE_WAIT_MS
-      );
+      this.waitTimer = setTimeout(() => this.setState({ waitTimedOut: true }), NOTE_WAIT_MS);
     }
   }
 
@@ -154,9 +146,7 @@ export default class Editor extends React.Component<
     const target = e.target as HTMLElement | null;
     if (
       target &&
-      (target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable)
+      (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
     ) {
       return;
     }
@@ -179,18 +169,14 @@ export default class Editor extends React.Component<
     this.saveNote(convertStateToMarkdown({ ...this.state, labelColors }));
   };
 
-  stepHistory = (
-    step: (h: History, board: KanbanBoard) => HistoryStep | null
-  ) => {
+  stepHistory = (step: (h: History, board: KanbanBoard) => HistoryStep | null) => {
     const result = step(this.undoHistory, this.state.boardData);
     if (!result) {
       return;
     }
     this.undoHistory = result.history;
     this.setState({ boardData: result.board });
-    this.saveNote(
-      convertStateToMarkdown({ ...this.state, boardData: result.board })
-    );
+    this.saveNote(convertStateToMarkdown({ ...this.state, boardData: result.board }));
   };
 
   clearUndoHistory = () => {
@@ -227,11 +213,7 @@ export default class Editor extends React.Component<
     });
   };
 
-  handleCardUpdate = (
-    laneId: string,
-    cardId: string,
-    patch: Partial<KanbanCard>
-  ) => {
+  handleCardUpdate = (laneId: string, cardId: string, patch: Partial<KanbanCard>) => {
     const boardData = updateCard(this.state.boardData, laneId, cardId, patch);
     this.undoHistory = recordChange(this.undoHistory, this.state.boardData);
     this.setState({ boardData });
@@ -285,8 +267,8 @@ export default class Editor extends React.Component<
         <div className="sn-component kbn-status" role="alert">
           <p>Note not received from Standard Notes. Reopen the note.</p>
           <p className="kbn-status-detail">
-            Environment: {this.editorKit.environment ?? 'not reported'},
-            platform: {this.editorKit.platform ?? 'not reported'}
+            Environment: {this.editorKit.environment ?? 'not reported'}, platform:{' '}
+            {this.editorKit.platform ?? 'not reported'}
           </p>
         </div>
       ) : (

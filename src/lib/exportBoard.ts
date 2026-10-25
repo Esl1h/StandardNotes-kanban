@@ -41,10 +41,7 @@ const cell = (value: string): string => {
 };
 
 /** One row per card: lane, card, label, due, quadrant and checklist x/y. */
-export const toCsv = (
-  board: KanbanBoard,
-  quadrantNames: QuadrantNames
-): string => {
+export const toCsv = (board: KanbanBoard, quadrantNames: QuadrantNames): string => {
   const rows = board.lanes.flatMap((lane) =>
     lane.cards.map((card) => {
       const checklist = card.checklist ?? [];

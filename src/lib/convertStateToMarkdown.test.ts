@@ -11,10 +11,7 @@ const defaultState = {
 
 test('converts simple board data', async () => {
   const boardData = simpleBoard;
-  const simpleBoardMarkdown = await fs.readFile(
-    './src/mocks/simpleBoard.markdown',
-    'utf8'
-  );
+  const simpleBoardMarkdown = await fs.readFile('./src/mocks/simpleBoard.markdown', 'utf8');
   const expectedOutput = simpleBoardMarkdown.trim();
   const result = convertStateToMarkdown({ ...defaultState, boardData });
   expect(result.trim()).toEqual(expectedOutput);
@@ -167,9 +164,7 @@ test('keeps an id-like marker typed into a title', () => {
     ],
   };
 
-  const reparsed = parseMarkdown(
-    convertStateToMarkdown({ ...defaultState, boardData })
-  );
+  const reparsed = parseMarkdown(convertStateToMarkdown({ ...defaultState, boardData }));
 
   expect(reparsed.boardData).toEqual(boardData);
 });

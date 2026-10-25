@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import type {
-  DraggableProvided,
-  DraggableStateSnapshot,
-  DropResult,
-} from '@hello-pangea/dnd';
+import type { DraggableProvided, DraggableStateSnapshot, DropResult } from '@hello-pangea/dnd';
 import {
   IconChevronDown,
   IconChevronRight,
@@ -27,12 +23,7 @@ import {
   updateCard,
 } from '../lib/boardOps';
 import { chipStyle, dueBadge, labelChips, LabelColors } from '../lib/labels';
-import {
-  cardMatchesQuery,
-  filterToken,
-  isFiltering,
-  laneMatches,
-} from '../lib/filter';
+import { cardMatchesQuery, filterToken, isFiltering, laneMatches } from '../lib/filter';
 import { LaneMenu } from './LaneMenu';
 import { useUndoToast } from './useUndoToast';
 
@@ -59,13 +50,7 @@ interface BoardProps {
  * Add forms commit on Enter or the Add button and cancel on Escape or
  * Cancel, matching Trello's behaviour.
  */
-const LaneTitle = ({
-  lane,
-  onRename,
-}: {
-  lane: KanbanLane;
-  onRename: (title: string) => void;
-}) => {
+const LaneTitle = ({ lane, onRename }: { lane: KanbanLane; onRename: (title: string) => void }) => {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(lane.title);
   const commit = () => {
@@ -159,11 +144,7 @@ const AddCard = ({ laneId, open, onOpen, onClose, onAdd }: AddCardProps) => {
         aria-label={`New card title in lane ${laneId}`}
       />
       <div className="kbn-form-actions">
-        <button
-          type="button"
-          className="kbn-btn kbn-btn-primary"
-          onClick={commit}
-        >
+        <button type="button" className="kbn-btn kbn-btn-primary" onClick={commit}>
           Add card
         </button>
         <button type="button" className="kbn-btn kbn-btn-ghost" onClick={close}>
@@ -219,11 +200,7 @@ const AddLane = ({ open, onOpen, onClose, onAdd }: AddLaneProps) => {
         aria-label="New lane title"
       />
       <div className="kbn-form-actions">
-        <button
-          type="button"
-          className="kbn-btn kbn-btn-primary"
-          onClick={commit}
-        >
+        <button type="button" className="kbn-btn kbn-btn-primary" onClick={commit}>
           Add lane
         </button>
         <button
@@ -378,9 +355,7 @@ export const CardBody = ({
           ))}
         </div>
       )}
-      {card.description && (
-        <div className="kbn-card-description">{card.description}</div>
-      )}
+      {card.description && <div className="kbn-card-description">{card.description}</div>}
       {checklist.length > 0 && (
         <div className="kbn-checklist">
           <div className="kbn-checklist-bar" role="presentation">
@@ -394,9 +369,7 @@ export const CardBody = ({
           </span>
         </div>
       )}
-      {badge && (
-        <div className={`kbn-due ${badge.className}`}>{badge.text}</div>
-      )}
+      {badge && <div className={`kbn-due ${badge.className}`}>{badge.text}</div>}
       {onComplete && (
         <button
           type="button"
@@ -440,9 +413,7 @@ export const Board = ({
 }: BoardProps) => {
   const filtering = isFiltering(filter);
   const isHidden = (lane: KanbanLane) => !!lane.done && !showDone;
-  const [openCardFormLaneId, setOpenCardFormLaneId] = useState<string | null>(
-    null
-  );
+  const [openCardFormLaneId, setOpenCardFormLaneId] = useState<string | null>(null);
   const [addLaneOpen, setAddLaneOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
   const { announce, toast } = useUndoToast(data, onUndo);
@@ -470,13 +441,9 @@ export const Board = ({
     if (filtering || !focusedCard) {
       return;
     }
-    const fromLaneIndex = data.lanes.findIndex(
-      (l) => l.id === focusedCard.laneId
-    );
+    const fromLaneIndex = data.lanes.findIndex((l) => l.id === focusedCard.laneId);
     const fromIndex =
-      data.lanes[fromLaneIndex]?.cards.findIndex(
-        (c) => c.id === focusedCard.cardId
-      ) ?? -1;
+      data.lanes[fromLaneIndex]?.cards.findIndex((c) => c.id === focusedCard.cardId) ?? -1;
     if (fromIndex < 0) {
       return;
     }
@@ -484,8 +451,7 @@ export const Board = ({
     let toLaneIndex = fromLaneIndex + direction;
     while (
       data.lanes[toLaneIndex] &&
-      (collapsedLaneIds.has(data.lanes[toLaneIndex].id!) ||
-        isHidden(data.lanes[toLaneIndex]))
+      (collapsedLaneIds.has(data.lanes[toLaneIndex].id!) || isHidden(data.lanes[toLaneIndex]))
     ) {
       toLaneIndex += direction;
     }
@@ -534,30 +500,17 @@ export const Board = ({
       const toDataIndex = (index: number) =>
         data.lanes.findIndex((lane) => lane.id === lanesToRender[index].id);
       onDataChange(
-        moveLane(
-          data,
-          toDataIndex(result.source.index),
-          toDataIndex(result.destination.index)
-        )
+        moveLane(data, toDataIndex(result.source.index), toDataIndex(result.destination.index))
       );
       return;
     }
     const sourceLaneId = result.source.droppableId;
     const destLaneId = result.destination.droppableId;
-    if (
-      sourceLaneId === destLaneId &&
-      result.source.index === result.destination.index
-    ) {
+    if (sourceLaneId === destLaneId && result.source.index === result.destination.index) {
       return;
     }
     onDataChange(
-      moveCard(
-        data,
-        sourceLaneId,
-        result.source.index,
-        destLaneId,
-        result.destination.index
-      )
+      moveCard(data, sourceLaneId, result.source.index, destLaneId, result.destination.index)
     );
   };
 
@@ -575,9 +528,7 @@ export const Board = ({
       const target = e.target as HTMLElement | null;
       if (
         target &&
-        (target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable)
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
       ) {
         return;
       }
@@ -614,9 +565,7 @@ export const Board = ({
       const target = e.target as HTMLElement | null;
       if (
         target &&
-        (target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable)
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
       ) {
         return;
       }
@@ -639,16 +588,8 @@ export const Board = ({
   }
 
   return (
-    <DragDropContext
-      onDragStart={() => setDragging(true)}
-      onDragEnd={handleDragEnd}
-    >
-      <Droppable
-        droppableId="board"
-        type="LANE"
-        direction="horizontal"
-        isDropDisabled={filtering}
-      >
+    <DragDropContext onDragStart={() => setDragging(true)} onDragEnd={handleDragEnd}>
+      <Droppable droppableId="board" type="LANE" direction="horizontal" isDropDisabled={filtering}>
         {(boardProvided) => (
           <div
             className={`kbn-board${dragging ? ' kbn-board-dragging' : ''}`}
@@ -679,17 +620,12 @@ export const Board = ({
                       ref={laneProvided.innerRef}
                       {...laneProvided.draggableProps}
                     >
-                      <div
-                        className="kbn-lane-header"
-                        {...laneProvided.dragHandleProps}
-                      >
+                      <div className="kbn-lane-header" {...laneProvided.dragHandleProps}>
                         <button
                           type="button"
                           className="kbn-icon-btn"
                           aria-label={
-                            collapsed
-                              ? `Expand lane ${lane.title}`
-                              : `Collapse lane ${lane.title}`
+                            collapsed ? `Expand lane ${lane.title}` : `Collapse lane ${lane.title}`
                           }
                           onClick={() => toggleCollapse(lane.id!)}
                         >
@@ -701,13 +637,9 @@ export const Board = ({
                         </button>
                         <LaneTitle
                           lane={lane}
-                          onRename={(title) =>
-                            onDataChange(renameLane(data, lane.id!, title))
-                          }
+                          onRename={(title) => onDataChange(renameLane(data, lane.id!, title))}
                         />
-                        <span className="kbn-lane-count">
-                          {lane.cards.length}
-                        </span>
+                        <span className="kbn-lane-count">{lane.cards.length}</span>
                         {lane.done && (
                           <span
                             className="kbn-lane-done-mark"
@@ -721,22 +653,11 @@ export const Board = ({
                           doneLanes={data.lanes.filter(
                             (other) => other.done && other.id !== lane.id
                           )}
-                          onToggleDone={() =>
-                            onDataChange(
-                              setDoneLane(data, lane.id!, !lane.done)
-                            )
-                          }
+                          onToggleDone={() => onDataChange(setDoneLane(data, lane.id!, !lane.done))}
                           onCompleteAll={(doneLaneId) => {
-                            const board = moveAllCards(
-                              data,
-                              lane.id!,
-                              doneLaneId
-                            );
+                            const board = moveAllCards(data, lane.id!, doneLaneId);
                             onDataChange(board);
-                            announce(
-                              `${cardCount(lane.cards.length)} completed`,
-                              board
-                            );
+                            announce(`${cardCount(lane.cards.length)} completed`, board);
                           }}
                           onClearCards={() => {
                             const board = clearLaneCards(data, lane.id!);
@@ -755,89 +676,64 @@ export const Board = ({
                       </div>
                       {!collapsed && (
                         <>
-                          <Droppable
-                            droppableId={lane.id!}
-                            type="CARD"
-                            isDropDisabled={filtering}
-                          >
+                          <Droppable droppableId={lane.id!} type="CARD" isDropDisabled={filtering}>
                             {(cardsProvided, cardsSnapshot) => (
                               <div
                                 className={`kbn-cards${
-                                  cardsSnapshot.isDraggingOver
-                                    ? ' kbn-dragging-over'
-                                    : ''
+                                  cardsSnapshot.isDraggingOver ? ' kbn-dragging-over' : ''
                                 }`}
                                 ref={cardsProvided.innerRef}
                                 {...cardsProvided.droppableProps}
                               >
-                                {visibleCards.map(
-                                  (card: KanbanCard, cardIndex) =>
-                                    filtering ? (
-                                      <CardBody
-                                        key={card.id}
-                                        card={card}
-                                        laneId={lane.id!}
-                                        finished={lane.done}
-                                        labelColors={labelColors}
-                                        onRename={(title) =>
-                                          onDataChange(
-                                            updateCard(
-                                              data,
-                                              lane.id!,
-                                              card.id!,
-                                              {
+                                {visibleCards.map((card: KanbanCard, cardIndex) =>
+                                  filtering ? (
+                                    <CardBody
+                                      key={card.id}
+                                      card={card}
+                                      laneId={lane.id!}
+                                      finished={lane.done}
+                                      labelColors={labelColors}
+                                      onRename={(title) =>
+                                        onDataChange(
+                                          updateCard(data, lane.id!, card.id!, {
+                                            title,
+                                          })
+                                        )
+                                      }
+                                      onCardClick={handleCardClick}
+                                      onSearchRequest={onSearchRequest}
+                                      focused={focusedCard?.cardId === card.id}
+                                      onRemove={() => removeCardWithUndo(lane.id!, card)}
+                                    />
+                                  ) : (
+                                    <Draggable
+                                      draggableId={card.id!}
+                                      index={cardIndex}
+                                      key={card.id}
+                                    >
+                                      {(cardProvided, cardSnapshot) => (
+                                        <CardBody
+                                          card={card}
+                                          laneId={lane.id!}
+                                          finished={lane.done}
+                                          labelColors={labelColors}
+                                          onRename={(title) =>
+                                            onDataChange(
+                                              updateCard(data, lane.id!, card.id!, {
                                                 title,
-                                              }
+                                              })
                                             )
-                                          )
-                                        }
-                                        onCardClick={handleCardClick}
-                                        onSearchRequest={onSearchRequest}
-                                        focused={
-                                          focusedCard?.cardId === card.id
-                                        }
-                                        onRemove={() =>
-                                          removeCardWithUndo(lane.id!, card)
-                                        }
-                                      />
-                                    ) : (
-                                      <Draggable
-                                        draggableId={card.id!}
-                                        index={cardIndex}
-                                        key={card.id}
-                                      >
-                                        {(cardProvided, cardSnapshot) => (
-                                          <CardBody
-                                            card={card}
-                                            laneId={lane.id!}
-                                            finished={lane.done}
-                                            labelColors={labelColors}
-                                            onRename={(title) =>
-                                              onDataChange(
-                                                updateCard(
-                                                  data,
-                                                  lane.id!,
-                                                  card.id!,
-                                                  {
-                                                    title,
-                                                  }
-                                                )
-                                              )
-                                            }
-                                            onCardClick={handleCardClick}
-                                            onSearchRequest={onSearchRequest}
-                                            focused={
-                                              focusedCard?.cardId === card.id
-                                            }
-                                            onRemove={() =>
-                                              removeCardWithUndo(lane.id!, card)
-                                            }
-                                            provided={cardProvided}
-                                            snapshot={cardSnapshot}
-                                          />
-                                        )}
-                                      </Draggable>
-                                    )
+                                          }
+                                          onCardClick={handleCardClick}
+                                          onSearchRequest={onSearchRequest}
+                                          focused={focusedCard?.cardId === card.id}
+                                          onRemove={() => removeCardWithUndo(lane.id!, card)}
+                                          provided={cardProvided}
+                                          snapshot={cardSnapshot}
+                                        />
+                                      )}
+                                    </Draggable>
+                                  )
                                 )}
                                 {cardsProvided.placeholder}
                               </div>
@@ -849,9 +745,7 @@ export const Board = ({
                             onOpen={() => setOpenCardFormLaneId(lane.id!)}
                             onClose={() => setOpenCardFormLaneId(null)}
                             onAdd={(title) => {
-                              onDataChange(
-                                addCardToLane(data, lane.id!, title)
-                              );
+                              onDataChange(addCardToLane(data, lane.id!, title));
                             }}
                           />
                         </>

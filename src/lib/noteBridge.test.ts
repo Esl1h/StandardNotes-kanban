@@ -8,9 +8,7 @@ const fakeRelay = () => {
     streamContextItem: (callback: (note: StreamedNote) => void) => {
       stream = callback;
     },
-    saveItemWithPresave: vi.fn((_note: StreamedNote, presave: () => void) =>
-      presave()
-    ),
+    saveItemWithPresave: vi.fn((_note: StreamedNote, presave: () => void) => presave()),
     getComponentDataValueForKey: vi.fn(),
     setComponentDataValueForKey: vi.fn(),
   };
@@ -105,10 +103,7 @@ test('saves the text and its plain preview into the current note', () => {
 
   bridge.onEditorValueChanged('# New');
 
-  expect(relay.saveItemWithPresave).toHaveBeenCalledWith(
-    current,
-    expect.any(Function)
-  );
+  expect(relay.saveItemWithPresave).toHaveBeenCalledWith(current, expect.any(Function));
   expect(current.content).toEqual({
     text: '# New',
     preview_plain: 'New (0)',

@@ -14,28 +14,15 @@ export const addLane = (board: KanbanBoard, title: string): KanbanBoard => ({
   lanes: [...board.lanes, { id: shortId(), title, cards: [] }],
 });
 
-export const renameLane = (
-  board: KanbanBoard,
-  laneId: string,
-  title: string
-): KanbanBoard => ({
-  lanes: board.lanes.map((lane) =>
-    lane.id === laneId ? { ...lane, title } : lane
-  ),
+export const renameLane = (board: KanbanBoard, laneId: string, title: string): KanbanBoard => ({
+  lanes: board.lanes.map((lane) => (lane.id === laneId ? { ...lane, title } : lane)),
 });
 
-export const removeLane = (
-  board: KanbanBoard,
-  laneId: string
-): KanbanBoard => ({
+export const removeLane = (board: KanbanBoard, laneId: string): KanbanBoard => ({
   lanes: board.lanes.filter((lane) => lane.id !== laneId),
 });
 
-export const addCardToLane = (
-  board: KanbanBoard,
-  laneId: string,
-  title: string
-): KanbanBoard => ({
+export const addCardToLane = (board: KanbanBoard, laneId: string, title: string): KanbanBoard => ({
   lanes: board.lanes.map((lane) =>
     lane.id === laneId
       ? { ...lane, cards: [...lane.cards, { id: shortId(), title, laneId }] }
@@ -54,30 +41,18 @@ export const updateCard = (
       ? lane
       : {
           ...lane,
-          cards: lane.cards.map((card) =>
-            card.id === cardId ? { ...card, ...patch } : card
-          ),
+          cards: lane.cards.map((card) => (card.id === cardId ? { ...card, ...patch } : card)),
         }
   ),
 });
 
-export const removeCard = (
-  board: KanbanBoard,
-  laneId: string,
-  cardId: string
-): KanbanBoard => ({
+export const removeCard = (board: KanbanBoard, laneId: string, cardId: string): KanbanBoard => ({
   lanes: board.lanes.map((lane) =>
-    lane.id !== laneId
-      ? lane
-      : { ...lane, cards: lane.cards.filter((card) => card.id !== cardId) }
+    lane.id !== laneId ? lane : { ...lane, cards: lane.cards.filter((card) => card.id !== cardId) }
   ),
 });
 
-export const moveLane = (
-  board: KanbanBoard,
-  from: number,
-  to: number
-): KanbanBoard => {
+export const moveLane = (board: KanbanBoard, from: number, to: number): KanbanBoard => {
   const lanes = [...board.lanes];
   const [moved] = lanes.splice(from, 1);
   lanes.splice(to, 0, moved);
@@ -119,11 +94,7 @@ export const moveCard = (
 };
 
 /** Marks or unmarks one done lane; a board can have several. */
-export const setDoneLane = (
-  board: KanbanBoard,
-  laneId: string,
-  done: boolean
-): KanbanBoard => ({
+export const setDoneLane = (board: KanbanBoard, laneId: string, done: boolean): KanbanBoard => ({
   lanes: board.lanes.map(({ done: wasDone, ...lane }) => {
     if (lane.id === laneId) {
       return done ? { ...lane, done: true } : lane;
@@ -136,15 +107,9 @@ export const setDoneLane = (
  * Moves a card to the end of the first done lane, the main one, if there
  * is one. Reordering the lanes picks another main done lane.
  */
-export const completeCard = (
-  board: KanbanBoard,
-  laneId: string,
-  cardId: string
-): KanbanBoard => {
+export const completeCard = (board: KanbanBoard, laneId: string, cardId: string): KanbanBoard => {
   const doneLane = board.lanes.find((lane) => lane.done);
-  const index =
-    laneById(board, laneId)?.cards.findIndex((card) => card.id === cardId) ??
-    -1;
+  const index = laneById(board, laneId)?.cards.findIndex((card) => card.id === cardId) ?? -1;
   if (!doneLane || index < 0 || doneLane.id === laneId) {
     return board;
   }
@@ -169,10 +134,7 @@ export const moveAllCards = (
       if (lane.id === toLaneId) {
         return {
           ...lane,
-          cards: [
-            ...lane.cards,
-            ...moving.map((card) => ({ ...card, laneId: toLaneId })),
-          ],
+          cards: [...lane.cards, ...moving.map((card) => ({ ...card, laneId: toLaneId }))],
         };
       }
       return lane;
@@ -181,13 +143,8 @@ export const moveAllCards = (
 };
 
 /** Removes every card of a lane, which stays. */
-export const clearLaneCards = (
-  board: KanbanBoard,
-  laneId: string
-): KanbanBoard => ({
-  lanes: board.lanes.map((lane) =>
-    lane.id === laneId ? { ...lane, cards: [] } : lane
-  ),
+export const clearLaneCards = (board: KanbanBoard, laneId: string): KanbanBoard => ({
+  lanes: board.lanes.map((lane) => (lane.id === laneId ? { ...lane, cards: [] } : lane)),
 });
 
 /**
@@ -199,9 +156,7 @@ export const clearDoneCards = (board: KanbanBoard): KanbanBoard => {
     return board;
   }
   return {
-    lanes: board.lanes.map((lane) =>
-      lane.done ? { ...lane, cards: [] } : lane
-    ),
+    lanes: board.lanes.map((lane) => (lane.done ? { ...lane, cards: [] } : lane)),
   };
 };
 

@@ -33,11 +33,9 @@ const Harness = ({ board = initialBoard() }: { board?: KanbanBoard }) => {
   );
 };
 
-const openMenu = (title: string) =>
-  fireEvent.click(screen.getByLabelText(`Lane actions ${title}`));
+const openMenu = (title: string) => fireEvent.click(screen.getByLabelText(`Lane actions ${title}`));
 
-const items = () =>
-  screen.queryAllByRole('menuitem').map((item) => item.textContent);
+const items = () => screen.queryAllByRole('menuitem').map((item) => item.textContent);
 
 const cardsIn = (title: string) =>
   Array.from(
@@ -103,9 +101,7 @@ test('with several done lanes the menu asks which one', () => {
     'Delete lane',
   ]);
 
-  fireEvent.click(
-    screen.getByRole('menuitem', { name: 'Complete all cards in Empty' })
-  );
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Complete all cards in Empty' }));
   fireEvent.click(screen.getByRole('button', { name: 'Done (2)' }));
   expect(cardsIn('Empty')).toEqual(['One', 'Two']);
   expect(cardsIn('Shipped')).toEqual([]);
@@ -118,9 +114,7 @@ test('Delete all cards empties the lane and keeps it, with an undo', () => {
   fireEvent.click(screen.getByRole('menuitem', { name: 'Delete all cards' }));
 
   expect(cardsIn('Todo')).toEqual([]);
-  expect(screen.getByRole('status')).toHaveTextContent(
-    '2 cards removed from "Todo"'
-  );
+  expect(screen.getByRole('status')).toHaveTextContent('2 cards removed from "Todo"');
 
   fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
   expect(cardsIn('Todo')).toEqual(['One', 'Two']);
@@ -133,9 +127,7 @@ test('a done lane shows its mark and is not offered to complete into', () => {
     .getByText('Shipped', { selector: '.kbn-lane-title' })
     .closest('.kbn-lane') as HTMLElement;
 
-  expect(
-    within(shipped).getByTitle('Done lane: its cards count as finished')
-  ).toBeInTheDocument();
+  expect(within(shipped).getByTitle('Done lane: its cards count as finished')).toBeInTheDocument();
   openMenu('Shipped');
   expect(items()).toEqual(['Unmark as done', 'Delete lane']);
 });

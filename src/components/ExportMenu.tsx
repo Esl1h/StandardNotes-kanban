@@ -58,15 +58,8 @@ export const ExportMenu = ({ board, quadrantNames }: ExportMenuProps) => {
   const items: Array<[string, () => void]> = [
     ['Copy JSON', () => copy(toJson(board))],
     ['Copy CSV', () => copy(toCsv(board, quadrantNames))],
-    [
-      'Download JSON',
-      () => download(toJson(board), 'kanban-board.json', 'application/json'),
-    ],
-    [
-      'Download CSV',
-      () =>
-        download(toCsv(board, quadrantNames), 'kanban-board.csv', 'text/csv'),
-    ],
+    ['Download JSON', () => download(toJson(board), 'kanban-board.json', 'application/json')],
+    ['Download CSV', () => download(toCsv(board, quadrantNames), 'kanban-board.csv', 'text/csv')],
   ];
 
   return (

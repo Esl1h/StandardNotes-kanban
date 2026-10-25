@@ -37,9 +37,7 @@ const Harness = () => {
 };
 
 const laneTitles = () =>
-  Array.from(document.querySelectorAll('.kbn-lane-title')).map(
-    (el) => el.textContent
-  );
+  Array.from(document.querySelectorAll('.kbn-lane-title')).map((el) => el.textContent);
 
 const laneAction = (title: string, action: string) => {
   fireEvent.click(screen.getByLabelText(`Lane actions ${title}`));
@@ -51,9 +49,7 @@ const markDone = (title: string) => laneAction(title, 'Mark as done');
 test('there is no done toggle until a lane is marked as done', () => {
   render(<Harness />);
 
-  expect(
-    screen.queryByRole('button', { name: /Done \(/ })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /Done \(/ })).not.toBeInTheDocument();
 });
 
 test('the done lane is hidden and counted in the toolbar', () => {
@@ -62,10 +58,7 @@ test('the done lane is hidden and counted in the toolbar', () => {
   markDone('Finished');
 
   expect(laneTitles()).toEqual(['Todo', 'Later']);
-  expect(screen.getByRole('button', { name: 'Done (2)' })).toHaveAttribute(
-    'aria-pressed',
-    'false'
-  );
+  expect(screen.getByRole('button', { name: 'Done (2)' })).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('the toolbar button shows and hides the done lane', () => {
@@ -85,14 +78,10 @@ test('cards in the shown done lane render as finished on the board', () => {
   markDone('Finished');
   fireEvent.click(screen.getByRole('button', { name: 'Done (2)' }));
 
-  expect(screen.getByText('Closed one').closest('.kbn-card')).toHaveClass(
-    'kbn-card-finished'
-  );
+  expect(screen.getByText('Closed one').closest('.kbn-card')).toHaveClass('kbn-card-finished');
   // Gray, struck-through text comes with the class; see the
   // .kbn-card-finished rules in Editor.css.
-  expect(screen.getByText('Open task').closest('.kbn-card')).not.toHaveClass(
-    'kbn-card-finished'
-  );
+  expect(screen.getByText('Open task').closest('.kbn-card')).not.toHaveClass('kbn-card-finished');
 });
 
 test('the finished strike rule still matches the rendered title', () => {
@@ -127,9 +116,7 @@ test('a done lane can be unmarked', () => {
 
   laneAction('Finished', 'Unmark as done');
 
-  expect(
-    screen.queryByRole('button', { name: /Done \(/ })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /Done \(/ })).not.toBeInTheDocument();
   expect(laneTitles()).toEqual(['Todo', 'Finished', 'Later']);
 });
 
@@ -142,9 +129,7 @@ test('Alt+Right skips the hidden done lane', () => {
   fireEvent.keyDown(document, { key: 'ArrowRight', altKey: true });
 
   expect(
-    screen
-      .getByText('Open task')
-      .closest('.kbn-lane')!
-      .querySelector('.kbn-lane-title')!.textContent
+    screen.getByText('Open task').closest('.kbn-lane')!.querySelector('.kbn-lane-title')!
+      .textContent
   ).toBe('Later');
 });

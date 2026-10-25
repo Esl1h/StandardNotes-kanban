@@ -91,9 +91,7 @@ describe('in the matrix view', () => {
     const saved = openMatrix();
 
     fireEvent.click(screen.getByLabelText('Delete card Second'));
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'Card "Second" removed'
-    );
+    expect(screen.getByRole('status')).toHaveTextContent('Card "Second" removed');
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
 
     expect(screen.getByText('Second')).toBeInTheDocument();
@@ -106,9 +104,7 @@ describe('in the matrix view', () => {
     const saved = openMatrix();
 
     fireEvent.click(screen.getByLabelText('Complete card First'));
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'Card "First" completed'
-    );
+    expect(screen.getByRole('status')).toHaveTextContent('Card "First" completed');
     expect(screen.queryByText('First')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
 

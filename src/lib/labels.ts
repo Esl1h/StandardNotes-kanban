@@ -29,10 +29,7 @@ export interface LabelChip {
 /** Color per label name, palette key as value; lives in the note. */
 export type LabelColors = Record<string, string>;
 
-export const labelChips = (
-  label?: string,
-  labelColors?: LabelColors
-): LabelChip[] =>
+export const labelChips = (label?: string, labelColors?: LabelColors): LabelChip[] =>
   (label || '')
     .split(',')
     .map((name) => name.trim())
@@ -40,10 +37,7 @@ export const labelChips = (
     .map((name) => ({
       name,
       color: paletteColor(
-        (labelColors && Object.hasOwn(labelColors, name)
-          ? labelColors[name]
-          : name
-        ).toLowerCase()
+        (labelColors && Object.hasOwn(labelColors, name) ? labelColors[name] : name).toLowerCase()
       ),
     }));
 
@@ -51,9 +45,7 @@ export const labelChips = (
 const luminance = (hex: string): number => {
   const [r, g, b] = [1, 3, 5].map((i) => {
     const channel = parseInt(hex.slice(i, i + 2), 16) / 255;
-    return channel <= 0.03928
-      ? channel / 12.92
-      : ((channel + 0.055) / 1.055) ** 2.4;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
@@ -79,10 +71,7 @@ export const chipStyle = (color?: string): React.CSSProperties =>
  * field and `daysUntil` expect. Local, not UTC, so an evening in a
  * negative-offset timezone does not land on yesterday.
  */
-export const isoDate = (
-  offsetDays: number,
-  from: Date = new Date()
-): string => {
+export const isoDate = (offsetDays: number, from: Date = new Date()): string => {
   const date = new Date(from);
   date.setDate(date.getDate() + offsetDays);
   const month = `${date.getMonth() + 1}`.padStart(2, '0');
@@ -100,10 +89,7 @@ export interface DueBadge {
  * null when there is no date or it is not a valid YYYY-MM-DD one. Both ends
  * are taken at noon so a daylight saving change cannot shift the count.
  */
-export const daysUntil = (
-  due?: string,
-  now: Date = new Date()
-): number | null => {
+export const daysUntil = (due?: string, now: Date = new Date()): number | null => {
   if (!due) {
     return null;
   }
