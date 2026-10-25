@@ -67,6 +67,34 @@ test('renaming the card updates it on the board', () => {
   expect(screen.queryByText('Write docs')).not.toBeInTheDocument();
 });
 
+test('on a touch screen tapping the title opens the card', () => {
+  const matchMedia = window.matchMedia;
+  window.matchMedia = ((query: string) => ({
+    matches: query === '(hover: none)',
+  })) as unknown as typeof window.matchMedia;
+  try {
+    render(<Harness />);
+
+    fireEvent.click(screen.getByTitle('Rename card'));
+
+    // The only title field is the modal's: no inline rename started.
+    expect(screen.getAllByLabelText('Card title')).toEqual([
+      within(screen.getByRole('dialog')).getByLabelText('Card title'),
+    ]);
+  } finally {
+    window.matchMedia = matchMedia;
+  }
+});
+
+test('elsewhere clicking the title renames it in place', () => {
+  render(<Harness />);
+
+  fireEvent.click(screen.getByTitle('Rename card'));
+
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Card title')).toHaveValue('Write docs');
+});
+
 test('an emptied title keeps the current one', () => {
   render(<Harness />);
   const dialog = openCard('Write docs');

@@ -307,6 +307,11 @@ const CardTitle = ({
       className="kbn-card-title-btn"
       title="Rename card"
       onClick={(e) => {
+        // On touch screens the title fills most of a small card, so a tap
+        // there opens the card instead; the modal renames it too.
+        if (window.matchMedia?.('(hover: none)').matches) {
+          return;
+        }
         e.stopPropagation();
         setValue(card.title);
         setEditing(true);
