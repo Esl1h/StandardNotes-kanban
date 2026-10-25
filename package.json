@@ -36,7 +36,9 @@
     "lint": "eslint src",
     "server-cors": "vite preview --port 3000",
     "e2e": "playwright test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "version:bump": "node scripts/version-bump.mjs",
+    "version:check": "node scripts/version-bump.mjs --check"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
