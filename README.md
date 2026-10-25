@@ -1,6 +1,7 @@
 # StandardNotes Kanban
 
 [![CI](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/ci.yml/badge.svg)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/github-code-scanning/codeql)
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Esl1h/StandardNotes-kanban/badges/coverage.json)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/coverage.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Esl1h/StandardNotes-kanban/badge)](https://scorecard.dev/viewer/?uri=github.com/Esl1h/StandardNotes-kanban)
 [![Release](https://img.shields.io/github/v/release/Esl1h/StandardNotes-kanban)](https://github.com/Esl1h/StandardNotes-kanban/releases/latest)
@@ -25,7 +26,7 @@ portable.
 6. Keyboard shortcuts: `N` adds a card, `Ctrl/Cmd+F` focuses search, `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z` undo and redo changes to the board, `Alt+Left/Right` moves the focused (last clicked) card to the adjacent lane. The card modal also has a "Move to" select to send the card to any lane
 7. Your board lives in the note as Markdown; read or tweak it with any
    other editor without breaking the board
-8. Works with the Standard Notes web and desktop apps; follows the theme
+8. Works with the Standard Notes web, desktop and mobile apps; follows the theme
    selected in the app
 9. Mark lanes as done lanes: they are hidden from the board, and a `Done (N)` toolbar button shows or hides them. Completing a card sends it to the first done lane. While it is shown, `Clear done` removes the finished cards, with an Undo
 10. Switch to an Eisenhower matrix with the `Board | Matrix` toggle: the
@@ -52,6 +53,10 @@ portable.
 5. Confirm the installation.
 6. Create a new note, open the **Editor** menu and pick **Kanban**.
 7. Add a lane, add some cards, and have fun!
+
+### Self-hosting
+
+The hosted build is plain static files, so it can be served from anywhere. Unzip `extension.zip` from a release (or run `npm run build` and take `build/`), serve the files over HTTPS with CORS enabled, and change `url`, `download_url` and `latest_url` in `ext.json` to your host. Install your `ext.json` URL as above. To keep both the hosted and your copy installed, also change `identifier`.
 
 ## Verifying a release
 
@@ -122,11 +127,15 @@ detected and converted to Markdown automatically the first time they are
 edited. Lines the parser cannot understand are kept as-is in the note and
 reported in a banner at the top of the board.
 
-## Privacy
+## Compatibility
 
-Everything is stored inside your Standard Notes note, so it is encrypted
-with the rest of your data. The editor itself does not send anything
-anywhere.
+- Standard Notes web app and desktop app (Windows, macOS, Linux)
+- Standard Notes mobile apps (iOS and Android): the board works on phone screens, and the e2e suite drives the editor through a host with the mobile app's opaque origin and a throttled CPU
+- Follows the theme selected in the app, light or dark
+
+## Privacy and network
+
+Everything is stored inside your Standard Notes note, so it is encrypted with the rest of your data. The editor has no telemetry and makes no network requests: once its own files are loaded, nothing leaves the app. Its Content Security Policy allows scripts and connections only from the plugin's own origin.
 
 ## Development and running locally
 
@@ -172,6 +181,23 @@ not clash with the hosted one.
 
 If you run into issues, please refer to the
 [Standard Notes instructions for local plugin setup](https://standardnotes.com/help/plugins/local-setup).
+
+### Checks
+
+CI runs these on every push and pull request; run them before opening a PR:
+
+```
+npm run typecheck       # TypeScript
+npm run lint            # ESLint
+npm run format:check    # Prettier
+npm test                # unit tests (Vitest)
+npm run build           # production build
+npm run check:build     # no unreferenced file in build/
+npm run check:lockfile  # git dependencies only at the known commits
+npm run e2e             # end to end tests (Playwright)
+```
+
+Run `npx playwright install chromium` once before the first `npm run e2e`. The e2e suite builds the plugin and drives it through a fake Standard Notes host (`e2e/snHost.js`), including the opaque origin and slow CPU of the mobile app.
 
 ### Releases
 
