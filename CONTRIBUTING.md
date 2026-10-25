@@ -3,6 +3,8 @@
 Thanks for helping out. This is a small, focused editor: a Kanban board for
 Standard Notes that stores the board as portable Markdown inside the note.
 
+By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Development setup
 
 ```
