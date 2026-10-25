@@ -38,6 +38,9 @@ const search = () => screen.getByLabelText('Search cards') as HTMLInputElement;
 const calendar = () =>
   within(filters()).getByRole('button', { name: 'Due date filters' });
 const openDue = () => fireEvent.click(calendar());
+const tag = () =>
+  within(filters()).getByRole('button', { name: 'Label filters' });
+const openLabels = () => fireEvent.click(tag());
 
 const shown = () =>
   Array.from(
@@ -74,9 +77,58 @@ test('the folded calendar shows that a due filter is on', () => {
   expect(shown()).toEqual(['Late task']);
 });
 
+test('the label filters stay folded in the tag until it is pressed', () => {
+  openEditor();
+  expect(tag()).toHaveAttribute('aria-expanded', 'false');
+  expect(
+    within(filters()).queryByRole('button', { name: 'red' })
+  ).not.toBeInTheDocument();
+
+  openLabels();
+  expect(tag()).toHaveAttribute('aria-expanded', 'true');
+  expect(
+    within(filters()).getByRole('button', { name: 'red' })
+  ).toBeInTheDocument();
+
+  openLabels();
+  expect(
+    within(filters()).queryByRole('button', { name: 'blue' })
+  ).not.toBeInTheDocument();
+});
+
+test('the folded tag counts the label filters that are on', () => {
+  openEditor();
+  openLabels();
+  fireEvent.click(within(filters()).getByRole('button', { name: 'red' }));
+  fireEvent.click(within(filters()).getByRole('button', { name: 'blue' }));
+  openLabels();
+
+  expect(tag()).toHaveClass('kbn-label-filter-active');
+  expect(tag()).toHaveTextContent('2');
+});
+
+test('has no tag button when no card has a label', () => {
+  openEditor(
+    infuseBoardData({
+      lanes: [
+        {
+          id: 'l',
+          title: 'L',
+          cards: [{ id: 'x', title: 'Dated', due: inDays(1) }],
+        },
+      ],
+    })
+  );
+
+  expect(
+    within(filters()).queryByRole('button', { name: 'Label filters' })
+  ).not.toBeInTheDocument();
+});
+
 test('offers the due filters and the labels of the cards', () => {
   openEditor();
   openDue();
+  openLabels();
 
   expect(
     within(filters()).getByRole('button', { name: 'Overdue' })
@@ -146,6 +198,7 @@ test('This week is today and the days after it', () => {
 test('a label and a due filter narrow the cards together', () => {
   openEditor();
   openDue();
+  openLabels();
 
   fireEvent.click(within(filters()).getByRole('button', { name: 'red' }));
   expect(shown()).toEqual(['Late task', 'Soon task']);
@@ -161,6 +214,7 @@ test('typing the qualifiers by hand gives the same result', () => {
   fireEvent.change(search(), { target: { value: 'label:blue due:today' } });
 
   expect(shown()).toEqual(['Today task']);
+  openLabels();
   expect(
     within(filters()).getByRole('button', { name: 'blue' })
   ).toHaveAttribute('aria-pressed', 'true');

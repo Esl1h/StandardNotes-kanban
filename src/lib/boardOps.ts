@@ -118,17 +118,24 @@ export const moveCard = (
   };
 };
 
-/** At most one lane is the done lane; pass null to have none. */
+/** Marks or unmarks one done lane; a board can have several. */
 export const setDoneLane = (
   board: KanbanBoard,
-  laneId: string | null
+  laneId: string,
+  done: boolean
 ): KanbanBoard => ({
-  lanes: board.lanes.map(({ done: _done, ...lane }) =>
-    lane.id === laneId ? { ...lane, done: true } : lane
-  ),
+  lanes: board.lanes.map(({ done: wasDone, ...lane }) => {
+    if (lane.id === laneId) {
+      return done ? { ...lane, done: true } : lane;
+    }
+    return wasDone ? { ...lane, done: true } : lane;
+  }),
 });
 
-/** Moves a card to the end of the done lane, if there is one. */
+/**
+ * Moves a card to the end of the first done lane, the main one, if there
+ * is one. Reordering the lanes picks another main done lane.
+ */
 export const completeCard = (
   board: KanbanBoard,
   laneId: string,
@@ -144,8 +151,47 @@ export const completeCard = (
   return moveCard(board, laneId, index, doneLane.id!, doneLane.cards.length);
 };
 
+/** Moves every card of a lane to the end of another, in order. */
+export const moveAllCards = (
+  board: KanbanBoard,
+  fromLaneId: string,
+  toLaneId: string
+): KanbanBoard => {
+  const moving = laneById(board, fromLaneId)?.cards ?? [];
+  if (moving.length === 0 || fromLaneId === toLaneId) {
+    return board;
+  }
+  return {
+    lanes: board.lanes.map((lane) => {
+      if (lane.id === fromLaneId) {
+        return { ...lane, cards: [] };
+      }
+      if (lane.id === toLaneId) {
+        return {
+          ...lane,
+          cards: [
+            ...lane.cards,
+            ...moving.map((card) => ({ ...card, laneId: toLaneId })),
+          ],
+        };
+      }
+      return lane;
+    }),
+  };
+};
+
+/** Removes every card of a lane, which stays. */
+export const clearLaneCards = (
+  board: KanbanBoard,
+  laneId: string
+): KanbanBoard => ({
+  lanes: board.lanes.map((lane) =>
+    lane.id === laneId ? { ...lane, cards: [] } : lane
+  ),
+});
+
 /**
- * Removes the cards of the done lane, which stays. The same board comes
+ * Removes the cards of the done lanes, which stay. The same board comes
  * back when there is nothing to remove, so it counts as no change.
  */
 export const clearDoneCards = (board: KanbanBoard): KanbanBoard => {

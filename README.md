@@ -17,7 +17,7 @@ portable.
    due dates and comments
 2. Drag and drop cards between lanes (and reorder them inside a lane),
    with keyboard drag support
-3. Reorder, rename and collapse lanes (collapsed lanes are remembered per note on each device); card counts in lane headers
+3. Reorder, rename and collapse lanes (collapsed lanes are remembered per note on each device); card counts in lane headers. The `⋮` lane menu marks the lane as done, completes or deletes all its cards, or deletes the lane, each with an Undo
 4. Edit card descriptions, labels, due dates and comments in a card modal
 5. Search across titles, descriptions and labels. Narrow it down with `label:name` and `due:overdue`, `due:today` or `due:week`, typed in the search or toggled from the filter bar under it; clicking a label on a card filters by that label
 6. Keyboard shortcuts: `N` adds a card, `Ctrl/Cmd+F` focuses search, `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z` undo and redo changes to the board, `Alt+Left/Right` moves the focused (last clicked) card to the adjacent lane. The card modal also has a "Move to" select to send the card to any lane
@@ -25,7 +25,7 @@ portable.
    other editor without breaking the board
 8. Works with the Standard Notes web and desktop apps; follows the theme
    selected in the app
-9. Mark one lane as the done lane: it is hidden from the board, and a `Done (N)` toolbar button shows or hides it. While it is shown, `Clear done` removes the finished cards, with an Undo
+9. Mark lanes as done lanes: they are hidden from the board, and a `Done (N)` toolbar button shows or hides them. Completing a card sends it to the first done lane. While it is shown, `Clear done` removes the finished cards, with an Undo
 10. Switch to an Eisenhower matrix with the `Board | Matrix` toggle: the
     same cards sorted into Do, Schedule, Delegate and Eliminate, plus an
     Unclassified list. Drag cards between quadrants or pick one in the
@@ -95,8 +95,8 @@ Labels: work=blue
 - `Quadrant` places the card in the Eisenhower matrix; it takes a fixed
   key (`do`, `schedule`, `delegate`, `eliminate`), so renaming a
   quadrant never rewrites cards
-- `[done]` after a lane title marks the done lane; at most one lane
-  carries it
+- `[done]` after a lane title marks a done lane; several lanes can
+  carry it, and the first one receives the completed cards
 - The optional `Quadrants:` line before the first lane holds renamed
   quadrant names, in the order Do | Schedule | Delegate | Eliminate; it
   is only written when a name differs from the default

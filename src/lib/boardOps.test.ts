@@ -10,6 +10,8 @@ import {
   setDoneLane,
   completeCard,
   clearDoneCards,
+  clearLaneCards,
+  moveAllCards,
   setCardQuadrant,
 } from './boardOps';
 import { KanbanBoard } from '../../types/kanban';
@@ -111,20 +113,24 @@ describe('done lane', () => {
     ],
   });
 
-  test('marking a lane as done unmarks any other', () => {
-    const next = setDoneLane(board(), 'b');
+  test('marking a lane as done keeps the other done lanes', () => {
+    const next = setDoneLane(board(), 'b', true);
 
-    expect(next.lanes.map((l) => l.done ?? false)).toEqual([
-      false,
-      true,
-      false,
-    ]);
+    expect(next.lanes.map((l) => l.done ?? false)).toEqual([false, true, true]);
   });
 
-  test('can clear the done lane', () => {
-    expect(setDoneLane(board(), null).lanes.some((lane) => lane.done)).toBe(
-      false
-    );
+  test('unmarking a lane leaves no done flag on it', () => {
+    const next = setDoneLane(board(), 'c', false);
+
+    expect(next.lanes.some((lane) => lane.done)).toBe(false);
+    expect('done' in next.lanes[2]).toBe(false);
+  });
+
+  test('completing a card picks the first done lane', () => {
+    const next = completeCard(setDoneLane(board(), 'b', true), 'a', 'c1');
+
+    expect(next.lanes[1].cards.map((c) => c.id)).toEqual(['c2', 'c1']);
+    expect(next.lanes[2].cards).toEqual([]);
   });
 
   test('completing a card moves it to the end of the done lane', () => {
@@ -137,7 +143,7 @@ describe('done lane', () => {
   });
 
   test('completing does nothing without a done lane', () => {
-    const plain = setDoneLane(board(), null);
+    const plain = setDoneLane(board(), 'c', false);
 
     expect(completeCard(plain, 'a', 'c1')).toBe(plain);
   });
@@ -167,9 +173,38 @@ describe('done lane', () => {
     const plain = board();
 
     expect(clearDoneCards(plain)).toBe(plain);
-    expect(clearDoneCards(setDoneLane(plain, null))).toEqual(
-      setDoneLane(plain, null)
+    expect(clearDoneCards(setDoneLane(plain, 'c', false))).toEqual(
+      setDoneLane(plain, 'c', false)
     );
+  });
+});
+
+describe('lane-wide card operations', () => {
+  test('moves every card to the end of another lane, in order', () => {
+    const next = moveAllCards(board, 'lane-1', 'lane-2');
+
+    expect(next.lanes[0].cards).toEqual([]);
+    expect(next.lanes[1].cards.map((c) => [c.id, c.laneId])).toEqual([
+      ['card-3', 'lane-2'],
+      ['card-1', 'lane-2'],
+      ['card-2', 'lane-2'],
+    ]);
+  });
+
+  test('moving from an empty lane or into itself changes nothing', () => {
+    const empty = clearLaneCards(board, 'lane-1');
+
+    expect(moveAllCards(empty, 'lane-1', 'lane-2')).toBe(empty);
+    expect(moveAllCards(board, 'lane-1', 'lane-1')).toBe(board);
+  });
+
+  test('clears the cards of one lane and keeps the lane', () => {
+    const next = clearLaneCards(board, 'lane-1');
+
+    expect(next.lanes.map((l) => [l.id, l.cards.length])).toEqual([
+      ['lane-1', 0],
+      ['lane-2', 1],
+    ]);
   });
 });
 

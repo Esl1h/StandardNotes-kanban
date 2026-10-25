@@ -95,10 +95,9 @@ test('a label filter keeps only the cards with that label', async ({
   await expect(cards.first()).toBeVisible();
   const all = await cards.count();
 
-  await plugin
-    .getByRole('group', { name: 'Filters' })
-    .getByRole('button', { name: 'green', exact: true })
-    .click();
+  const filters = plugin.getByRole('group', { name: 'Filters' });
+  await filters.getByRole('button', { name: 'Label filters' }).click();
+  await filters.getByRole('button', { name: 'green', exact: true }).click();
 
   await expect(plugin.getByLabel('Search cards')).toHaveValue('label:green');
   const kept = await cards.count();
@@ -127,4 +126,18 @@ test('the board can be downloaded as CSV', async ({ page }) => {
   // One row per card of the example, the done lane included.
   expect(lines.length - 1).toBe(BOARD.match(/^\* /gm).length);
   expect(csv).toContain('BACKLOG,checklists on cards,green,,,2/3');
+});
+
+test('the lane menu of a done lane opens above its cards', async ({ page }) => {
+  const plugin = await openHost(page, { text: BOARD });
+  await plugin.getByRole('button', { name: /^Done \(/ }).click();
+  await plugin.getByLabel('Lane actions ARCHIVE').click();
+
+  // A click lands on whatever is painted on top, so a card covering the
+  // menu would take it instead and the lane would stay.
+  await plugin.getByRole('menuitem', { name: 'Unmark as done' }).click({
+    timeout: 2000,
+  });
+
+  await expect(plugin.getByRole('button', { name: /^Done \(/ })).toHaveCount(0);
 });
