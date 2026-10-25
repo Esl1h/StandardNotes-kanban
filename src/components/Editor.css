@@ -158,7 +158,8 @@
   }
 }
 
-.kbn-export-menu {
+.kbn-export-menu,
+.kbn-menu {
   position: absolute;
   right: 0;
   top: 100%;
@@ -173,7 +174,8 @@
   color: var(--sn-stylekit-contrast-foreground-color);
 }
 
-.kbn-export-menu .kbn-btn {
+.kbn-export-menu .kbn-btn,
+.kbn-menu .kbn-btn {
   justify-content: flex-start;
   text-align: left;
 }
@@ -856,8 +858,19 @@
   color: var(--sn-stylekit-info-contrast-color);
 }
 
-.kbn-done-toggle-on {
+.kbn-lane-done-mark {
+  display: inline-flex;
   color: var(--sn-stylekit-success-color);
+}
+
+.kbn-lane-menu {
+  position: relative;
+}
+
+/* A collapsed lane is too narrow for a menu opening to its left. */
+.kbn-lane-collapsed .kbn-menu {
+  right: auto;
+  left: 0;
 }
 
 .kbn-lane-done .kbn-lane-header {

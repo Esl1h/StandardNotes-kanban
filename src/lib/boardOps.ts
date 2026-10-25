@@ -151,8 +151,47 @@ export const completeCard = (
   return moveCard(board, laneId, index, doneLane.id!, doneLane.cards.length);
 };
 
+/** Moves every card of a lane to the end of another, in order. */
+export const moveAllCards = (
+  board: KanbanBoard,
+  fromLaneId: string,
+  toLaneId: string
+): KanbanBoard => {
+  const moving = laneById(board, fromLaneId)?.cards ?? [];
+  if (moving.length === 0 || fromLaneId === toLaneId) {
+    return board;
+  }
+  return {
+    lanes: board.lanes.map((lane) => {
+      if (lane.id === fromLaneId) {
+        return { ...lane, cards: [] };
+      }
+      if (lane.id === toLaneId) {
+        return {
+          ...lane,
+          cards: [
+            ...lane.cards,
+            ...moving.map((card) => ({ ...card, laneId: toLaneId })),
+          ],
+        };
+      }
+      return lane;
+    }),
+  };
+};
+
+/** Removes every card of a lane, which stays. */
+export const clearLaneCards = (
+  board: KanbanBoard,
+  laneId: string
+): KanbanBoard => ({
+  lanes: board.lanes.map((lane) =>
+    lane.id === laneId ? { ...lane, cards: [] } : lane
+  ),
+});
+
 /**
- * Removes the cards of the done lane, which stays. The same board comes
+ * Removes the cards of the done lanes, which stay. The same board comes
  * back when there is nothing to remove, so it counts as no change.
  */
 export const clearDoneCards = (board: KanbanBoard): KanbanBoard => {

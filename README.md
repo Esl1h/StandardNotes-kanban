@@ -17,7 +17,7 @@ portable.
    due dates and comments
 2. Drag and drop cards between lanes (and reorder them inside a lane),
    with keyboard drag support
-3. Reorder, rename and collapse lanes (collapsed lanes are remembered per note on each device); card counts in lane headers
+3. Reorder, rename and collapse lanes (collapsed lanes are remembered per note on each device); card counts in lane headers. The `⋮` lane menu marks the lane as done, completes or deletes all its cards, or deletes the lane, each with an Undo
 4. Edit card descriptions, labels, due dates and comments in a card modal
 5. Search across titles, descriptions and labels. Narrow it down with `label:name` and `due:overdue`, `due:today` or `due:week`, typed in the search or toggled from the filter bar under it; clicking a label on a card filters by that label
 6. Keyboard shortcuts: `N` adds a card, `Ctrl/Cmd+F` focuses search, `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z` undo and redo changes to the board, `Alt+Left/Right` moves the focused (last clicked) card to the adjacent lane. The card modal also has a "Move to" select to send the card to any lane

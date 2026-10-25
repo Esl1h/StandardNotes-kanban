@@ -41,8 +41,12 @@ const laneTitles = () =>
     (el) => el.textContent
   );
 
-const markDone = (title: string) =>
-  fireEvent.click(screen.getByLabelText(`Mark lane ${title} as done`));
+const laneAction = (title: string, action: string) => {
+  fireEvent.click(screen.getByLabelText(`Lane actions ${title}`));
+  fireEvent.click(screen.getByRole('menuitem', { name: action }));
+};
+
+const markDone = (title: string) => laneAction(title, 'Mark as done');
 
 test('there is no done toggle until a lane is marked as done', () => {
   render(<Harness />);
@@ -121,7 +125,7 @@ test('a done lane can be unmarked', () => {
   markDone('Finished');
   fireEvent.click(screen.getByRole('button', { name: 'Done (2)' }));
 
-  fireEvent.click(screen.getByLabelText('Unmark done lane Finished'));
+  laneAction('Finished', 'Unmark as done');
 
   expect(
     screen.queryByRole('button', { name: /Done \(/ })

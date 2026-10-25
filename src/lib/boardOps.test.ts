@@ -10,6 +10,8 @@ import {
   setDoneLane,
   completeCard,
   clearDoneCards,
+  clearLaneCards,
+  moveAllCards,
   setCardQuadrant,
 } from './boardOps';
 import { KanbanBoard } from '../../types/kanban';
@@ -174,6 +176,35 @@ describe('done lane', () => {
     expect(clearDoneCards(setDoneLane(plain, 'c', false))).toEqual(
       setDoneLane(plain, 'c', false)
     );
+  });
+});
+
+describe('lane-wide card operations', () => {
+  test('moves every card to the end of another lane, in order', () => {
+    const next = moveAllCards(board, 'lane-1', 'lane-2');
+
+    expect(next.lanes[0].cards).toEqual([]);
+    expect(next.lanes[1].cards.map((c) => [c.id, c.laneId])).toEqual([
+      ['card-3', 'lane-2'],
+      ['card-1', 'lane-2'],
+      ['card-2', 'lane-2'],
+    ]);
+  });
+
+  test('moving from an empty lane or into itself changes nothing', () => {
+    const empty = clearLaneCards(board, 'lane-1');
+
+    expect(moveAllCards(empty, 'lane-1', 'lane-2')).toBe(empty);
+    expect(moveAllCards(board, 'lane-1', 'lane-1')).toBe(board);
+  });
+
+  test('clears the cards of one lane and keeps the lane', () => {
+    const next = clearLaneCards(board, 'lane-1');
+
+    expect(next.lanes.map((l) => [l.id, l.cards.length])).toEqual([
+      ['lane-1', 0],
+      ['lane-2', 1],
+    ]);
   });
 });
 

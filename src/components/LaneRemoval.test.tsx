@@ -5,6 +5,11 @@ import Editor from './Editor';
 import { KanbanBoard } from '../../types/kanban';
 import { infuseBoardData } from '../lib/helpers';
 
+const deleteLane = (title: string) => {
+  fireEvent.click(screen.getByLabelText(`Lane actions ${title}`));
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Delete lane' }));
+};
+
 const board = (): KanbanBoard => ({
   lanes: [
     {
@@ -32,7 +37,7 @@ test('the undo toast names the lane and calls onUndo once', () => {
   };
   const { rerender } = render(<Board data={data} {...props} />);
 
-  fireEvent.click(screen.getByLabelText('Delete lane Doing'));
+  deleteLane('Doing');
   rerender(<Board data={removed!} {...props} />);
 
   expect(screen.getByRole('status')).toHaveTextContent('Lane "Doing" removed');
@@ -52,7 +57,7 @@ test('the toast goes away when the board changes in any other way', () => {
     },
   };
   const { rerender } = render(<Board data={data} {...props} />);
-  fireEvent.click(screen.getByLabelText('Delete lane Doing'));
+  deleteLane('Doing');
   rerender(<Board data={removed!} {...props} />);
   expect(screen.getByRole('status')).toBeInTheDocument();
 
@@ -75,7 +80,7 @@ test('the toast disappears by itself', () => {
       },
     };
     const { rerender } = render(<Board data={data} {...props} />);
-    fireEvent.click(screen.getByLabelText('Delete lane Doing'));
+    deleteLane('Doing');
     rerender(<Board data={removed!} {...props} />);
     expect(screen.getByRole('status')).toBeInTheDocument();
 
@@ -97,7 +102,7 @@ test('Undo in the editor brings the lane and its cards back and saves', () => {
     onEditorValueChanged: (text: string) => saved.push(text),
   };
 
-  fireEvent.click(screen.getByLabelText('Delete lane Doing'));
+  deleteLane('Doing');
   expect(screen.queryByText('First')).not.toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: 'Undo' }));

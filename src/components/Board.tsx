@@ -16,6 +16,8 @@ import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
 import {
   addCardToLane,
   addLane,
+  clearLaneCards,
+  moveAllCards,
   moveCard,
   moveLane,
   removeCard,
@@ -31,7 +33,10 @@ import {
   isFiltering,
   laneMatches,
 } from '../lib/filter';
+import { LaneMenu } from './LaneMenu';
 import { useUndoToast } from './useUndoToast';
+
+const cardCount = (n: number) => `${n} card${n === 1 ? '' : 's'}`;
 
 interface BoardProps {
   data: KanbanBoard;
@@ -703,41 +708,50 @@ export const Board = ({
                         <span className="kbn-lane-count">
                           {lane.cards.length}
                         </span>
-                        <button
-                          type="button"
-                          className={`kbn-icon-btn${
-                            lane.done ? ' kbn-done-toggle-on' : ''
-                          }`}
-                          aria-label={
-                            lane.done
-                              ? `Unmark done lane ${lane.title}`
-                              : `Mark lane ${lane.title} as done`
-                          }
-                          title={
-                            lane.done
-                              ? 'Done lane: its cards count as finished'
-                              : 'Mark as a done lane'
-                          }
-                          onClick={() =>
+                        {lane.done && (
+                          <span
+                            className="kbn-lane-done-mark"
+                            title="Done lane: its cards count as finished"
+                          >
+                            <IconCircleCheck size={14} stroke={1.5} />
+                          </span>
+                        )}
+                        <LaneMenu
+                          lane={lane}
+                          doneLanes={data.lanes.filter(
+                            (other) => other.done && other.id !== lane.id
+                          )}
+                          onToggleDone={() =>
                             onDataChange(
                               setDoneLane(data, lane.id!, !lane.done)
                             )
                           }
-                        >
-                          <IconCircleCheck size={14} stroke={1.5} />
-                        </button>
-                        <button
-                          type="button"
-                          className="kbn-icon-btn"
-                          aria-label={`Delete lane ${lane.title}`}
-                          onClick={() => {
+                          onCompleteAll={(doneLaneId) => {
+                            const board = moveAllCards(
+                              data,
+                              lane.id!,
+                              doneLaneId
+                            );
+                            onDataChange(board);
+                            announce(
+                              `${cardCount(lane.cards.length)} completed`,
+                              board
+                            );
+                          }}
+                          onClearCards={() => {
+                            const board = clearLaneCards(data, lane.id!);
+                            onDataChange(board);
+                            announce(
+                              `${cardCount(lane.cards.length)} removed from "${lane.title}"`,
+                              board
+                            );
+                          }}
+                          onDelete={() => {
                             const board = removeLane(data, lane.id!);
                             onDataChange(board);
                             announce(`Lane "${lane.title}" removed`, board);
                           }}
-                        >
-                          <IconX size={14} stroke={1.5} />
-                        </button>
+                        />
                       </div>
                       {!collapsed && (
                         <>
