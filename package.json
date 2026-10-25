@@ -12,6 +12,9 @@
   "private": true,
   "license": "AGPL-3.0-or-later",
   "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Esl1h/StandardNotes-kanban.git"
@@ -33,7 +36,10 @@
     "lint": "eslint src",
     "server-cors": "vite preview --port 3000",
     "e2e": "playwright test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "version:bump": "node scripts/version-bump.mjs",
+    "version:check": "node scripts/version-bump.mjs --check",
+    "check:build": "node scripts/check-build.mjs"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",

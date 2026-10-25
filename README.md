@@ -9,7 +9,7 @@ free, open-source, end-to-end encrypted notes app. Your board is stored as
 plain Markdown inside the note, so it stays readable, exportable and
 portable.
 
-![Kanban board screenshot](public/demo.png)
+![Kanban board screenshot](.github/screenshots/kanban-board.png)
 
 ## Features
 
@@ -33,7 +33,7 @@ portable.
     is remembered per note on each device. On a phone each section can be folded away from its heading
 11. Take the board out of the note with the `Export` menu: copy or download everything as JSON, or one row per card as CSV
 
-![Eisenhower matrix screenshot](public/matrix.png)
+![Eisenhower matrix screenshot](.github/screenshots/kanban-matrix.png)
 
 ## Installation
 
