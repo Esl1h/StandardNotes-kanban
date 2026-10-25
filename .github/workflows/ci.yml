@@ -50,8 +50,8 @@ jobs:
       - name: Check build contents
         run: npm run check:build
 
-      # Advisory only: the CRA 5 toolchain carries known transitive
-      # advisories that require a build-system migration to resolve.
+      # Advisory only: surfaces critical advisories in the log without
+      # blocking a build; Dependabot raises the fixes.
       - name: Audit dependencies
         run: npm audit --audit-level=critical
         continue-on-error: true
