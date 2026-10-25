@@ -40,7 +40,8 @@
     "e2e": "playwright test",
     "version:bump": "node scripts/version-bump.mjs",
     "version:check": "node scripts/version-bump.mjs --check",
-    "check:build": "node scripts/check-build.mjs"
+    "check:build": "node scripts/check-build.mjs",
+    "check:lockfile": "node scripts/check-lockfile.mjs"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
