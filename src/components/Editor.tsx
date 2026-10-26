@@ -70,7 +70,7 @@ const NOTE_WAIT_MS = 5000;
 const isEmbedded = () => window.parent !== window;
 
 export default class Editor extends React.Component<Partial<EditorInterface>, EditorState> {
-  editorKit: SaveNoteBridge;
+  editorKit!: SaveNoteBridge;
   rawText = '';
   waitTimer: ReturnType<typeof setTimeout> | undefined;
   // Not React state: nothing renders from it, it only feeds Ctrl+Z.

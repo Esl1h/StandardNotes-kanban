@@ -123,7 +123,7 @@ test('a done lane can be unmarked', () => {
 test('Alt+Right skips the hidden done lane', () => {
   render(<Harness />);
   markDone('Finished');
-  fireEvent.click(screen.getByText('Open task').closest('.kbn-card'));
+  fireEvent.click(screen.getByText('Open task').closest('.kbn-card')!);
   fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', keyCode: 27 });
 
   fireEvent.keyDown(document, { key: 'ArrowRight', altKey: true });
