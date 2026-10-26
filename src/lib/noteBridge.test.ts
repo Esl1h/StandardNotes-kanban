@@ -65,6 +65,19 @@ test('clears the undo history only when a different note arrives', () => {
   expect(d.clears).toBe(2);
 });
 
+test('clears the undo history when a metadata update of the new note came first', () => {
+  const { relay, push } = fakeRelay();
+  const d = delegate();
+  new NoteBridge(d, relay);
+
+  push(note('n1', 'a'));
+  push(note('n2', '', { isMetadataUpdate: true }));
+  push(note('n2', 'b'));
+
+  expect(d.texts).toEqual(['a', 'b']);
+  expect(d.clears).toBe(2);
+});
+
 test('ignores metadata-only updates', () => {
   const { relay, push } = fakeRelay();
   const d = delegate();

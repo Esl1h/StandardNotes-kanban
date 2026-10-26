@@ -54,17 +54,22 @@ export class NoteBridge {
   private echoGuard = new EchoGuard();
   // What the editor last saved; the board the user is looking at.
   private lastSaved?: string;
+  // The note whose text the editor shows. A metadata-only stream of the
+  // next note can arrive before its text, so this.note alone cannot tell
+  // when the text switches notes.
+  private shownNoteId?: string;
 
   constructor(
     private delegate: NoteBridgeDelegate,
     private relay: Relay = createRelay()
   ) {
     relay.streamContextItem((note) => {
-      const isNewNote = this.note?.uuid !== note.uuid;
       this.note = note;
       if (note.isMetadataUpdate) {
         return;
       }
+      const isNewNote = this.shownNoteId !== note.uuid;
+      this.shownNoteId = note.uuid;
       const text = note.content?.text || '';
       if (isNewNote) {
         this.lastSaved = undefined;
