@@ -4,6 +4,7 @@
 [![CodeQL](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/github-code-scanning/codeql)
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Esl1h/StandardNotes-kanban/badges/coverage.json)](https://github.com/Esl1h/StandardNotes-kanban/actions/workflows/coverage.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Esl1h/StandardNotes-kanban/badge)](https://scorecard.dev/viewer/?uri=github.com/Esl1h/StandardNotes-kanban)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15959/badge)](https://www.bestpractices.dev/projects/15959)
 [![Release](https://img.shields.io/github/v/release/Esl1h/StandardNotes-kanban)](https://github.com/Esl1h/StandardNotes-kanban/releases/latest)
 [![License](https://img.shields.io/github/license/Esl1h/StandardNotes-kanban)](LICENSE)
 
