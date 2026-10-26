@@ -4,7 +4,7 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.11.0] - 2026-10-26
 
 ### Added
 
@@ -13,6 +13,8 @@ and the project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - Pin ext.json download_url to its release
+- **sync:** Bound the echo guard by time, not count
+- **sync:** Detect a note switch from its text
 
 ### Documentation
 
