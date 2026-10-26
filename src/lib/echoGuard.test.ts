@@ -49,10 +49,24 @@ test('accepts an old save once the window has passed', () => {
   expect(guard.isStaleEcho('n1', 'a', 'ab')).toBe(false);
 });
 
-test('remembers only the last 5 saves', () => {
-  const { guard } = setup();
-  ['1', '2', '3', '4', '5', '6'].forEach((text) => guard.recordSave(text));
+test('remembers every save within the window, however many followed it', () => {
+  const { guard, clock } = setup();
+  guard.recordSave('1');
+  for (let index = 2; index <= 11; index++) {
+    clock.t += 100;
+    guard.recordSave(String(index));
+  }
 
-  expect(guard.isStaleEcho('n1', '1', '6')).toBe(false);
-  expect(guard.isStaleEcho('n1', '2', '6')).toBe(true);
+  expect(guard.isStaleEcho('n1', '1', '11')).toBe(true);
+});
+
+test('forgets a save once the window has passed, even with later saves', () => {
+  const { guard, clock } = setup();
+  guard.recordSave('1');
+  clock.t = ECHO_WINDOW_MS / 2;
+  guard.recordSave('2');
+  clock.t = ECHO_WINDOW_MS + 1;
+
+  expect(guard.isStaleEcho('n1', '1', '3')).toBe(false);
+  expect(guard.isStaleEcho('n1', '2', '3')).toBe(true);
 });
