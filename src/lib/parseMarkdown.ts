@@ -139,7 +139,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         reject('Cannot add comments before adding a card!');
         continue;
       }
-      boardData.lanes[laneIndex].cards[cardIndex].comments.push(commentMatch[2]);
+      boardData.lanes[laneIndex].cards[cardIndex].comments!.push(commentMatch[2]);
     } else if (fieldMatch) {
       if (cardIndex < 0) {
         reject('Cannot add card fields before adding a card!');

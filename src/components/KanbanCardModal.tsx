@@ -97,10 +97,10 @@ const ChecklistSection = ({
     onUpdate([...checklist, { done: false, text: newItem.trim() }]);
     setNewItem('');
   };
-  const toggleItem = (index) => {
+  const toggleItem = (index: number) => {
     onUpdate(checklist.map((item, i) => (i === index ? { ...item, done: !item.done } : item)));
   };
-  const removeItem = (index) => {
+  const removeItem = (index: number) => {
     onUpdate(checklist.filter((_, i) => index !== i));
   };
   const done = checklist.filter((item) => item.done).length;
@@ -301,7 +301,7 @@ const LabelInput = ({
   );
 };
 
-const customStyles = {
+const customStyles: ReactModal.Styles = {
   content: {
     top: '50%',
     left: '50%',
@@ -359,7 +359,7 @@ export const KanbanCardModal = ({
     setUpdatedComments([...updatedComments, newComment]);
     setNewComment('');
   };
-  const deleteCommentByIndex = (index) => {
+  const deleteCommentByIndex = (index: number) => {
     setUpdatedComments(updatedComments.filter((_, i) => index !== i));
   };
   const closeModal = () => {
