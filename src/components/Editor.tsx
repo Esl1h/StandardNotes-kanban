@@ -110,7 +110,7 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
     try {
       return parseMarkdown(text);
     } catch {
-      const textByLine = text.split('\n');
+      const textByLine = text.split(/\r?\n|\r$/);
       return {
         ...initialState,
         // The converter no longer re-emits parsingErrors, so the raw text
@@ -220,15 +220,7 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
     this.saveNote(convertStateToMarkdown({ ...this.state, boardData }));
   };
 
-  handleDataChange = (boardData: KanbanBoard | string) => {
-    if (typeof boardData === 'string') {
-      const newState = this.parseText(boardData);
-      this.setState({
-        ...this.state,
-        ...newState,
-      });
-      return;
-    }
+  handleDataChange = (boardData: KanbanBoard) => {
     if (boardData.lanes.length > 0 && !boardData.lanes[0].id) {
       // The only time we should see ID-less lanes here is a board state
       // pushed before our infusion ran; repopulate them.
@@ -250,14 +242,14 @@ export default class Editor extends React.Component<Partial<EditorInterface>, Ed
     // What the crash fallback shows: the last text saved, not the last
     // one received.
     this.rawText = text;
-    /** This will work in an SN context, but breaks the standalone editor,
-     * so we need to catch the error
-     */
     try {
       this.editorKit.onEditorValueChanged(text);
     } catch (error) {
-      // The standalone editor has no save bridge; ignore.
-      void error;
+      // The standalone editor has no save bridge, so a failure is expected
+      // there; inside Standard Notes it means the edit was not saved.
+      if (isEmbedded()) {
+        console.error('Could not save the note', error);
+      }
     }
   };
 

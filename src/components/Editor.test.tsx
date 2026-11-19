@@ -208,3 +208,37 @@ describe('undo and redo', () => {
     expect(screen.getByText('First')).toBeInTheDocument();
   });
 });
+
+describe('a failing save', () => {
+  const failing = () => {
+    const editor = new Editor({} as EditorInterface);
+    editor.editorKit = {
+      onEditorValueChanged: () => {
+        throw new Error('save failed');
+      },
+    };
+    return editor;
+  };
+  const originalParent = Object.getOwnPropertyDescriptor(window, 'parent');
+  afterEach(() => {
+    Object.defineProperty(window, 'parent', originalParent!);
+  });
+
+  test('is ignored in the standalone editor, which has no bridge', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => failing().saveNote('x')).not.toThrow();
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
+
+  test('is reported inside Standard Notes', () => {
+    Object.defineProperty(window, 'parent', { configurable: true, value: {} });
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    failing().saveNote('x');
+
+    expect(error).toHaveBeenCalledWith('Could not save the note', expect.any(Error));
+    error.mockRestore();
+  });
+});
