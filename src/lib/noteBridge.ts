@@ -64,7 +64,11 @@ export class NoteBridge {
     private relay: Relay = createRelay()
   ) {
     relay.streamContextItem((note) => {
-      this.note = note;
+      // A metadata-only item of another note has no text yet; taking it as
+      // the save target would write this board into that note.
+      if (!note.isMetadataUpdate || note.uuid === this.shownNoteId) {
+        this.note = note;
+      }
       if (note.isMetadataUpdate) {
         return;
       }
@@ -78,6 +82,9 @@ export class NoteBridge {
         return;
       }
       this.delegate.setEditorRawText(text, note.uuid);
+      // The editor now shows this text, so a late echo of an older save
+      // must be compared against it, not against the save it replaced.
+      this.lastSaved = text;
       if (isNewNote) {
         this.delegate.clearUndoHistory();
       }

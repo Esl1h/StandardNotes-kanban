@@ -215,3 +215,29 @@ test('asks for the note even when the host origin is "null"', () => {
     posted.mockRestore();
   }
 });
+
+test('saves to the shown note when a metadata-only update of another note came first', () => {
+  const { relay, push } = fakeRelay();
+  const bridge = new NoteBridge(delegate(), relay);
+  const a = note('a', '# A');
+  push(a);
+  push(note('b', '', { isMetadataUpdate: true }));
+
+  bridge.onEditorValueChanged('# Edited');
+
+  expect(relay.saveItemWithPresave).toHaveBeenCalledWith(a, expect.any(Function));
+});
+
+test('does not revert a remote edit when a late echo of an older save arrives', () => {
+  const { relay, push } = fakeRelay();
+  const d = delegate();
+  const bridge = new NoteBridge(d, relay);
+  push(note('n1', 'a'));
+  bridge.onEditorValueChanged('ab');
+  bridge.onEditorValueChanged('abc');
+  push(note('n1', 'remote'));
+
+  push(note('n1', 'abc'));
+
+  expect(d.texts).toEqual(['a', 'remote']);
+});
