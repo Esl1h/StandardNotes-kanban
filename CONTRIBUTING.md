@@ -7,10 +7,18 @@ By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Development setup
 
+You need Node.js 22 (see `.nvmrc`). A full development environment, tests included, takes four commands:
+
 ```
 git clone https://github.com/Esl1h/StandardNotes-kanban.git
 cd StandardNotes-kanban
-npm install
+npm ci
+npm test
+```
+
+`npm run e2e` runs the browser tests (run `npx playwright install chromium` once first). To try the editor:
+
+```
 npm start
 ```
 
@@ -36,11 +44,24 @@ Then install `http://localhost:3000/ext.dev.json` via Preferences > Plugins
 5. `npm run build`
 6. `npm run e2e` (run `npx playwright install chromium` once first)
 
-All six must pass. CI runs the same steps.
+All six must pass. CI runs the same steps, and more, on every pull request and every push to `main`, and reports success or failure on the pull request as a check.
 
-## Tests
+## Coding standards
 
-A new feature comes with tests that cover it, and a bug fix with a regression test that fails without the fix. Unit tests live next to the code in `src/` (Vitest); behavior that needs a browser goes in `e2e/` (Playwright). The code style is enforced by ESLint and Prettier (`npm run lint`, `npm run format:check`).
+- TypeScript in `strict` mode (`tsconfig.json`), checked by `npm run typecheck`
+- ESLint with the configuration in `eslint.config.mjs` (the recommended rules of ESLint and typescript-eslint, plus the React hooks rules), run by `npm run lint`
+- Prettier with the configuration in `.prettierrc` (single quotes, 100 columns), run by `npm run format:check`; `npm run pretty` fixes the files
+
+CI runs lint and format:check and fails the pull request if either fails. Code that does not comply is not merged.
+
+## Test policy
+
+Tests are part of the change, not a follow-up:
+
+- Tests for new functionality MUST be added to the automated suite in the same pull request. A feature without tests is not merged
+- A bug fix MUST come with a regression test that fails without the fix
+- Unit tests live next to the code in `src/` (Vitest); behavior that needs a browser goes in `e2e/` (Playwright)
+- Statement coverage is expected to stay above 80% (not enforced by a threshold); `npm run test:coverage` shows it
 
 ## Commit messages
 
