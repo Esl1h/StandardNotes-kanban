@@ -89,3 +89,33 @@ test('stays put when every lane ahead is collapsed or there is none', () => {
 
   expect(laneTitleOfCard()).toBe('A');
 });
+
+describe('shortcuts while a dropdown has focus', () => {
+  const focusedSelect = () => {
+    const select = document.createElement('select');
+    document.body.appendChild(select);
+    select.focus();
+    return select;
+  };
+
+  test('Alt+Arrow does not move the card', () => {
+    render(<Harness initial={boardWithCard(['A', 'B'])} />);
+    fireEvent.click(screen.getByText('Card').closest('.kbn-card')!);
+    const select = focusedSelect();
+
+    fireEvent.keyDown(select, { key: 'ArrowRight', altKey: true });
+
+    expect(laneTitleOfCard()).toBe('A');
+    select.remove();
+  });
+
+  test('N does not open the add card form', () => {
+    render(<Harness initial={boardWithCard(['A', 'B'])} />);
+    const select = focusedSelect();
+
+    fireEvent.keyDown(select, { key: 'n' });
+
+    expect(screen.queryByPlaceholderText('Card title')).not.toBeInTheDocument();
+    select.remove();
+  });
+});

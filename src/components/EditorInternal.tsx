@@ -26,7 +26,7 @@ const DUE_LABELS: Record<DueFilter, string> = {
 
 interface EditorInternalProps {
   boardData: KanbanBoard;
-  handleDataChange: (board: KanbanBoard | string) => void;
+  handleDataChange: (board: KanbanBoard) => void;
   onCardUpdate: (laneId: string, cardId: string, patch: Partial<KanbanCard>) => void;
   parsingErrors?: ParsingErrors[];
   onUndo?: () => void;
@@ -160,6 +160,18 @@ export const EditorInternal = ({
       />
     );
   }, [modalTarget, boardData, quadrantNames, labelColors, onLabelColorsChange]);
+
+  // A card removed while its modal is open (a remote edit, an undo) leaves
+  // nothing to edit; forget the target so it cannot reopen on a later load.
+  // The modal itself renders nothing without its card.
+  if (
+    modalTarget &&
+    !boardData.lanes.some(
+      (l) => l.id === modalTarget.laneId && l.cards.some((c) => c.id === modalTarget.cardId)
+    )
+  ) {
+    setModalTarget(null);
+  }
 
   React.useEffect(() => {
     if (modalTarget) {

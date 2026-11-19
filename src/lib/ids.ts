@@ -5,7 +5,10 @@
  * on every note open.
  */
 
-const MARKER_PATTERN = /\s*\[id:([a-z0-9]{4,8})\]\s*$/i;
+// A backslash before the bracket escapes it, see escapeTitle.
+const MARKER_PATTERN = /\s*(?<!\\)\[id:([a-z0-9]{4,8})\]\s*$/i;
+const LOOKALIKE = /\[(done|id:[a-z0-9]{4,8})\]/gi;
+const ESCAPED_LOOKALIKE = /\\\[(done|id:[a-z0-9]{4,8})\]/gi;
 
 export const shortId = (): string =>
   Array.from(crypto.getRandomValues(new Uint8Array(3)), (byte) =>
@@ -27,3 +30,12 @@ export const stripIdMarker = (title: string): { title: string; id?: string } => 
 /** Joins a display title with its id marker, if the entity has one. */
 export const withIdMarker = (title: string, id?: string): string =>
   id ? `${title} [id:${id}]` : title;
+
+/**
+ * Keeps a typed title from being read back as a "[done]" or "[id:x]"
+ * marker (which would mark the lane done or collide with another id).
+ */
+export const escapeTitle = (title: string): string => title.replace(LOOKALIKE, '\\[$1]');
+
+/** Undoes escapeTitle; run after the markers have been stripped. */
+export const unescapeTitle = (title: string): string => title.replace(ESCAPED_LOOKALIKE, '[$1]');

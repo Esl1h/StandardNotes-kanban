@@ -36,7 +36,6 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --port 3001",
     "lint": "eslint src",
-    "server-cors": "vite preview --port 3000",
     "e2e": "playwright test",
     "version:bump": "node scripts/version-bump.mjs",
     "version:check": "node scripts/version-bump.mjs --check",
@@ -47,17 +46,16 @@
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "@standardnotes/component-relay": "github:standardnotes/component-relay#164428640ba59e31e7ca3ca932b7d7521594f17c",
-    "@standardnotes/stylekit": "^5.29.3",
     "@tabler/icons-react": "^3.48.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-modal": "^3.16.3",
-    "react-modal-hook": "^3.0.0",
-    "sass": "^1.105.1"
+    "react-modal-hook": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
+    "@standardnotes/stylekit": "^5.29.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
@@ -73,6 +71,7 @@
     "git-cliff": "^2.14.2",
     "jsdom": "^30.1.1",
     "prettier": "^3.9.9",
+    "sass": "^1.105.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.0",
     "vite": "^8.3.5",

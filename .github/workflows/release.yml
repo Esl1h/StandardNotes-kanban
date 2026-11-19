@@ -16,7 +16,24 @@ jobs:
       contents: write
       id-token: write
       attestations: write
+      # Reads the CI result of the tagged commit.
+      actions: read
     steps:
+      # CI also runs format:check and the e2e suite, which this job does
+      # not; require its success on this very commit instead of repeating
+      # it. Tagging before CI finishes fails here: re-run the job after.
+      - name: Require a green CI run for this commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          PASSED=$(gh run list --workflow ci.yml --commit "$GITHUB_SHA" --status success \
+            --json databaseId --jq length)
+          if [ "$PASSED" -lt 1 ]; then
+            echo "No successful CI run for $GITHUB_SHA; wait for CI to pass, then re-run this job."
+            exit 1
+          fi
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # git-cliff needs the tags and the history between them.
