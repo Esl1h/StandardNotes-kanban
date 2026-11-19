@@ -85,11 +85,15 @@ const ModalSection = ({
 const ChecklistSection = ({
   checklist,
   onUpdate,
+  newItem,
+  setNewItem,
 }: {
   checklist: KanbanChecklistItem[];
   onUpdate: (checklist: KanbanChecklistItem[]) => void;
+  // Owned by the modal so closing it can still add what was typed.
+  newItem: string;
+  setNewItem: (text: string) => void;
 }) => {
-  const [newItem, setNewItem] = useState('');
   const addItem = () => {
     if (!newItem.trim()) {
       return;
@@ -161,6 +165,19 @@ const ChecklistSection = ({
   );
 };
 
+/** `value` with the names typed in `draft` added, skipping those it has. */
+const addLabelNames = (value: string, draft: string, labelColors?: LabelColors): string => {
+  const names = draft
+    .split(',')
+    .map((name) => name.trim())
+    .filter(Boolean);
+  if (names.length === 0) {
+    return value;
+  }
+  const known = labelChips(value, labelColors).map((chip) => chip.name);
+  return [...known, ...names.filter((n) => !known.includes(n))].join(', ');
+};
+
 /**
  * Chip editor for the comma separated label string: Enter or a comma
  * turns the draft into a chip, Backspace on an empty draft removes the
@@ -169,28 +186,27 @@ const ChecklistSection = ({
 const LabelInput = ({
   value,
   onChange,
+  draft,
+  setDraft,
   labelColors,
   onLabelColorsChange,
 }: {
   value: string;
   onChange: (next: string) => void;
+  // Owned by the modal so closing it can still add what was typed.
+  draft: string;
+  setDraft: (text: string) => void;
   labelColors?: LabelColors;
   onLabelColorsChange?: (colors: LabelColors) => void;
 }) => {
-  const [draft, setDraft] = useState('');
   const [colorTarget, setColorTarget] = useState<string | null>(null);
   const chips = labelChips(value, labelColors);
 
   const addDraft = () => {
-    const names = draft
-      .split(',')
-      .map((name) => name.trim())
-      .filter(Boolean);
-    if (names.length === 0) {
+    if (!draft.split(',').some((name) => name.trim())) {
       return;
     }
-    const known = chips.map((chip) => chip.name);
-    onChange([...known, ...names.filter((n) => !known.includes(n))].join(', '));
+    onChange(addLabelNames(value, draft, labelColors));
     setDraft('');
   };
 
@@ -352,6 +368,8 @@ export const KanbanCardModal = ({
   const [updatedDue, setUpdatedDue] = useState(due || '');
   const [updatedLabel, setUpdatedLabel] = useState(label || '');
   const [updatedQuadrant, setUpdatedQuadrant] = useState(card.quadrant ?? '');
+  const [newChecklistItem, setNewChecklistItem] = useState('');
+  const [labelDraft, setLabelDraft] = useState('');
   const addComment = () => {
     if (!newComment.trim()) {
       return;
@@ -362,18 +380,51 @@ export const KanbanCardModal = ({
   const deleteCommentByIndex = (index: number) => {
     setUpdatedComments(updatedComments.filter((_, i) => index !== i));
   };
+  const sameList = (a: string[], b: string[]) =>
+    a.length === b.length && a.every((value, i) => value === b[i]);
   const closeModal = () => {
-    updateCard({
-      // A card with no text would be unreadable on the board; an emptied
-      // title keeps the previous one.
-      title: updatedTitle.trim() || title,
-      description: updatedDescription,
-      due: updatedDue,
-      label: updatedLabel,
-      quadrant: toQuadrant(updatedQuadrant),
-      checklist: updatedChecklist,
-      comments: updatedComments,
-    });
+    // Text still sitting in an "add" box counts as added.
+    const finalLabel = addLabelNames(updatedLabel, labelDraft, labelColors);
+    const finalChecklist = newChecklistItem.trim()
+      ? [...updatedChecklist, { done: false, text: newChecklistItem.trim() }]
+      : updatedChecklist;
+    const finalComments = newComment.trim() ? [...updatedComments, newComment] : updatedComments;
+    // Only what changed: a patch of equal values would still rewrite the
+    // note and push an empty undo step.
+    const patch: Partial<KanbanCard> = {};
+    // A card with no text would be unreadable on the board; an emptied
+    // title keeps the previous one.
+    const finalTitle = updatedTitle.trim() || title;
+    if (finalTitle !== title) {
+      patch.title = finalTitle;
+    }
+    if (updatedDescription !== (description || '')) {
+      patch.description = updatedDescription;
+    }
+    if (updatedDue !== (due || '')) {
+      patch.due = updatedDue;
+    }
+    if (finalLabel !== (label || '')) {
+      patch.label = finalLabel;
+    }
+    if (toQuadrant(updatedQuadrant) !== card.quadrant) {
+      patch.quadrant = toQuadrant(updatedQuadrant);
+    }
+    const oldChecklist = checklist || [];
+    if (
+      finalChecklist.length !== oldChecklist.length ||
+      finalChecklist.some(
+        (item, i) => item.done !== oldChecklist[i].done || item.text !== oldChecklist[i].text
+      )
+    ) {
+      patch.checklist = finalChecklist;
+    }
+    if (!sameList(finalComments, comments || [])) {
+      patch.comments = finalComments;
+    }
+    if (Object.keys(patch).length > 0) {
+      updateCard(patch);
+    }
     hideModal();
   };
 
@@ -514,12 +565,19 @@ export const KanbanCardModal = ({
           <LabelInput
             value={updatedLabel}
             onChange={setUpdatedLabel}
+            draft={labelDraft}
+            setDraft={setLabelDraft}
             labelColors={labelColors}
             onLabelColorsChange={onLabelColorsChange}
           />
         </div>
       </div>
-      <ChecklistSection checklist={updatedChecklist} onUpdate={setUpdatedChecklist} />
+      <ChecklistSection
+        checklist={updatedChecklist}
+        onUpdate={setUpdatedChecklist}
+        newItem={newChecklistItem}
+        setNewItem={setNewChecklistItem}
+      />
       <ModalSection
         title="Comments"
         count={`${updatedComments.length}`}
