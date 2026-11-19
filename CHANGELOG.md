@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.11.1] - 2026-11-19
+
+### Fixed
+
+- **bridge:** Do not save one note into another
+- **markdown:** Keep text through a round trip
+- **modal:** Save only what the user changed
+- **editor:** Report save errors, drop dead path
+- **board:** Ignore shortcuts typed in a select
+
+### Documentation
+
+- State the test policy for contributions
+- Add the OpenSSF Best Practices badge
+- Add logo and header assets to README
+
 ## [1.11.0] - 2026-10-26
 
 ### Added
