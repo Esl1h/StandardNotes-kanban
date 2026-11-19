@@ -2,6 +2,8 @@ import fc from 'fast-check';
 import fs from 'fs/promises';
 import { parseMarkdown } from './parseMarkdown';
 import { convertStateToMarkdown } from './convertStateToMarkdown';
+import { toJson } from './exportBoard';
+import { KanbanBoard } from '../../types/kanban';
 
 const rt = (text: string) => convertStateToMarkdown(parseMarkdown(text));
 
@@ -49,6 +51,13 @@ const knownLine = fc.constantFrom(
   '  *  Label:red',
   '  * DUE: x',
   '    >text',
+  '    >     indented continuation',
+  '    *',
+  '  * Label: other',
+  '# Lane\r',
+  '* Card\r',
+  '  * Due: 2026-01-01\r',
+  '    > continuation\r',
   '  - Due: x',
   '  * Quadrant: do',
   '  * Quadrant: DELEGATE',
@@ -66,6 +75,62 @@ test('round-trip is idempotent for structured lines in any order', () => {
     fc.property(fc.array(knownLine, { maxLength: 30 }), (lines) => {
       const text = lines.join('\n');
       return rt(rt(text)) === rt(text);
+    }),
+    { numRuns: 2000 }
+  );
+});
+
+// Idempotence alone would pass for a parser that flattens or drops data
+// on the first load, so also check that what is written is read back.
+// Text is single-line, as the format cannot hold a line break in a title,
+// label or comment, and carries no "\r", which a CRLF note loses on load.
+const piece = fc.constantFrom(
+  'a',
+  'Zé',
+  ' ',
+  '  ',
+  '[',
+  ']',
+  '\\',
+  'done',
+  '[done]',
+  'id:',
+  '[id:abcd]',
+  '[id:board]',
+  '#',
+  '*',
+  '-',
+  ':',
+  '>',
+  'x'
+);
+const text = fc.array(piece, { minLength: 1, maxLength: 6 }).map((p) => p.join(''));
+const title = text.map((t) => t.trim()).filter(Boolean);
+const maybe = <T>(arb: fc.Arbitrary<T>) => fc.option(arb, { nil: undefined });
+const card = fc.record({
+  title,
+  description: maybe(fc.array(text, { minLength: 1, maxLength: 4 }).map((l) => l.join('\n'))),
+  label: maybe(text),
+  due: maybe(text),
+  quadrant: maybe(fc.constantFrom('do', 'schedule', 'delegate', 'eliminate' as const)),
+  checklist: maybe(
+    fc.array(fc.record({ done: fc.boolean(), text }), { minLength: 1, maxLength: 3 })
+  ),
+  comments: maybe(fc.array(fc.oneof(text, fc.constant('')), { minLength: 1, maxLength: 3 })),
+});
+const board = fc.record({
+  lanes: fc.array(
+    fc.record({ title, done: fc.boolean(), cards: fc.array(card, { maxLength: 3 }) }),
+    { maxLength: 4 }
+  ),
+});
+
+test('what is written is read back unchanged', () => {
+  fc.assert(
+    fc.property(board, (generated) => {
+      const boardData = generated as KanbanBoard;
+      const parsed = parseMarkdown(convertStateToMarkdown({ boardData, parsingErrors: [] }));
+      return toJson(parsed.boardData) === toJson(boardData) && parsed.parsingErrors.length === 0;
     }),
     { numRuns: 2000 }
   );

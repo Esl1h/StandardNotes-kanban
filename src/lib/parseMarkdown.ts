@@ -1,5 +1,5 @@
 import { KanbanBoard, KanbanCard, KanbanLane } from '../../types/kanban';
-import { stripIdMarker } from './ids';
+import { stripIdMarker, unescapeTitle } from './ids';
 import { parseLabelColors } from './labelColors';
 import { QUADRANTS, QuadrantNames, toQuadrant } from './quadrants';
 import { EditorInterface, ParsingErrors } from '../../types/editor';
@@ -21,12 +21,12 @@ const LIST_HEADER = /^( {2,})[*+-]\s+(comments|checklist):\s*$/i;
 const CONTINUATION = /^ {4,}>(?:\s([\s\S]*))?$/;
 const CHECKLIST_ITEM = /^ +\[([xX ])\] ([\s\S]+)$/;
 // Written between the lane title and its id: "# Shipped [done] [id:x]".
-const DONE_MARKER = /\s*\[done\]$/i;
+const DONE_MARKER = /\s*(?<!\\)\[done\]$/i;
 // Renamed quadrants, before the first lane: "Quadrants: A | B | C | D".
 const QUADRANT_NAMES = /^quadrants:\s*([\s\S]*)$/i;
 // Label colors, before the first lane: "Labels: urgent=red, work=blue".
 const LABEL_COLORS_LINE = /^labels?:\s*([\s\S]*)$/i;
-const COMMENT_ITEM = /^( +)[*+-] ([\s\S]*)$/;
+const COMMENT_ITEM = /^( +)[*+-](?: ([\s\S]*))?$/;
 
 // One leading tab is one indentation level (2 spaces). Tabs further into
 // the line are content and stay untouched.
@@ -42,7 +42,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
   const boardData: KanbanBoard = {
     lanes: [],
   };
-  const lines = markdown.split('\n');
+  const lines = markdown.split(/\r?\n|\r$/);
   let laneIndex = -1; // a value of -1 denotes that we aren't in a lane
   let cardIndex = -1; // or card
   let scope = Scope.Board;
@@ -53,27 +53,50 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
   const preamble: string[] = [];
   let quadrantNames: QuadrantNames | undefined;
   let labelColors: Record<string, string> | undefined;
-
+  // The raw lines behind each single-value field of the current card. A
+  // repeated field overwrites the first, so those lines are handed back as
+  // extra lines instead of vanishing; the repeat then wins on every load.
+  const extraRows = new Map<object, Array<{ text: string; index: number }>>();
+  let fieldLines: Record<string, Array<{ text: string; index: number }>> = {};
   for (let i = 0; i < lines.length; ++i) {
     const line = lines[i];
     // Keeps the raw line under the card or lane it was written in so the
     // converter writes it back in place; otherwise it would drift to the
     // end of the note on every save.
-    const reject = (message: string) => {
+    const reject = (message: string, text = line, lineIndex = i) => {
       parsingErrors.push({
         message,
-        lineIndex: i,
+        lineIndex,
         laneIndex,
         cardIndex,
-        lineText: line,
+        lineText: text,
       });
       const owner =
         cardIndex >= 0 ? boardData.lanes[laneIndex].cards[cardIndex] : boardData.lanes[laneIndex];
       if (owner) {
-        owner.extraLines = [...(owner.extraLines ?? []), line];
+        // Sorted by source line: a repeated field hands back an earlier
+        // line after later ones were rejected, and the next load must see
+        // the same order or the lines swap on every save.
+        const rows = extraRows.get(owner) ?? [];
+        let at = rows.length;
+        while (at > 0 && rows[at - 1].index > lineIndex) {
+          at -= 1;
+        }
+        rows.splice(at, 0, { text, index: lineIndex });
+        extraRows.set(owner, rows);
+        owner.extraLines = rows.map((row) => row.text);
       } else {
-        preamble.push(line);
+        preamble.push(text);
       }
+    };
+
+    // Marks `field` as written by this line; an earlier line for the same
+    // field goes back to the card as an extra line.
+    const claimField = (field: string) => {
+      (fieldLines[field] ?? []).forEach(({ text, index }) =>
+        reject(`Repeated ${field} field, using the last one`, text, index)
+      );
+      fieldLines[field] = [{ text: line, index: i }];
     };
 
     // The converter owns blank-line separators, so blanks carry no data.
@@ -109,9 +132,10 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
       laneIndex += 1;
       cardIndex = -1;
       scope = Scope.Lane;
+      fieldLines = {};
       const { title, id } = stripIdMarker(laneMatch[1]);
       const lane: KanbanLane = {
-        title: title.replace(DONE_MARKER, '').trim(),
+        title: unescapeTitle(title.replace(DONE_MARKER, '').trim()),
         cards: [],
       };
       if (DONE_MARKER.test(title)) {
@@ -127,11 +151,12 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         continue;
       }
       const { title, id } = stripIdMarker(cardMatch[1]);
-      const card: KanbanCard = { title };
+      const card: KanbanCard = { title: unescapeTitle(title) };
       if (id) {
         card.id = id;
       }
       cardIndex += 1;
+      fieldLines = {};
       scope = Scope.Card;
       boardData.lanes[laneIndex].cards.push(card);
     } else if (commentMatch && commentMatch[1].length > commentsIndent) {
@@ -139,7 +164,7 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         reject('Cannot add comments before adding a card!');
         continue;
       }
-      boardData.lanes[laneIndex].cards[cardIndex].comments!.push(commentMatch[2]);
+      boardData.lanes[laneIndex].cards[cardIndex].comments!.push(commentMatch[2] ?? '');
     } else if (fieldMatch) {
       if (cardIndex < 0) {
         reject('Cannot add card fields before adding a card!');
@@ -153,8 +178,19 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
           reject('Unknown quadrant');
           continue;
         }
+        claimField(field);
         card.quadrant = quadrant;
       } else {
+        // An empty value is never written back, so as a repeat it would
+        // replace the earlier line with nothing and drop its text.
+        if (fieldMatch[2] === '' && fieldLines[field]) {
+          continue;
+        }
+        claimField(field);
+        if (field === 'description') {
+          // A repeat starts a new description, not a continuation of the old.
+          delete card.description;
+        }
         card[field as 'description' | 'due' | 'label'] = fieldMatch[2];
       }
     } else if (continuation) {
@@ -165,8 +201,9 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         reject('Cannot add card fields before adding a card!');
         continue;
       }
-      const text = (continuation[1] ?? '').trimStart();
+      const text = continuation[1] ?? '';
       const card = boardData.lanes[laneIndex].cards[cardIndex];
+      (fieldLines.description ??= []).push({ text: line, index: i });
       // `!== undefined`, not truthiness: an empty first line still counts.
       card.description = card.description !== undefined ? `${card.description}\n${text}` : text;
     } else if (listMatch) {

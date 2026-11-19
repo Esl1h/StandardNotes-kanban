@@ -1,4 +1,4 @@
-import { withIdMarker } from './ids';
+import { escapeTitle, withIdMarker } from './ids';
 import { KanbanBoard, KanbanCard } from '../../types/kanban';
 import { EditorInterface } from '../../types/editor';
 import { formatLabelColors } from './labelColors';
@@ -39,7 +39,7 @@ const convertBoardData = (boardData: KanbanBoard): string => {
     .map(
       (lane) =>
         `# ${withIdMarker(
-          `${oneLine(lane.title)}${lane.done ? ' [done]' : ''}`,
+          `${escapeTitle(oneLine(lane.title))}${lane.done ? ' [done]' : ''}`,
           lane.id
         )}\n${convertExtraLines(lane.extraLines)}${convertCards(lane.cards)}`
     )
@@ -81,7 +81,7 @@ const convertCards = (cards: Array<KanbanCard>): string =>
         lines.push('  * Comments:');
         card.comments.forEach((comment) => lines.push(`    * ${oneLine(comment)}`));
       }
-      return `* ${withIdMarker(oneLine(card.title), card.id)}${
+      return `* ${withIdMarker(escapeTitle(oneLine(card.title)), card.id)}${
         lines.length > 0 ? `\n${lines.join('\n')}` : ''
       }`;
     })

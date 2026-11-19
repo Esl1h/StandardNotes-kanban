@@ -449,3 +449,52 @@ describe('label colors', () => {
     expect(convertStateToMarkdown(parseMarkdown(custom))).toBe(custom);
   });
 });
+
+test('keeps the indentation of a continuation line', () => {
+  const { boardData } = parseMarkdown('# L\n* C\n  * Description: a\n    >     indented\n');
+
+  expect(boardData.lanes[0].cards[0].description).toBe('a\n    indented');
+});
+
+test('reads CRLF notes without leaving a carriage return in any field', () => {
+  const text =
+    '# L\r\n* C\r\n  * Due: 2026-01-01\r\n  * Label: red\r\n  * Description: a\r\n    > b\r\n';
+  const card = parseMarkdown(text).boardData.lanes[0].cards[0];
+
+  expect(card).toMatchObject({ due: '2026-01-01', label: 'red', description: 'a\nb' });
+});
+
+test('a title that looks like a marker survives a write and parse', () => {
+  const lane = { id: 'lane01', title: 'Ship [done]', cards: [] };
+  const card = { id: 'card01', title: 'Fix [id:ab12]' };
+  const boardData = { lanes: [{ ...lane, cards: [card, { id: 'card02', title: '[id:board]' }] }] };
+
+  const parsed = parseMarkdown(convertStateToMarkdown({ boardData, parsingErrors: [] }));
+
+  expect(parsed.parsingErrors).toEqual([]);
+  expect(parsed.boardData.lanes[0].title).toBe('Ship [done]');
+  expect(parsed.boardData.lanes[0].done).toBeUndefined();
+  expect(parsed.boardData.lanes[0].cards.map((c) => [c.id, c.title])).toEqual([
+    ['card01', 'Fix [id:ab12]'],
+    ['card02', '[id:board]'],
+  ]);
+});
+
+test('a repeated single-value field is reported and its first line kept', () => {
+  const text = '# L\n* C\n  * Label: first\n  * Label: second\n';
+  const { boardData, parsingErrors } = parseMarkdown(text);
+
+  expect(parsingErrors.map((e) => e.lineText)).toEqual(['  * Label: first']);
+  expect(boardData.lanes[0].cards[0].label).toBe('second');
+  const rewritten = convertStateToMarkdown(parseMarkdown(text));
+  expect(rewritten).toContain('  * Label: first');
+  expect(convertStateToMarkdown(parseMarkdown(rewritten))).toBe(rewritten);
+});
+
+test('accepts an empty comment line', () => {
+  const text = '# L\n* C\n  * Comments:\n    * one\n    *\n    * two\n';
+  const { boardData, parsingErrors } = parseMarkdown(text);
+
+  expect(parsingErrors).toEqual([]);
+  expect(boardData.lanes[0].cards[0].comments).toEqual(['one', '', 'two']);
+});
