@@ -65,6 +65,9 @@ const knownLine = fc.constantFrom(
   'loose text',
   'Quadrants: A | B | C | D',
   'Quadrants: A | B',
+  'Quadrants: E | F | G | H',
+  'Labels: a=red',
+  'Labels: b=blue',
   '    * loose',
   '--- ',
   'text\r'

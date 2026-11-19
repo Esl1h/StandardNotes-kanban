@@ -491,6 +491,26 @@ test('a repeated single-value field is reported and its first line kept', () => 
   expect(convertStateToMarkdown(parseMarkdown(rewritten))).toBe(rewritten);
 });
 
+test.each([
+  ['Labels', 'Labels: a=red\nLabels: b=blue\n\n# L\n* C\n', 'labelColors', { a: 'red' }],
+  [
+    'Quadrants',
+    'Quadrants: A | B | C | D\nQuadrants: E | F | G | H\n\n# L\n* C\n',
+    'quadrantNames',
+    { do: 'A', schedule: 'B', delegate: 'C', eliminate: 'D' },
+  ],
+])('a repeated %s line is reported and the first one used', (name, text, key, expected) => {
+  const parsed = parseMarkdown(text);
+
+  expect(parsed[key as 'labelColors' | 'quadrantNames']).toEqual(expected);
+  expect(parsed.parsingErrors.map((e) => e.lineText)).toEqual([text.split('\n')[1]]);
+  expect(parsed.preamble).toEqual([text.split('\n')[1]]);
+  const rewritten = convertStateToMarkdown(parsed);
+  expect(rewritten).toContain(text.split('\n')[1]);
+  expect(convertStateToMarkdown(parseMarkdown(rewritten))).toBe(rewritten);
+  expect(parseMarkdown(rewritten)[key as 'labelColors' | 'quadrantNames']).toEqual(expected);
+});
+
 test('accepts an empty comment line', () => {
   const text = '# L\n* C\n  * Comments:\n    * one\n    *\n    * two\n';
   const { boardData, parsingErrors } = parseMarkdown(text);

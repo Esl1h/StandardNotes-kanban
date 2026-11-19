@@ -120,11 +120,21 @@ export const parseMarkdown = (markdown: string): EditorInterface => {
         reject('Quadrants needs four names separated by |');
         continue;
       }
+      // The converter writes the canonical line above the preamble, so the
+      // first line stays first on every save and a repeat never takes over.
+      if (quadrantNames) {
+        reject('Repeated Quadrants line, using the first one');
+        continue;
+      }
       quadrantNames = Object.fromEntries(QUADRANTS.map((q, i) => [q, names[i]])) as QuadrantNames;
     } else if (colorsMatch) {
       const colors = parseLabelColors(colorsMatch[1]);
       if (!colors) {
         reject('Labels needs name=color pairs, as in urgent=red');
+        continue;
+      }
+      if (labelColors) {
+        reject('Repeated Labels line, using the first one');
         continue;
       }
       labelColors = colors;
