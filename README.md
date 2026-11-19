@@ -19,6 +19,14 @@ portable.
 
 ![Kanban board screenshot](.github/screenshots/kanban-board.png)
 
+## Quick start
+
+1. In Standard Notes, open **Preferences > Plugins** and paste `https://esli.cafe/StandardNotes-kanban/ext.json` into **Install Custom Plugin** (details under [Installation](#installation)).
+2. Create a new note, open the **Editor** menu and pick **Kanban**.
+3. Click **Add lane** and type a title, then click **Add card** in the lane (or press `N`) and type a card title. Click the card to set its description, labels and due date, and drag it to another lane.
+
+Your first board is saved in the note as Markdown, as described in [Note format](#note-format).
+
 ## Features
 
 1. Manage lanes and cards with titles, descriptions, labels, checklists,
@@ -216,6 +224,35 @@ git tag -a vX.Y.Z -m vX.Y.Z && git push origin vX.Y.Z
 ```
 
 The `Release` workflow fails unless the tag matches every version file. It runs the checks, attaches `extension.zip` (the package the desktop app installs) with `SHA256SUMS` and a provenance attestation to the GitHub release, writes the release notes with git-cliff and publishes the hosted build to Pages. The app finds the update by comparing the version in the `ext.json` at `latest_url`.
+
+## Roadmap
+
+What the project intends to do over the next 12 months, in no fixed order:
+
+- Keep up with Standard Notes and with dependency updates: Dependabot pull requests, security fixes and new releases as needed
+- Test more in the real Standard Notes apps: switching between notes and editing at once, remote edits with the card modal open, notes with CRLF line endings, lane titles containing `[done]`
+- Add dark-theme screenshots (today there are only light ones)
+- Possibly submit the plugin to the community plugin repository ([standardnotes/plugins](https://github.com/standardnotes/plugins)), after opening an issue there to ask; the repository has been quiet, so this depends on a reply
+- Keep working toward the OpenSSF Best Practices silver level
+
+What the project will not do:
+
+- Add a backend, accounts or telemetry
+- Make network requests of its own: the board stays in the note and nothing leaves the app
+
+Dates are not promised: this is a one-person project, see [GOVERNANCE.md](GOVERNANCE.md).
+
+## Governance, architecture and security
+
+- [GOVERNANCE.md](GOVERNANCE.md): who decides, roles, support policy and the current single-maintainer limit
+- [ARCHITECTURE.md](ARCHITECTURE.md): components, data flow and trust boundaries
+- [SECURITY.md](SECURITY.md): how to report a vulnerability, security requirements and the assurance case
+- [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md)
+
+## Achievements
+
+- [OpenSSF Best Practices](https://www.bestpractices.dev/projects/15959): passing level reached, working toward silver
+- [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/Esl1h/StandardNotes-kanban): checked weekly, badge above
 
 ## Credits and license
 
